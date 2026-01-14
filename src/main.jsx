@@ -3,20 +3,10 @@ import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
 import { AuthProvider } from "./app/auth/auth-context.jsx";
+import { initDevMocks } from "./app/init-dev-mocks.js";
 
 async function initApp() {
-  if (import.meta.env.DEV) {
-    const { worker } = await import("./mocks/browser.js");
-    await worker.start({
-      onUnhandledRequest(request, print) {
-        const url = new URL(request.url);
-
-        if (url.pathname.startsWith("/api/")) {
-          print.warning();
-        }
-      },
-    });
-  }
+  await initDevMocks();
 
   ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
