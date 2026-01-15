@@ -1,3 +1,4 @@
+@import "./styles/theme.css";
 @import "tailwindcss";
 
 html,
@@ -7,4 +8,7 @@ body {
 
 body {
   margin: 0;
+  background: rgb(var(--color-bg));
+  color: rgb(var(--color-ink));
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
