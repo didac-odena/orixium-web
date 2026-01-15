@@ -7,6 +7,8 @@ export async function initDevMocks() {
   await worker.start({
     onUnhandledRequest(request, print) {
       const url = new URL(request.url);
+
+      // Solo avisar si es /api/*
       if (url.pathname.startsWith("/api/")) {
         print.warning();
       }
