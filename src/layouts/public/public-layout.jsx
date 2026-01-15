@@ -1,15 +1,16 @@
 import { Outlet } from "react-router-dom";
+import { Header, Footer } from "./index.js";
 
-export function PublicLayout() {
+function PublicLayout() {
   return (
-    <div style={{ border: "1px solid #000" }}>
-      <header style={{ borderBottom: "1px solid #000" }}>Public Header</header>
-
-      <main style={{ borderBottom: "1px solid #000" }}>
+    <>
+      <Header />
+      <main>
         <Outlet />
       </main>
-
-      <footer>Public Footer</footer>
-    </div>
+      <Footer />
+    </>
   );
 }
+
+export default PublicLayout;

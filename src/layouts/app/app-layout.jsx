@@ -1,33 +1,17 @@
-import { Outlet, useNavigate } from "react-router-dom";
-import { useAuth } from "../../app/auth/auth-context.jsx";
+import { Outlet } from "react-router-dom";
+import { Header, Footer } from "../public/index.js";
 
-export function AppLayout() {
-  const auth = useAuth();
-  const navigate = useNavigate();
-
-  async function handleLogout() {
-    try {
-      await auth.logout();
-      navigate("/", { replace: true });
-    } catch (e) {
-      console.error("[AppLayout] logout failed", e);
-    }
-  }
-
+function AppLayout() {
   return (
-    <div style={{ border: "1px solid #000" }}>
-      <header style={{ borderBottom: "1px solid #000" }}>
-        App Header{" "}
-        <button type="button" onClick={handleLogout}>
-          Logout
-        </button>
-      </header>
-
-      <main style={{ borderBottom: "1px solid #000" }}>
+    <>
+      <Header />
+      <main>
         <Outlet />
       </main>
-
-      <footer>App Footer</footer>
-    </div>
+      <Footer />
+    </>
   );
 }
+
+export default AppLayout;
+
