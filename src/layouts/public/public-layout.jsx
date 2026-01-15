@@ -1,5 +1,7 @@
 import { Outlet } from "react-router-dom";
-import { Header, Footer } from "./index.js";
+import { Header, Footer } from "../../components/layout";
+
+
 
 function PublicLayout() {
   return (

@@ -1,4 +1,3 @@
 export { default as PublicLayout } from "./public-layout.jsx";
 
-export { default as Header } from "./header.jsx";
-export { default as Footer } from "./footer.jsx";
+export { default as Footer } from "../../components/layout/footer.jsx";
