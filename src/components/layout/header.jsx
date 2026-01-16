@@ -10,10 +10,10 @@ const NAV_PUBLIC = [
 ];
 
 const NAV_APP = [
-  { label: "Dashboard", to: "/app/dashboard" },
-  { label: "Strategy", to: "/app/strategy" },
-  { label: "Market Explorer", to: "/app/market-explorer" },
-  { label: "Historial", to: "/app/historial" },
+  { label: "Dashboard", to: "/dashboard" },
+  { label: "Strategy", to: "/strategy" },
+  { label: "Market Explorer", to: "/market-explorer" },
+  { label: "Historial", to: "/historial" },
   { label: "Support", to: "/support" },
 ];
 

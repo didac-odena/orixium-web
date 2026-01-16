@@ -3,9 +3,9 @@
   --font-sans: "IBM Plex Sans";
 
   /* Light */
-  --color-bg: 248 250 252;        /* slate-50 vibe (mate) */
-  --color-ink: oklch(70.4% 0.04 256.788);          /* slate-900 */
-  --color-muted: 71 85 105;       /* slate-600 */
+  --color-bg: oklch(96.7% 0.001 286.375);        
+  --color-ink: oklch(20.8% 0.042 265.755);
+  --color-muted: oklch(58.6% 0.253 17.585);       /* slate-600 */
   --color-border: oklch(70.4% 0.04 256.788);    /* slate-200 */
   --color-accent: 99 102 241;     /* indigo-500 */
   --color-accent-2: 79 70 229;    /* indigo-600 */

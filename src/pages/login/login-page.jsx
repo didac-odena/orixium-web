@@ -1,16 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../app/auth/auth-context.jsx";
+import { LoginForm } from "../../components/auth/login-form.jsx";
+import { AUTH_USERS } from "../../mocks/fixtures/auth-users.js";
 
 function getNextPath(search) {
   const params = new URLSearchParams(search);
   const next = params.get("next");
 
-  if (!next) return "/app/dashboard";
+  if (!next) return "/dashboard";
 
   // Seguridad básica: solo paths internos
-  if (!next.startsWith("/")) return "/app/dashboard";
-  if (next.startsWith("//")) return "/app/dashboard";
+  if (!next.startsWith("/")) return "/dashboard";
+  if (next.startsWith("//")) return "/dashboard";
 
   return next;
 }
@@ -19,11 +21,7 @@ export function LoginPage() {
   const auth = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const [email, setEmail] = useState("demo-admin@orixium.test");
-  const [password, setPassword] = useState("12345678");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formError, setFormError] = useState(null);
+  const defaultUser = AUTH_USERS[0];
 
   useEffect(
     function () {
@@ -37,60 +35,28 @@ export function LoginPage() {
     [auth.isInitializing, auth.isAuthenticated, location.search, navigate]
   );
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setFormError(null);
-    setIsSubmitting(true);
-
-    try {
-      await auth.login({ email: email, password: password });
-      const nextPath = getNextPath(location.search);
-      navigate(nextPath, { replace: true });
-    } catch (err) {
-      setFormError(err?.message || "Login failed");
-    } finally {
-      setIsSubmitting(false);
-    }
+  async function handleSubmit(values) {
+    await auth.login(values);
+    const nextPath = getNextPath(location.search);
+    navigate(nextPath, { replace: true });
   }
 
   return (
-    <div>
-      <h1>Login</h1>
-
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>
-            Email
-            <input
-              value={email}
-              onChange={function (e) {
-                setEmail(e.target.value);
-              }}
-              autoComplete="email"
-            />
-          </label>
+    <div className="min-h-screen px-6 py-10">
+      <div className="mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-sm flex-col justify-center gap-6">
+        <div className="space-y-1 text-center">
+          <h1>Login</h1>
+          <p>Access your account</p>
         </div>
 
-        <div>
-          <label>
-            Password
-            <input
-              value={password}
-              onChange={function (e) {
-                setPassword(e.target.value);
-              }}
-              type="password"
-              autoComplete="current-password"
-            />
-          </label>
-        </div>
-
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Signing in..." : "Sign in"}
-        </button>
-
-        {formError ? <p>{formError}</p> : null}
-      </form>
+        <LoginForm
+          defaultValues={{
+            email: defaultUser?.email ?? "",
+            password: defaultUser?.password ?? "",
+          }}
+          onSubmit={handleSubmit}
+        />
+      </div>
     </div>
   );
 }

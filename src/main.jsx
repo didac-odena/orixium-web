@@ -4,9 +4,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
 
-import { initDevMocks } from "./app/init-dev-mocks.js";
-import { AuthProvider } from "./app/auth/auth-context.jsx";
-import { ThemeProvider } from "./app/theme/theme-provider.jsx";
+import { AuthProvider, ThemeProvider, initDevMocks } from "./app/index.js";
 
 async function start() {
   await initDevMocks();

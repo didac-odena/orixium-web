@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "./auth-context.jsx";
+import { useAuth } from "../app/auth/auth-context.jsx";
 
-export function AuthGuard(props) {
+export function PrivateRoute(props) {
   const children = props.children;
 
   const auth = useAuth();
