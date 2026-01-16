@@ -1,25 +1,32 @@
 // src/components/ui/theme-toggle.jsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
 import { toggleTheme } from "../../lib/theme.js";
 
 export function ThemeToggle() {
-  const [_, force] = useState(0);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(function () {
+    setIsDark(document.documentElement.classList.contains("dark"));
+  }, []);
 
   function onClick() {
     toggleTheme();
-    force(function (x) {
-      return x + 1;
-    });
+    setIsDark(document.documentElement.classList.contains("dark"));
   }
 
-  // sin iconos aún: texto
   return (
     <button
       type="button"
       onClick={onClick}
-      className="cursor-pointer rounded-md border px-3 py-1 text-sm text-ink"
+      className="cursor-pointer rounded-md border p-2 text-ink"
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
-      Theme
+      {isDark ? (
+        <MoonIcon className="h-4 w-4" aria-hidden="true" />
+      ) : (
+        <SunIcon className="h-4 w-4" aria-hidden="true" />
+      )}
     </button>
   );
 }
