@@ -4,9 +4,9 @@
 
   /* Light */
   --color-bg: 248 250 252;        /* slate-50 vibe (mate) */
-  --color-ink: 15 23 42;          /* slate-900 */
+  --color-ink: oklch(70.4% 0.04 256.788);          /* slate-900 */
   --color-muted: 71 85 105;       /* slate-600 */
-  --color-border: 226 232 240;    /* slate-200 */
+  --color-border: oklch(70.4% 0.04 256.788);    /* slate-200 */
   --color-accent: 99 102 241;     /* indigo-500 */
   --color-accent-2: 79 70 229;    /* indigo-600 */
 }

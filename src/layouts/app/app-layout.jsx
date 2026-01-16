@@ -1,17 +1,15 @@
+// src/layouts/app/app-layout.jsx
 import { Outlet } from "react-router-dom";
-import { Header, Footer } from "../../components/layout";
+import { Header, Footer } from "../../components/layout/index.js";
 
-function AppLayout() {
+export function AppLayout() {
   return (
-    <>
+    <div className="min-h-screen bg-bg text-ink">
       <Header />
-      <main>
+      <main className="mx-auto max-w-7xl px-6 py-10">
         <Outlet />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }
-
-export default AppLayout;
-

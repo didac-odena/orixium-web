@@ -17,7 +17,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={onClick}
-      className="rounded-md border border-border px-3 py-1 text-sm text-ink hover:bg-border"
+      className="cursor-pointer rounded-md border px-3 py-1 text-sm text-ink"
     >
       Theme
     </button>
