@@ -34,11 +34,15 @@ export function hasUserThemePreference() {
 
 export function applyTheme(theme) {
   const root = document.documentElement; // <html>
+  const body = document.body;
   if (theme === THEMES.DARK) {
     root.classList.add("dark");
+    body?.classList.add("dark");
   } else {
     root.classList.remove("dark");
+    body?.classList.remove("dark");
   }
+  root.dataset.theme = theme;
 }
 
 export function setTheme(theme) {

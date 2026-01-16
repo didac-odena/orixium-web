@@ -44,7 +44,7 @@ export function Header() {
         <div className=" flex h-16 items-center justify-between">
           {/* Left: logo + nav */}
           <div className="flex items-center gap-15">
-            <Link to="/" className="text-2xl font-semibold text-ink">
+            <Link to="/" className="text-2xl font-semibold">
               Orixium
             </Link>
 

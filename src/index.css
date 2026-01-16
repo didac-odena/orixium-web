@@ -1,5 +1,30 @@
-@import "./styles/theme.css";
+@config "../tailwind.config.js";
 @import "tailwindcss";
+
+:root {
+  /* Font token */
+  --font-sans: "IBM Plex Sans";
+
+  /* Light */
+  --color-bg: 248 250 252;        /* slate-50 */
+  --color-ink: 15 23 42;          /* slate-900 */
+  --color-muted: 71 85 105;       /* slate-600 */
+  --color-border: 226 232 240;    /* slate-200 */
+  --color-accent: 99 102 241;     /* indigo-500 */
+  --color-accent-2: 79 70 229;    /* indigo-600 */
+  color-scheme: light;
+}
+
+:root.dark {
+  /* Dark */
+  --color-bg: 2 6 23;             /* slate-950 */
+  --color-ink: 245 245 245;       /* slate-200 */
+  --color-muted: 148 163 184;     /* slate-400 */
+  --color-border: 30 41 59;       /* slate-800 */
+  --color-accent: 129 140 248;    /* indigo-400 */
+  --color-accent-2: 99 102 241;   /* indigo-500 */
+  color-scheme: dark;
+}
 
 html,
 body {
