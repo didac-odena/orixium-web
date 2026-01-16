@@ -1,8 +1,12 @@
+import { PageLayout } from "../../components/layout/index.js";
+
 export function StrategyPage() {
   return (
-    <div>
-      <h1>Strategy</h1>
-      <p>Private area.</p>
-    </div>
+    <PageLayout>
+      <div>
+        <h1>Strategy</h1>
+        <p>Private area.</p>
+      </div>
+    </PageLayout>
   );
 }

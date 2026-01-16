@@ -1,0 +1,24 @@
+:root {
+  /* Font token */
+  --font-sans: "IBM Plex Sans";
+
+  /* Light */
+  --color-bg: #f0fdfa;        /* teal-50 */
+  --color-ink: #064e3b;       /* emerald-900 */
+  --color-muted: #047857;     /* emerald-700 */
+  --color-border: #99f6e4;    /* teal-200 */
+  --color-accent: #10b981;    /* emerald-500 */
+  --color-accent-2: #059669;  /* emerald-600 */
+  color-scheme: light;
+}
+
+:root.dark {
+  /* Dark */
+  --color-bg: #061812;        /* deep green */
+  --color-ink: #d1fae5;       /* emerald-100 */
+  --color-muted: #a7f3d0;     /* emerald-200 */
+  --color-border: #14532d;    /* green-900 */
+  --color-accent: #34d399;    /* emerald-400 */
+  --color-accent-2: #10b981;  /* emerald-500 */
+  color-scheme: dark;
+}

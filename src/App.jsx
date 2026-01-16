@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AppLayout, PublicLayout } from "./layouts/index.js";
 import { PrivateRoute } from "./guards/index.js";
 import {
   DashboardPage,
@@ -8,6 +7,8 @@ import {
   StrategyPage,
   MarketExplorerPage,
   HistorialPage,
+  MembershipPage,
+  SupportPage,
 } from "./pages/index.js";
 
 import "./App.css";
@@ -18,22 +19,42 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
 
-        <Route element={<PublicLayout />}>
-          <Route path="/" element={<HomePage />} />
-        </Route>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/membership" element={<MembershipPage />} />
+        <Route path="/support" element={<SupportPage />} />
 
         <Route
+          path="/dashboard"
           element={
             <PrivateRoute>
-              <AppLayout />
+              <DashboardPage />
             </PrivateRoute>
           }
-        >
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/strategy" element={<StrategyPage />} />
-          <Route path="/market-explorer" element={<MarketExplorerPage />} />
-          <Route path="/historial" element={<HistorialPage />} />
-        </Route>
+        />
+        <Route
+          path="/strategy"
+          element={
+            <PrivateRoute>
+              <StrategyPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/market-explorer"
+          element={
+            <PrivateRoute>
+              <MarketExplorerPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/historial"
+          element={
+            <PrivateRoute>
+              <HistorialPage />
+            </PrivateRoute>
+          }
+        />
 
         <Route path="*" element={<div>Not Found</div>} />
       </Routes>

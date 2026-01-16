@@ -1,0 +1,65 @@
+:root {
+  --font-sans: "IBM Plex Sans";    /* Fuente principal de la app */
+
+  --color-bg: #f8fafc;          /* Fondo global de la aplicación (body, páginas) */
+  --color-surface: #ffffff;     /* Cards y paneles principales */
+  --color-surface-2: #f1f5f9;   /* Bloques secundarios (sidebars, widgets) */
+  --color-surface-3: #e2e8f0;   /* Hover suave, filas alternas, estados activos */
+
+  --color-ink: #0f172a;         /* Texto principal: títulos y contenido clave */
+  --color-ink-soft: #334155;    /* Texto secundario: labels, descripciones */
+  --color-muted: #475569;       /* Texto desactivado, metadata, timestamps */
+
+  --color-border: #e2e8f0;      /* Bordes estándar (cards, inputs, tablas) */
+  --color-border-strong: #cbd5e1; /* Separadores más marcados */
+
+  --color-accent: #55c0a0;      /* Color principal de marca: CTA, links, focus */
+  --color-accent-2: #c55539;    /* Acento puntual: badges, highlights (uso limitado) */
+
+  --color-success: #22c55e;     /* Estados positivos, confirmaciones */
+  --color-warning: #f59e0b;     /* Avisos, riesgo leve, atención */
+  --color-danger: #ef4444;      /* Errores, acciones destructivas */
+  --color-info: #3b82f6;        /* Información neutral, tips */
+
+  --color-up: #16a34a;          /* Velas alcistas, valores positivos en gráficas */
+  --color-down: #dc2626;        /* Velas bajistas, pérdidas en gráficas */
+  --color-neutral: #64748b;     /* Sin cambio, volumen neutro */
+
+  --color-ring: #7cdfc1;        /* Focus ring para accesibilidad y teclado */
+  --color-ring-offset: #ffffff; /* Fondo detrás del ring para contraste */
+
+  color-scheme: light;
+}
+
+:root.dark {
+  --font-sans: "IBM Plex Sans";   /* Fuente principal de la app */
+
+  --color-bg: #1a1d1c;          /* Fondo global de la aplicación (body, páginas) */
+  --color-surface: #1f2937;     /* Cards y paneles principales */
+  --color-surface-2: #0f172a;   /* Bloques secundarios (sidebars, widgets) */
+  --color-surface-3: #1e293b;   /* Hover suave, filas alternas, estados activos */
+
+  --color-ink: #e2e8f0;         /* Texto principal: títulos y contenido clave */
+  --color-ink-soft: #cbd5e1;    /* Texto secundario: labels, descripciones */
+  --color-muted: #7e8da3;       /* Texto desactivado, metadata, timestamps */
+
+  --color-border: #1e293b;      /* Bordes estándar (cards, inputs, tablas) */
+  --color-border-strong: #334155; /* Separadores más marcados */
+
+  --color-accent: #7cdfc1;      /* Color principal de marca: CTA, links, focus */
+  --color-accent-2: #df907c;    /* Acento puntual: badges, highlights (uso limitado) */
+
+  --color-success: #22c55e;     /* Estados positivos, confirmaciones */
+  --color-warning: #f59e0b;     /* Avisos, riesgo leve, atención */
+  --color-danger: #ef4444;      /* Errores, acciones destructivas */
+  --color-info: #60a5fa;        /* Información neutral, tips */
+
+  --color-up: #16a34a;          /* Velas alcistas, valores positivos en gráficas */
+  --color-down: #dc2626;        /* Velas bajistas, pérdidas en gráficas */
+  --color-neutral: #94a3b8;     /* Sin cambio, volumen neutro */
+
+  --color-ring: #7cdfc1;        /* Focus ring para accesibilidad y teclado */
+  --color-ring-offset: #18181b; /* Fondo detrás del ring para contraste */
+
+  color-scheme: dark;
+}

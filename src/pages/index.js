@@ -4,3 +4,5 @@ export { LoginPage } from "./login/login-page.jsx";
 export { StrategyPage } from "./strategy/strategy-page.jsx";
 export { MarketExplorerPage } from "./market-explorer/market-explorer-page.jsx";
 export { HistorialPage } from "./historial/historial-page.jsx";
+export { MembershipPage } from "./membership/membership-page.jsx";
+export { SupportPage } from "./support/support-page.jsx";

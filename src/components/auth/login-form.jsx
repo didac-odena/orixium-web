@@ -61,7 +61,7 @@ export function LoginForm(props) {
       <button
         type="submit"
         disabled={!isValid || isSubmitting}
-        className="mt-6 w-full rounded-md border px-3 py-2 text-sm"
+        className="mt-6 w-full rounded-md border px-3 py-2 text-sm text-ink hover:border-accent hover:text-accent disabled:opacity-60"
       >
         {isSubmitting ? "Signing in..." : "Sign in"}
       </button>

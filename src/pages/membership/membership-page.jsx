@@ -1,9 +1,12 @@
 import { PageLayout } from "../../components/layout/index.js";
 
-export function DashboardPage() {
+export function MembershipPage() {
   return (
     <PageLayout>
-      <div>Dashboard (private)</div>
+      <div>
+        <h1>Membership</h1>
+        <p>Public page.</p>
+      </div>
     </PageLayout>
   );
 }

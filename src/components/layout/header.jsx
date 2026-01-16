@@ -23,7 +23,7 @@ function NavItem(props) {
   const { to, label } = props;
 
   return (
-    <Link to={to} className="text-muted hover:text-ink transition-colors">
+    <Link to={to} className="text-muted hover:text-accent transition-colors">
       {label}
     </Link>
   );
@@ -114,14 +114,14 @@ export function Header() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="cursor-pointer rounded-md border px-3 py-1 text-sm text-ink"
+                className="cursor-pointer rounded-md border px-3 py-1 text-sm text-ink hover:border-accent-2 hover:text-accent-2"
               >
                 Logout
               </button>
             ) : (
               <Link
                 to="/login"
-                className="cursor-pointer rounded-md border px-3 py-1 text-sm text-ink"
+                className="cursor-pointer rounded-md border px-3 py-1 text-sm text-ink hover:border-accent hover:text-accent"
               >
                 Login
               </Link>
