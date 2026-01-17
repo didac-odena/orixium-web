@@ -10,8 +10,8 @@
   --color-ink-soft: #334155;    /* Texto secundario: labels, descripciones */
   --color-muted: #475569;       /* Texto desactivado, metadata, timestamps */
 
-  --color-border: #e2e8f0;      /* Bordes estándar (cards, inputs, tablas) */
-  --color-border-strong: #cbd5e1; /* Separadores más marcados */
+  --color-border: #aebac99f;      /* Bordes estándar (cards, inputs, tablas) */
+  --color-border-strong: #c6ceda; /* Separadores más marcados */
 
   --color-accent: #55c0a0;      /* Color principal de marca: CTA, links, focus */
   --color-accent-2: #c55539;    /* Acento puntual: badges, highlights (uso limitado) */
@@ -43,8 +43,8 @@
   --color-ink-soft: #cbd5e1;    /* Texto secundario: labels, descripciones */
   --color-muted: #7e8da3;       /* Texto desactivado, metadata, timestamps */
 
-  --color-border: #1e293b;      /* Bordes estándar (cards, inputs, tablas) */
-  --color-border-strong: #334155; /* Separadores más marcados */
+  --color-border: #607977;      /* Bordes estándar (cards, inputs, tablas) */
+  --color-border-strong: #506268bb; /* Separadores más marcados */
 
   --color-accent-green: #7cdfc1;      /* Color principal de marca: CTA, links, focus */
   --color-accent-red: #df907c;    /* Acento puntual: badges, highlights (uso limitado) */

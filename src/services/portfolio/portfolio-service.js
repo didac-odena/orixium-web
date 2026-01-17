@@ -1,4 +1,4 @@
-import { httpClient } from "../adapters/mock/http-client.js";
+import { httpClient } from "../../adapters/mock/http-client.js";
 
 export async function getPortfolioSummary(params = {}) {
   const search = new URLSearchParams();

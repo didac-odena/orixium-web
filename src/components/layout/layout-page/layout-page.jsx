@@ -6,7 +6,9 @@ export function PageLayout(props) {
   return (
     <div className="min-h-screen bg-bg text-ink flex flex-col">
       <Header />
-      <main className="mx-auto max-w-7xl px-6 py-10 flex-1">{children}</main>
+      <main className="mx-auto w-full max-w-screen-2xl px-6 py-2 flex-1">
+        {children}
+      </main>
       <Footer />
     </div>
   );

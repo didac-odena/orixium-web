@@ -10,6 +10,7 @@ import {
   MembershipPage,
   SupportPage,
   SettingsPage,
+  TradingPage,
 } from "./pages/index.js";
 
 import "./App.css";
@@ -23,6 +24,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/membership" element={<MembershipPage />} />
         <Route path="/support" element={<SupportPage />} />
+        <Route path="/strategy" element={<StrategyPage />} />
 
         <Route
           path="/dashboard"
@@ -33,10 +35,10 @@ function App() {
           }
         />
         <Route
-          path="/strategy"
+          path="/trading"
           element={
             <PrivateRoute>
-              <StrategyPage />
+              <TradingPage />
             </PrivateRoute>
           }
         />

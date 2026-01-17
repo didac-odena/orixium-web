@@ -13,6 +13,10 @@ const NAV_PUBLIC = [
 
 const NAV_APP = [
   { label: "Dashboard", to: "/dashboard" },
+  {
+    label: "Trading",
+    children: [{ label: "Open Trades", to: "/trading" }],
+  },
   { label: "Strategy", to: "/strategy" },
   { label: "Market Explorer", to: "/market-explorer" },
   { label: "Historial", to: "/historial" },
@@ -20,10 +24,42 @@ const NAV_APP = [
 ];
 
 function NavItem(props) {
-  const { to, label } = props;
+  const { to, label, children, onSelect } = props;
+
+  if (children && children.length) {
+    return (
+      <div className="relative group h-16 flex items-center">
+        <button
+          type="button"
+          className="cursor-pointer h-16 flex items-center text-muted hover:text-accent transition-colors"
+          aria-haspopup="menu"
+        >
+          {label}
+        </button>
+        <div className="absolute left-0 top-full z-10 mt-0 hidden rounded-md border border-border bg-bg py-1 text-sm shadow-sm group-hover:block group-focus-within:block">
+          {children.map(function (child) {
+            return (
+              <Link
+                key={child.to}
+                to={child.to}
+                onClick={onSelect}
+                className="block px-4 py-2 text-ink hover:text-accent"
+              >
+                {child.label}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <Link to={to} className="text-muted hover:text-accent transition-colors">
+    <Link
+      to={to}
+      onClick={onSelect}
+      className="h-16 flex items-center text-muted hover:text-accent transition-colors"
+    >
       {label}
     </Link>
   );
@@ -53,7 +89,7 @@ export function Header() {
   }
 
   return (
-    <header className="w-full border-b ">
+    <header className="w-full border-b border-border-strong">
       <div className="px-3 sm:px-6">
         <div className="relative flex h-16 items-center gap-2 sm:gap-4">
           {/* Left: logo + nav (desktop) */}
@@ -74,10 +110,15 @@ export function Header() {
               </span>
             </Link>
 
-            <nav className="hidden items-center gap-6 md:flex">
+            <nav className="hidden h-16 items-center gap-6 md:flex">
               {navItems.map(function (item) {
                 return (
-                  <NavItem key={item.to} to={item.to} label={item.label} />
+                  <NavItem
+                    key={item.to || item.label}
+                    to={item.to}
+                    label={item.label}
+                    children={item.children}
+                  />
                 );
               })}
             </nav>
@@ -96,11 +137,35 @@ export function Header() {
                 <Bars3Icon className="h-4 w-4" aria-hidden="true" />
               </button>
               {isMenuOpen ? (
-                <div className="absolute left-1/2 top-full z-10 mt-0 w-56 -translate-x-1/2 rounded-md border bg-bg py-2 shadow-sm">
+                <div className="absolute left-1/2 top-full z-10 mt-0 w-56 -translate-x-1/2 rounded-md border border-border bg-bg py-2 shadow-sm">
                   <div className="border-b px-4 pb-2">
                     <ThemeToggle />
                   </div>
                   {navItems.map(function (item) {
+                    if (item.children && item.children.length) {
+                      return (
+                        <div key={item.label} className="px-4 py-2">
+                          <div className="text-xs uppercase text-muted">
+                            {item.label}
+                          </div>
+                          <div className="mt-1 space-y-1">
+                            {item.children.map(function (child) {
+                              return (
+                                <Link
+                                  key={child.to}
+                                  to={child.to}
+                                  onClick={handleCloseMenu}
+                                  className="block text-sm text-ink hover:text-accent"
+                                >
+                                  {child.label}
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    }
+
                     return (
                       <Link
                         key={item.to}
@@ -133,7 +198,7 @@ export function Header() {
                   >
                     {userLabel}
                   </button>
-                  <div className="absolute right-0 top-full z-10 mt-0 hidden rounded-md border bg-bg py-2 text-sm shadow-sm group-hover:block group-focus-within:block">
+                  <div className="absolute right-0 top-full z-10 mt-2 hidden rounded-md border border-border bg-bg py-6 text-sm shadow-sm group-hover:block group-focus-within:block">
                     <Link
                       to="/settings"
                       className="block px-4 py-2 text-ink hover:text-accent"

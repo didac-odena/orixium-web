@@ -7,3 +7,4 @@ export { HistorialPage } from "./historial/historial-page.jsx";
 export { MembershipPage } from "./membership/membership-page.jsx";
 export { SupportPage } from "./support/support-page.jsx";
 export { SettingsPage } from "./settings/settings-page.jsx";
+export { TradingPage } from "./trading/trading-page.jsx";
