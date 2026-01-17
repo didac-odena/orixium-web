@@ -19,7 +19,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={onClick}
-      className="cursor-pointer rounded-md border p-2 text-ink"
+      className="cursor-pointer p-1 text-ink hover:text-accent"
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
       {isDark ? (

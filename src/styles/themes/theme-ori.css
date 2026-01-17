@@ -46,8 +46,8 @@
   --color-border: #1e293b;      /* Bordes estándar (cards, inputs, tablas) */
   --color-border-strong: #334155; /* Separadores más marcados */
 
-  --color-accent: #7cdfc1;      /* Color principal de marca: CTA, links, focus */
-  --color-accent-2: #df907c;    /* Acento puntual: badges, highlights (uso limitado) */
+  --color-accent-green: #7cdfc1;      /* Color principal de marca: CTA, links, focus */
+  --color-accent-red: #df907c;    /* Acento puntual: badges, highlights (uso limitado) */
 
   --color-success: #22c55e;     /* Estados positivos, confirmaciones */
   --color-warning: #f59e0b;     /* Avisos, riesgo leve, atención */

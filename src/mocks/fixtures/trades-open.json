@@ -1,0 +1,44 @@
+[
+  {
+    "id": "open_001",
+    "symbol": "TST-USD",
+    "side": "long",
+    "orderType": "market",
+    "entryPrice": 102.35,
+    "currentPrice": 107.12,
+    "qty": 12.5,
+    "notional": 1279.38,
+    "stopLoss": 98.2,
+    "takeProfit1": 106.0,
+    "takeProfit2": 112.5,
+    "openedAt": "2026-01-16T10:21:00.000Z"
+  },
+  {
+    "id": "open_002",
+    "symbol": "TST-USD",
+    "side": "short",
+    "orderType": "limit",
+    "entryPrice": 110.0,
+    "currentPrice": 104.4,
+    "qty": 6,
+    "notional": 660.0,
+    "stopLoss": 114.5,
+    "takeProfit1": 106.5,
+    "takeProfit2": 101.0,
+    "openedAt": "2026-01-16T11:05:00.000Z"
+  },
+  {
+    "id": "open_003",
+    "symbol": "ETH-USD",
+    "side": "long",
+    "orderType": "market",
+    "entryPrice": 2350.75,
+    "currentPrice": 2384.2,
+    "qty": 0.75,
+    "notional": 1763.06,
+    "stopLoss": 2295.0,
+    "takeProfit1": 2425.0,
+    "takeProfit2": 2490.0,
+    "openedAt": "2026-01-16T12:40:00.000Z"
+  }
+]

@@ -9,6 +9,7 @@ import {
   HistorialPage,
   MembershipPage,
   SupportPage,
+  SettingsPage,
 } from "./pages/index.js";
 
 import "./App.css";
@@ -52,6 +53,14 @@ function App() {
           element={
             <PrivateRoute>
               <HistorialPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <PrivateRoute>
+              <SettingsPage />
             </PrivateRoute>
           }
         />

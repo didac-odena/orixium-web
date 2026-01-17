@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../app/auth/auth-context.jsx";
 import { ThemeToggle } from "../ui/theme-toggle.jsx";
-import { Bars3Icon } from "@heroicons/react/24/outline";
+import { Bars3Icon, PowerIcon } from "@heroicons/react/24/outline";
 
 const NAV_PUBLIC = [
   { label: "Strategy", to: "/strategy" },
@@ -30,9 +30,10 @@ function NavItem(props) {
 }
 
 export function Header() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const userLabel = user?.name || user?.email || "Account";
 
   const navItems = isAuthenticated ? NAV_APP : NAV_PUBLIC;
 
@@ -52,7 +53,7 @@ export function Header() {
   }
 
   return (
-    <header className="w-full border-b">
+    <header className="w-full border-b ">
       <div className="px-3 sm:px-6">
         <div className="relative flex h-16 items-center gap-2 sm:gap-4">
           {/* Left: logo + nav (desktop) */}
@@ -90,12 +91,12 @@ export function Header() {
                 onClick={handleToggleMenu}
                 aria-expanded={isMenuOpen}
                 aria-label="Toggle menu"
-                className="cursor-pointer rounded-md border p-2 text-ink"
+                className="cursor-pointer rounded-md p-2 text-ink hover:text-accent"
               >
                 <Bars3Icon className="h-4 w-4" aria-hidden="true" />
               </button>
               {isMenuOpen ? (
-                <div className="absolute left-1/2 top-full z-10 mt-2 w-56 -translate-x-1/2 rounded-md border bg-bg py-2 shadow-sm">
+                <div className="absolute left-1/2 top-full z-10 mt-0 w-56 -translate-x-1/2 rounded-md border bg-bg py-2 shadow-sm">
                   <div className="border-b px-4 pb-2">
                     <ThemeToggle />
                   </div>
@@ -117,23 +118,43 @@ export function Header() {
           </div>
 
           {/* Right: actions */}
-          <div className="ml-auto flex items-center gap-2 sm:gap-3">
+          <div className="ml-auto flex items-center gap-2 sm:gap-1">
             <div className="hidden md:block">
               <ThemeToggle />
             </div>
 
             {isAuthenticated ? (
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="cursor-pointer rounded-md border px-3 py-1 text-sm text-ink hover:border-accent-2 hover:text-accent-2"
-              >
-                Logout
-              </button>
+              <div className="flex items-center gap-1">
+                <div className="relative group">
+                  <button
+                    type="button"
+                    className="cursor-pointer px-1 py-1 text-sm text-ink hover:text-accent"
+                    aria-haspopup="menu"
+                  >
+                    {userLabel}
+                  </button>
+                  <div className="absolute right-0 top-full z-10 mt-0 hidden rounded-md border bg-bg py-2 text-sm shadow-sm group-hover:block group-focus-within:block">
+                    <Link
+                      to="/settings"
+                      className="block px-4 py-2 text-ink hover:text-accent"
+                    >
+                      Settings
+                    </Link>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="cursor-pointer rounded-md p-1 text-ink hover:text-danger"
+                  aria-label="Logout"
+                >
+                  <PowerIcon className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </div>
             ) : (
               <Link
                 to="/login"
-                className="cursor-pointer rounded-md border px-3 py-1 text-sm text-ink hover:border-accent hover:text-accent"
+                className="cursor-pointer rounded-md px-3 py-1 text-sm text-ink hover:text-accent"
               >
                 Login
               </Link>
