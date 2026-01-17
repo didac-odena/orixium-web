@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../app/auth/auth-context.jsx";
 
 export function PrivateRoute(props) {
@@ -16,5 +16,5 @@ export function PrivateRoute(props) {
     return <Navigate to={"/login?next=" + next} replace />;
   }
 
-  return children;
+  return children ?? <Outlet />;
 }

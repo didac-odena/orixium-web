@@ -11,9 +11,9 @@ import {
   SupportPage,
   SettingsPage,
   TradingPage,
+  PortfolioPage,
 } from "./pages/index.js";
 
-import "./App.css";
 
 function App() {
   return (
@@ -26,46 +26,14 @@ function App() {
         <Route path="/support" element={<SupportPage />} />
         <Route path="/strategy" element={<StrategyPage />} />
 
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <DashboardPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/trading"
-          element={
-            <PrivateRoute>
-              <TradingPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/market-explorer"
-          element={
-            <PrivateRoute>
-              <MarketExplorerPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/historial"
-          element={
-            <PrivateRoute>
-              <HistorialPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/settings"
-          element={
-            <PrivateRoute>
-              <SettingsPage />
-            </PrivateRoute>
-          }
-        />
+        <Route element={<PrivateRoute />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/portfolio" element={<PortfolioPage />} />
+          <Route path="/trading" element={<TradingPage />} />
+          <Route path="/market-explorer" element={<MarketExplorerPage />} />
+          <Route path="/historial" element={<HistorialPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+        </Route>
 
         <Route path="*" element={<div>Not Found</div>} />
       </Routes>

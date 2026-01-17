@@ -49,7 +49,7 @@ export function LoginForm(props) {
             {...register("password", { required: "Password is required" })}
             type="password"
             autoComplete="current-password"
-            placeholder="••••••••"
+            placeholder="********"
             className="mt-1 w-full rounded-md border px-3 py-2"
           />
         </label>

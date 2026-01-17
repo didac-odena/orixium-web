@@ -3,7 +3,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../app/auth/auth-context.jsx";
 import { ThemeToggle } from "../ui/theme-toggle.jsx";
-import { Bars3Icon, PowerIcon } from "@heroicons/react/24/outline";
+import {
+  Bars3Icon,
+  ChartPieIcon,
+  PowerIcon,
+} from "@heroicons/react/24/outline";
 
 const NAV_PUBLIC = [
   { label: "Strategy", to: "/strategy" },
@@ -138,9 +142,6 @@ export function Header() {
               </button>
               {isMenuOpen ? (
                 <div className="absolute left-1/2 top-full z-10 mt-0 w-56 -translate-x-1/2 rounded-md border border-border bg-bg py-2 shadow-sm">
-                  <div className="border-b px-4 pb-2">
-                    <ThemeToggle />
-                  </div>
                   {navItems.map(function (item) {
                     if (item.children && item.children.length) {
                       return (
@@ -184,12 +185,15 @@ export function Header() {
 
           {/* Right: actions */}
           <div className="ml-auto flex items-center gap-2 sm:gap-1">
-            <div className="hidden md:block">
-              <ThemeToggle />
-            </div>
-
             {isAuthenticated ? (
               <div className="flex items-center gap-1">
+                <Link
+                  to="/portfolio"
+                  className="cursor-pointer rounded-md p-1 text-ink hover:text-accent"
+                  aria-label="Portfolio"
+                >
+                  <ChartPieIcon className="h-4 w-4" aria-hidden="true" />
+                </Link>
                 <div className="relative group">
                   <button
                     type="button"
@@ -199,6 +203,10 @@ export function Header() {
                     {userLabel}
                   </button>
                   <div className="absolute right-0 top-full z-10 mt-2 hidden rounded-md border border-border bg-bg py-6 text-sm shadow-sm group-hover:block group-focus-within:block">
+                    <div className="flex items-center justify-between px-4 py-2 text-ink">
+                      <span>Theme</span>
+                      <ThemeToggle />
+                    </div>
                     <Link
                       to="/settings"
                       className="block px-4 py-2 text-ink hover:text-accent"
