@@ -1,6 +1,9 @@
 [
   {
     "id": "hist_001",
+    "userId": "demo_admin_1",
+    "broker": "binance",
+    "accountId": "acc_demo_admin_1",
     "symbol": "TST-USD",
     "side": "long",
     "entryPrice": 95.0,
@@ -14,6 +17,9 @@
   },
   {
     "id": "hist_002",
+    "userId": "demo_admin_1",
+    "broker": "interactive-brokers",
+    "accountId": "acc_demo_admin_2",
     "symbol": "TST-USD",
     "side": "short",
     "entryPrice": 120.0,
@@ -27,7 +33,10 @@
   },
   {
     "id": "hist_003",
-    "symbol": "BTC-USD",
+    "userId": "demo_user_1",
+    "broker": "binance",
+    "accountId": "acc_demo_user_1",
+    "symbol": "TST1-USD",
     "side": "long",
     "entryPrice": 39850.0,
     "exitPrice": 41200.0,

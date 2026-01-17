@@ -1,6 +1,9 @@
 [
   {
     "id": "open_001",
+    "userId": "demo_admin_1",
+    "broker": "binance",
+    "accountId": "acc_demo_admin_1",
     "symbol": "TST-USD",
     "side": "long",
     "orderType": "market",
@@ -15,6 +18,9 @@
   },
   {
     "id": "open_002",
+    "userId": "demo_admin_1",
+    "broker": "interactive-brokers",
+    "accountId": "acc_demo_admin_2",
     "symbol": "TST-USD",
     "side": "short",
     "orderType": "limit",
@@ -29,7 +35,10 @@
   },
   {
     "id": "open_003",
-    "symbol": "ETH-USD",
+    "userId": "demo_user_1",
+    "broker": "binance",
+    "accountId": "acc_demo_user_1",
+    "symbol": "TST2-USD",
     "side": "long",
     "orderType": "market",
     "entryPrice": 2350.75,

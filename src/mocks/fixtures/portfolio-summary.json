@@ -1,0 +1,41 @@
+[
+  {
+    "accountId": "acc_demo_admin_1",
+    "userId": "demo_admin_1",
+    "broker": "binance",
+    "currency": "USD",
+    "balance": 25000.0,
+    "equity": 26142.5,
+    "openPnl": 1142.5,
+    "dayPnl": 312.4,
+    "exposure": 0.42,
+    "positionsCount": 2,
+    "updatedAt": "2026-01-16T12:45:00.000Z"
+  },
+  {
+    "accountId": "acc_demo_admin_2",
+    "userId": "demo_admin_1",
+    "broker": "interactive-brokers",
+    "currency": "USD",
+    "balance": 18000.0,
+    "equity": 17720.0,
+    "openPnl": -280.0,
+    "dayPnl": -90.0,
+    "exposure": 0.28,
+    "positionsCount": 1,
+    "updatedAt": "2026-01-16T12:45:00.000Z"
+  },
+  {
+    "accountId": "acc_demo_user_1",
+    "userId": "demo_user_1",
+    "broker": "binance",
+    "currency": "USD",
+    "balance": 8200.0,
+    "equity": 8462.3,
+    "openPnl": 262.3,
+    "dayPnl": 74.9,
+    "exposure": 0.31,
+    "positionsCount": 1,
+    "updatedAt": "2026-01-16T12:45:00.000Z"
+  }
+]
