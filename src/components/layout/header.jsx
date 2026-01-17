@@ -57,8 +57,20 @@ export function Header() {
         <div className="relative flex h-16 items-center gap-2 sm:gap-4">
           {/* Left: logo + nav (desktop) */}
           <div className="flex items-center gap-3 sm:gap-6">
-            <Link to="/" className="text-2xl font-semibold text-muted">
-              Orixium
+            <Link to="/" className="text-2xl font-semibold">
+              <span className="inline-flex items-center gap-2">
+                <img
+                  src="/src/assets/brand/orixium-logo-mark-colored.svg"
+                  alt="Orixium"
+                  className="h-7 w-auto dark:hidden"
+                />
+                <img
+                  src="/src/assets/brand/orixium-logo-mark-colored-dark.svg"
+                  alt="Orixium"
+                  className="hidden h-7 w-auto dark:block"
+                />
+                Orixium
+              </span>
             </Link>
 
             <nav className="hidden items-center gap-6 md:flex">
