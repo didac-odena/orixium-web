@@ -21,9 +21,9 @@ export function AuthProvider(props) {
   async function login(credentials) {
     setError(null);
     try {
-      const nextUser = await authService.login(credentials);
-      setUser(nextUser);
-      return nextUser;
+      const currentUser = await authService.login(credentials);
+      setUser(currentUser);
+      return currentUser;
     } catch (e) {
       console.error("[AuthContext] login failed", e);
       setUser(null);
