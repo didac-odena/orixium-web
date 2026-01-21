@@ -1,10 +1,9 @@
-// src/mocks/handlers/auth-handlers.js
-
 import { http, HttpResponse, delay } from "msw";
 import { AUTH_USERS } from "../fixtures/auth-users.js";
 
 const SESSION_STORAGE_KEY = "orixium.mock.session";
 
+// Persist a lightweight session to simulate server state in dev.
 function setSession(session) {
   localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
 }
@@ -23,6 +22,7 @@ function clearSession() {
   localStorage.removeItem(SESSION_STORAGE_KEY);
 }
 
+// Strip sensitive fields (password) from responses.
 function safeUser(user) {
   return {
     id: user.id,

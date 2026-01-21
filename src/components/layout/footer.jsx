@@ -1,4 +1,3 @@
-// src/components/layout/footer.jsx
 export function Footer() {
   return (
     <footer className="w-full border-t border-slate-300 bg-slate-200 text-slate-900">

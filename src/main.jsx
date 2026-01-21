@@ -7,6 +7,7 @@ import "./index.css";
 import { AuthProvider, ThemeProvider, initDevMocks } from "./app/index.js";
 
 async function start() {
+  // Start MSW before rendering so requests are intercepted in dev.
   await initDevMocks();
 
   ReactDOM.createRoot(document.getElementById("root")).render(

@@ -1,6 +1,7 @@
 import { httpClient } from "../../adapters/mock/http-client.js";
 
 export async function getOpenTrades(params = {}) {
+  // Build optional query params for the mock API.
   const search = new URLSearchParams();
   if (params.broker) search.set("broker", params.broker);
   if (params.accountId) search.set("accountId", params.accountId);
@@ -11,6 +12,7 @@ export async function getOpenTrades(params = {}) {
 }
 
 export async function getTradeHistory(params = {}) {
+  // Build optional query params for the mock API.
   const search = new URLSearchParams();
   if (params.broker) search.set("broker", params.broker);
   if (params.accountId) search.set("accountId", params.accountId);

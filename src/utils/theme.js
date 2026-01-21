@@ -1,5 +1,3 @@
-// src/lib/theme.js
-
 const STORAGE_KEY = "orixium.ui.theme"; // "light" | "dark"
 const THEMES = {
   LIGHT: "light",
@@ -7,6 +5,7 @@ const THEMES = {
 };
 
 function getStoredTheme() {
+  // Read theme preference from localStorage, if any.
   try {
     const value = localStorage.getItem(STORAGE_KEY);
     if (value === THEMES.LIGHT || value === THEMES.DARK) return value;
@@ -33,6 +32,7 @@ export function hasUserThemePreference() {
 }
 
 export function applyTheme(theme) {
+  // Apply class + data attribute so CSS can react to theme changes.
   const root = document.documentElement; // <html>
   const body = document.body;
   if (theme === THEMES.DARK) {

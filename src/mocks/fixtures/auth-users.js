@@ -1,4 +1,3 @@
-// src/mocks/fixtures/auth-users.js
 export const AUTH_USERS = [
   {
     id: "demo_admin_1",

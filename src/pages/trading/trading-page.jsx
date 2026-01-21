@@ -25,11 +25,13 @@ export function TradingPage() {
   });
 
   function getPnl(trade) {
+    // P&L in quote currency; invert for shorts.
     const direction = trade.side === "short" ? -1 : 1;
     return (trade.currentPrice - trade.entryPrice) * trade.qty * direction;
   }
 
   function getPnlPercent(trade) {
+    // Percentage P&L relative to entry.
     const direction = trade.side === "short" ? -1 : 1;
     return (
       ((trade.currentPrice - trade.entryPrice) / trade.entryPrice) *
@@ -40,9 +42,11 @@ export function TradingPage() {
 
   useEffect(function () {
     let isActive = true;
+    // Avoid state updates if the component unmounts mid-request.
 
     async function loadOpenTrades() {
       try {
+        // Fetch current open positions.
         const data = await getOpenTrades();
         if (!isActive) return;
         setTrades(data);

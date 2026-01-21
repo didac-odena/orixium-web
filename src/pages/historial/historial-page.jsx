@@ -26,16 +26,20 @@ export function HistorialPage() {
 
   useEffect(function () {
     let isActive = true;
+    // Avoid state updates if the component unmounts mid-request.
 
     async function loadHistory() {
       try {
+        // Fetch closed trades for the history view.
         const data = await getTradeHistory();
         if (!isActive) return;
         setTrades(data);
         setStatus("ready");
       } catch (err) {
         if (!isActive) return;
-        setError(err instanceof Error ? err.message : "Failed to load history.");
+        setError(
+          err instanceof Error ? err.message : "Failed to load history.",
+        );
         setStatus("error");
       }
     }
@@ -61,6 +65,7 @@ export function HistorialPage() {
         {status === "ready" ? (
           trades.length ? (
             <div className="space-y-3">
+              {/* Mobile: expandable cards for quick scanning. */}
               <div className="space-y-2 md:hidden">
                 {trades.map(function (trade) {
                   const isPositive = trade.pnlUsd >= 0;
@@ -102,8 +107,12 @@ export function HistorialPage() {
                       </summary>
                       <div className="border-t border-border px-4 py-3 text-sm text-muted">
                         <div>Side: {trade.side}</div>
-                        <div>Entry: {moneyFormatter.format(trade.entryPrice)}</div>
-                        <div>Exit: {moneyFormatter.format(trade.exitPrice)}</div>
+                        <div>
+                          Entry: {moneyFormatter.format(trade.entryPrice)}
+                        </div>
+                        <div>
+                          Exit: {moneyFormatter.format(trade.exitPrice)}
+                        </div>
                         <div>Qty: {trade.qty}</div>
                         <div className={accentClass}>
                           P&amp;L: {moneyFormatter.format(trade.pnlUsd)}
@@ -176,9 +185,10 @@ export function HistorialPage() {
                         },
                         {
                           key: "closed",
-                          className: "px-4 py-3 text-muted whitespace-nowrap w-40",
+                          className:
+                            "px-4 py-3 text-muted whitespace-nowrap w-40",
                           content: dateFormatter.format(
-                            new Date(trade.closedAt)
+                            new Date(trade.closedAt),
                           ),
                         },
                         {

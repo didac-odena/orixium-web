@@ -19,6 +19,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public routes */}
         <Route path="/login" element={<LoginPage />} />
 
         <Route path="/" element={<HomePage />} />
@@ -26,6 +27,7 @@ function App() {
         <Route path="/support" element={<SupportPage />} />
         <Route path="/strategy" element={<StrategyPage />} />
 
+        {/* Protected routes */}
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/portfolio" element={<PortfolioPage />} />

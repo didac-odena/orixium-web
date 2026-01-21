@@ -26,9 +26,11 @@ export function PortfolioPage() {
 
   useEffect(function () {
     let isActive = true;
+    // Avoid state updates if the component unmounts mid-request.
 
     async function loadSummary() {
       try {
+        // Fetch full portfolio summary list.
         const data = await getPortfolioSummary();
         if (!isActive) return;
         setSummaries(data);

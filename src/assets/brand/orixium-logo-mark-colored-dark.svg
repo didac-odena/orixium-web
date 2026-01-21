@@ -1,7 +1,7 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 173 234" width="502" height="522">
   <style>
-.wick { fill: none; stroke: #eef0f3; stroke-linejoin: round; stroke-width: 4; }
-  .candle { stroke: #eef0f341; stroke-linejoin: round; stroke-width: 4; }
+.wick { fill: none; stroke: #b1b1b1; stroke-linejoin: round; stroke-width: 4; }
+  .candle { stroke: #b1b1b1; stroke-linejoin: round; stroke-width: 4; }
   .accent { fill: #26939b; }
   .accent2 { fill: #a85838; }
   </style>

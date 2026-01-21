@@ -1,4 +1,3 @@
-// src/components/layout/header.jsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../app/auth/auth-context.jsx";
@@ -75,6 +74,7 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const userLabel = user?.name || user?.email || "Account";
 
+  // Public vs authenticated navigation sets.
   const navItems = isAuthenticated ? NAV_APP : NAV_PUBLIC;
 
   async function handleLogout() {
@@ -83,6 +83,7 @@ export function Header() {
   }
 
   function handleToggleMenu() {
+    // Mobile menu toggle.
     setIsMenuOpen(function (open) {
       return !open;
     });
@@ -103,12 +104,12 @@ export function Header() {
                 <img
                   src="/src/assets/brand/orixium-logo-mark-colored.svg"
                   alt="Orixium"
-                  className="h-7 w-auto dark:hidden"
+                  className="h-10 w-auto dark:hidden"
                 />
                 <img
                   src="/src/assets/brand/orixium-logo-mark-colored-dark.svg"
                   alt="Orixium"
-                  className="hidden h-7 w-auto dark:block"
+                  className="hidden h-10 w-auto dark:block"
                 />
                 Orixium
               </span>

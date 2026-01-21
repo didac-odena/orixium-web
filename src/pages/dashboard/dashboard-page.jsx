@@ -25,6 +25,7 @@ export function DashboardPage() {
   });
 
   function getPnlPercent(trade) {
+    // Adjust sign based on trade side so shorts invert the delta.
     const direction = trade.side === "short" ? -1 : 1;
     return (
       ((trade.currentPrice - trade.entryPrice) / trade.entryPrice) *
@@ -34,6 +35,7 @@ export function DashboardPage() {
   }
 
   const totals = useMemo(function () {
+    // Aggregate portfolio cards across accounts for the summary widget.
     const list = Array.isArray(summaries) ? summaries : [];
     return list.reduce(
       function (acc, summary) {
@@ -54,7 +56,8 @@ export function DashboardPage() {
 
     async function loadSummary() {
       try {
-    const data = await getPortfolioSummary();
+        // Fetch aggregated portfolio summaries for the dashboard cards.
+        const data = await getPortfolioSummary();
         if (!isActive) return;
         setSummaries(Array.isArray(data) ? data : []);
         setStatus("ready");
@@ -77,9 +80,10 @@ export function DashboardPage() {
 
     async function loadOpenTrades() {
       try {
+        // Fetch a small preview list of open trades.
         const data = await getOpenTrades();
         if (!isActive) return;
-        setOpenTrades(data);
+        setOpenTrades(Array.isArray(data) ? data : []);
         setOpenStatus("ready");
       } catch (err) {
         if (!isActive) return;

@@ -1,16 +1,15 @@
-// src/app/theme/theme-provider.jsx
 import { useEffect } from "react";
-import { applyTheme, getInitialTheme, hasUserThemePreference } from "../../lib/theme.js";
+import { applyTheme, getInitialTheme, hasUserThemePreference } from "../../utils/theme.js";
 
 export function ThemeProvider(props) {
   const children = props.children;
 
   useEffect(function () {
-    // 1) aplica theme inicial (stored > system)
+    // Apply initial theme (stored preference wins over system).
     const initial = getInitialTheme();
     applyTheme(initial);
 
-    // 2) si NO hay preferencia guardada, reacciona a cambios del sistema
+    // If the user hasn't picked a theme, follow OS preference changes.
     if (!window.matchMedia) return;
     if (hasUserThemePreference()) return;
 
@@ -20,7 +19,7 @@ export function ThemeProvider(props) {
       applyTheme(media.matches ? "dark" : "light");
     }
 
-    // addEventListener moderno / fallback antiguo
+    // Support modern and legacy matchMedia listeners.
     if (typeof media.addEventListener === "function") {
       media.addEventListener("change", onChange);
       return function () {
@@ -34,5 +33,6 @@ export function ThemeProvider(props) {
     };
   }, []);
 
+  // ThemeProvider only wires behavior; it doesn't render UI.
   return children;
 }

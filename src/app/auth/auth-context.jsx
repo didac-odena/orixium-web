@@ -1,4 +1,3 @@
-// src/app/auth/auth-context.jsx
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import * as authService from "../../services/index.js";
 
@@ -12,7 +11,7 @@ export function AuthProvider(props) {
   const [error, setError] = useState(null);
 
   useEffect(function () {
-    // Inicializa desde localStorage via service (no directo)
+    // Bootstrap auth state from storage via the service layer.
     const existingUser = authService.getUser();
     setUser(existingUser);
     setIsInitializing(false);
@@ -21,6 +20,7 @@ export function AuthProvider(props) {
   async function login(credentials) {
     setError(null);
     try {
+      // Service handles API call + persistence of the session user.
       const currentUser = await authService.login(credentials);
       setUser(currentUser);
       return currentUser;
@@ -35,6 +35,7 @@ export function AuthProvider(props) {
   async function logout() {
     setError(null);
     try {
+      // Clear session on both server and local storage.
       await authService.logout();
       setUser(null);
       return true;
@@ -47,6 +48,7 @@ export function AuthProvider(props) {
 
   const isAuthenticated = Boolean(user);
 
+  // Memoize context value to avoid unnecessary re-renders.
   const value = useMemo(
     function () {
       return {

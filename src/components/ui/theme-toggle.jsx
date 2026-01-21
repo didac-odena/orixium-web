@@ -1,16 +1,17 @@
-// src/components/ui/theme-toggle.jsx
 import { useEffect, useState } from "react";
 import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
-import { toggleTheme } from "../../lib/theme.js";
+import { toggleTheme } from "../../utils/theme.js";
 
 export function ThemeToggle() {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(function () {
+    // Read initial state from the document class.
     setIsDark(document.documentElement.classList.contains("dark"));
   }, []);
 
   function onClick() {
+    // Toggle theme and reflect the new DOM state.
     toggleTheme();
     setIsDark(document.documentElement.classList.contains("dark"));
   }

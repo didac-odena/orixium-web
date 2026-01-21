@@ -19,6 +19,7 @@ export function LoginForm(props) {
       await onSubmit(values);
       reset();
     } catch (err) {
+      // Surface server-side errors at the form level.
       const message = err?.message || "Login failed";
       setError("root", { type: "server", message });
     }

@@ -1,4 +1,3 @@
-// src/services/auth/auth-service.js
 import * as authAdapter from "../../adapters/mock/auth-adapter.js";
 
 const STORAGE_KEY = "orixium.auth.user";
@@ -19,7 +18,7 @@ function readUser() {
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== "object") return null;
 
-    // shape mínimo estable
+    // Validate the minimal shape expected by the app.
     if (!parsed.id || !parsed.email || !parsed.role || !parsed.sessionId) return null;
 
     return parsed;
@@ -38,7 +37,7 @@ function clearUser() {
 }
 
 export function getUser() {
-  // null o { id, email, role, sessionId, createdAt }
+  // Returns cached user or null if missing/invalid.
   return readUser();
 }
 
@@ -50,6 +49,7 @@ export async function login(credentials) {
     const sessionId = String(data?.sessionId || "");
     if (!user || !sessionId) throw new Error("Login failed");
 
+    // Normalize + persist the session user shape.
     const sessionUser = {
       id: String(user.id),
       email: String(user.email),

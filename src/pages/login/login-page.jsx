@@ -10,7 +10,7 @@ function getNextPath(search) {
 
   if (!next) return "/dashboard";
 
-  // Seguridad básica: solo paths internos
+  // Basic safety: only allow internal paths.
   if (!next.startsWith("/")) return "/dashboard";
   if (next.startsWith("//")) return "/dashboard";
 
@@ -25,7 +25,7 @@ export function LoginPage() {
 
   useEffect(
     function () {
-      // Si ya hay sesión, no tiene sentido quedarse en /login
+      // If there's an active session, skip the login page.
       if (auth.isInitializing) return;
       if (auth.isAuthenticated) {
         const nextPath = getNextPath(location.search);

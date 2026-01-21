@@ -5,6 +5,7 @@ import TradesHistory from "../fixtures/trades-history.json";
 
 const SESSION_STORAGE_KEY = "orixium.mock.session";
 
+// Reuse the auth mock session to scope data to a user.
 function getSession() {
   const raw = localStorage.getItem(SESSION_STORAGE_KEY);
   if (!raw) return null;
@@ -19,6 +20,7 @@ function filterByUserId(items, userId) {
   return items.filter((item) => item.userId === userId);
 }
 
+// Allow optional filtering by broker/account via query params.
 function filterByAccount(items, searchParams) {
   const broker = searchParams.get("broker");
   const accountId = searchParams.get("accountId");
