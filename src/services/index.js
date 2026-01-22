@@ -10,3 +10,9 @@ export {
   getCryptoMarketMeta,
   refreshCryptoMarketSnapshots,
 } from "./market/crypto-market-service.js";
+export {
+  hasCachedEquityMarketSnapshots,
+  getEquityMarketSnapshots,
+  getEquityMarketMeta,
+  refreshEquityMarketSnapshots,
+} from "./market/equity-market-service.js";

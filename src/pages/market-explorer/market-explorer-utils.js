@@ -22,6 +22,39 @@ export function createPriceFormatter(currency) {
   };
 }
 
+export function createRowPriceFormatter() {
+  const cache = new Map();
+
+  function getFormatters(currency) {
+    const key = String(currency || "USD").toUpperCase();
+    if (cache.has(key)) return cache.get(key);
+    const shortFormatter = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: key,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    const longFormatter = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: key,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 8,
+    });
+    const formatters = { shortFormatter, longFormatter };
+    cache.set(key, formatters);
+    return formatters;
+  }
+
+  return function formatPrice(value, currency) {
+    if (value == null || Number.isNaN(value)) return "--";
+    const { shortFormatter, longFormatter } = getFormatters(currency);
+    const useShort = Math.abs(value) > 1;
+    return useShort
+      ? shortFormatter.format(value)
+      : longFormatter.format(value);
+  };
+}
+
 export function getAccentClass(value) {
   // Positive/zero = green, negative = red.
   return (value || 0) >= 0 ? "text-accent" : "text-accent-2";
@@ -53,11 +86,17 @@ export function getSortValue(asset, key) {
     case "asset":
       return asset.name || asset.symbol;
     case "price":
-      return asset.current_price;
+      return asset.current_price ?? asset.last;
     case "priceChange":
-      return asset.price_change_24h;
+      return asset.price_change_24h ?? asset.change_1d;
     case "change":
-      return asset.price_change_percentage_24h;
+      return asset.price_change_percentage_24h ?? asset.change_1d_pct;
+    case "change1w":
+      return asset.change_1w_pct;
+    case "change1m":
+      return asset.change_1m_pct;
+    case "change1y":
+      return asset.change_1y_pct;
     case "marketCap":
       return asset.market_cap;
     case "marketCapChange":
@@ -68,8 +107,13 @@ export function getSortValue(asset, key) {
       return asset.high_24h;
     case "low":
       return asset.low_24h;
+    case "bid":
+      return asset.bid;
+    case "ask":
+      return asset.ask;
     case "updated":
-      return asset.last_updated ? Date.parse(asset.last_updated) : null;
+      if (asset.last_updated) return Date.parse(asset.last_updated);
+      return asset.captured_at_utc ? Date.parse(asset.captured_at_utc) : null;
     default:
       return null;
   }

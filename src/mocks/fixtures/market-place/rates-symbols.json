@@ -1,0 +1,82 @@
+{
+  "groups": [
+    {
+      "group": "rates-gov-bond-futures",
+      "symbols": [
+        { "symbol": "ZT", "name": "US 2Y Treasury Note Future", "sector": "rates-futures", "currency": "USD", "exchange": "CBOT", "sec_type": "FUT" },
+        { "symbol": "ZF", "name": "US 5Y Treasury Note Future", "sector": "rates-futures", "currency": "USD", "exchange": "CBOT", "sec_type": "FUT" },
+        { "symbol": "ZN", "name": "US 10Y Treasury Note Future", "sector": "rates-futures", "currency": "USD", "exchange": "CBOT", "sec_type": "FUT" },
+        { "symbol": "ZB", "name": "US 30Y Treasury Bond Future", "sector": "rates-futures", "currency": "USD", "exchange": "CBOT", "sec_type": "FUT" },
+        { "symbol": "UB", "name": "US Ultra Bond Future", "sector": "rates-futures", "currency": "USD", "exchange": "CBOT", "sec_type": "FUT" },
+        { "symbol": "SR3", "name": "SOFR 3M Future", "sector": "rates-futures", "currency": "USD", "exchange": "CME", "sec_type": "FUT" },
+        { "symbol": "SR1", "name": "SOFR 1M Future", "sector": "rates-futures", "currency": "USD", "exchange": "CME", "sec_type": "FUT" },
+        { "symbol": "FGBS", "name": "Euro Schatz 2Y Future", "sector": "rates-futures", "currency": "EUR", "exchange": "EUREX", "sec_type": "FUT" },
+        { "symbol": "FGBM", "name": "Euro Bobl 5Y Future", "sector": "rates-futures", "currency": "EUR", "exchange": "EUREX", "sec_type": "FUT" },
+        { "symbol": "FGBL", "name": "Euro Bund 10Y Future", "sector": "rates-futures", "currency": "EUR", "exchange": "EUREX", "sec_type": "FUT" },
+        { "symbol": "FGBX", "name": "Euro Buxl 30Y Future", "sector": "rates-futures", "currency": "EUR", "exchange": "EUREX", "sec_type": "FUT" },
+        { "symbol": "ER2", "name": "ESTR Future", "sector": "rates-futures", "currency": "EUR", "exchange": "EUREX", "sec_type": "FUT" },
+        { "symbol": "G", "name": "UK Long Gilt Future", "sector": "rates-futures", "currency": "GBP", "exchange": "ICEEU", "sec_type": "FUT" },
+        { "symbol": "SONIA", "name": "SONIA Short Rate Future", "sector": "rates-futures", "currency": "GBP", "exchange": "ICEEU", "sec_type": "FUT" },
+        { "symbol": "JGB", "name": "Japan Government Bond Future", "sector": "rates-futures", "currency": "JPY", "exchange": "OSE", "sec_type": "FUT" },
+        { "symbol": "CGZ", "name": "Canada 10Y Bond Future", "sector": "rates-futures", "currency": "CAD", "exchange": "MX", "sec_type": "FUT" },
+        { "symbol": "CGB", "name": "Canada Long Bond Future", "sector": "rates-futures", "currency": "CAD", "exchange": "MX", "sec_type": "FUT" },
+        { "symbol": "YG", "name": "Australia 10Y Bond Future", "sector": "rates-futures", "currency": "AUD", "exchange": "ASX", "sec_type": "FUT" },
+        { "symbol": "R", "name": "Swiss Confederation Bond Future", "sector": "rates-futures", "currency": "CHF", "exchange": "EUREX", "sec_type": "FUT" },
+        { "symbol": "BONO", "name": "Italy 10Y BTP Future", "sector": "rates-futures", "currency": "EUR", "exchange": "EUREX", "sec_type": "FUT" },
+        { "symbol": "BTP", "name": "Italy 10Y Government Bond Future", "sector": "rates-futures", "currency": "EUR", "exchange": "EUREX", "sec_type": "FUT" },
+        { "symbol": "SPGB", "name": "Spain 10Y Government Bond Future", "sector": "rates-futures", "currency": "EUR", "exchange": "EUREX", "sec_type": "FUT" }
+      ]
+    },
+    {
+      "group": "rates-gov-bond-etfs",
+      "symbols": [
+        { "symbol": "SHY", "conid": 15547851, "name": "US Treasury 1-3Y", "sector": "rates-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "NASDAQ", "local_symbol": "SHY" },
+        { "symbol": "IEI", "conid": 42454555, "name": "US Treasury 3-7Y", "sector": "rates-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "NASDAQ", "local_symbol": "IEI" },
+        { "symbol": "IEF", "conid": 15547844, "name": "US Treasury 7-10Y", "sector": "rates-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "NASDAQ", "local_symbol": "IEF" },
+        { "symbol": "TLT", "conid": 15547841, "name": "US Treasury 20Y+", "sector": "rates-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "NASDAQ", "local_symbol": "TLT" },
+        { "symbol": "GOVT", "conid": 102436165, "name": "US Treasury All", "sector": "rates-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "BATS", "local_symbol": "GOVT" },
+        { "symbol": "TIP", "conid": 26787475, "name": "US TIPS", "sector": "rates-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "TIP" },
+        { "symbol": "VTIP", "conid": 115664156, "name": "Short TIPS", "sector": "rates-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "NASDAQ", "local_symbol": "VTIP" },
+        { "symbol": "IBGL", "name": "Euro Government Bonds", "sector": "rates-etf", "currency": "EUR", "exchange": "SMART" },
+        { "symbol": "BUND", "name": "Euro Gov 10Y", "sector": "rates-etf", "currency": "EUR", "exchange": "SMART" },
+        { "symbol": "EUNA", "conid": 297482853, "name": "Euro Aggregate", "sector": "rates-etf", "currency": "EUR", "exchange": "SMART", "primary_exchange": "IBIS2", "local_symbol": "EUNA" },
+        { "symbol": "IGLT", "conid": 42725180, "name": "UK Gilts", "sector": "rates-etf", "currency": "GBP", "exchange": "SMART", "primary_exchange": "LSEETF", "local_symbol": "IGLT" },
+        { "symbol": "WIP", "conid": 49632419, "name": "Global Inflation-Linked", "sector": "rates-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "WIP" },
+        { "symbol": "JPST", "conid": 276459749, "name": "Ultra-Short Income", "sector": "rates-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "JPST" },
+        { "symbol": "BIL", "conid": 296457239, "name": "US T-Bills 1-3M", "sector": "rates-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "BIL" },
+        { "symbol": "SHV", "conid": 42454579, "name": "Very Short Treasury", "sector": "rates-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "NASDAQ", "local_symbol": "SHV" },
+        { "symbol": "VGSH", "conid": 70363044, "name": "Short Treasury", "sector": "rates-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "NASDAQ", "local_symbol": "VGSH" }
+      ]
+    },
+    {
+      "group": "rates-curve-policy-credit",
+      "symbols": [
+        { "symbol": "STPP", "name": "US Curve Steepener", "sector": "rates-proxy" },
+        { "symbol": "FLAT", "name": "US Curve Flattener", "sector": "rates-proxy" },
+        { "symbol": "TFLO", "conid": 143667474, "name": "Floating Rate Notes", "sector": "rates-proxy", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "TFLO" },
+        { "symbol": "FLOT", "conid": 89553569, "name": "Floating Rate Bonds", "sector": "rates-proxy", "currency": "USD", "exchange": "SMART", "primary_exchange": "BATS", "local_symbol": "FLOT" },
+        { "symbol": "LQD", "conid": 15547816, "name": "Investment Grade Credit", "sector": "credit-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "LQD" },
+        { "symbol": "HYG", "conid": 43652089, "name": "High Yield Credit", "sector": "credit-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "HYG" },
+        { "symbol": "BWX", "conid": 46577293, "name": "Intl Treasury ex-US", "sector": "rates-proxy", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "BWX" },
+        { "symbol": "EMB", "conid": 47649504, "name": "EM Sovereign USD", "sector": "rates-proxy", "currency": "USD", "exchange": "SMART", "primary_exchange": "NASDAQ", "local_symbol": "EMB" },
+        { "symbol": "MINT", "conid": 70282872, "name": "Enhanced Short Maturity", "sector": "rates-proxy", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "MINT" },
+        { "symbol": "NEAR", "conid": 135423659, "name": "Ultra-Short Bonds", "sector": "rates-proxy", "currency": "USD", "exchange": "SMART", "primary_exchange": "BATS", "local_symbol": "NEAR" },
+        { "symbol": "VCSH", "conid": 70363037, "name": "Short Corp IG", "sector": "credit-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "NASDAQ", "local_symbol": "VCSH" },
+        { "symbol": "USMV", "conid": 96079929, "name": "Min Vol (rates proxy)", "sector": "rates-proxy", "currency": "USD", "exchange": "SMART", "primary_exchange": "BATS", "local_symbol": "USMV" }
+      ]
+    },
+    {
+      "group": "rates-macro-stress",
+      "symbols": [
+        { "symbol": "EDV", "conid": 47486780, "name": "Extended Duration Treasury", "sector": "rates-proxy", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "EDV" },
+        { "symbol": "TBT", "conid": 114091283, "name": "Inverse Long Treasury", "sector": "rates-proxy", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "TBT" },
+        { "symbol": "TYD", "conid": 59354087, "name": "Leveraged 10Y Treasury", "sector": "rates-proxy", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "TYD" },
+        { "symbol": "ICSH", "conid": 140007769, "name": "Ultra-Short Corporate", "sector": "rates-proxy", "currency": "USD", "exchange": "SMART", "primary_exchange": "BATS", "local_symbol": "ICSH" },
+        { "symbol": "BILS", "conid": 446991691, "name": "3-12M T-Bills", "sector": "rates-proxy", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "BILS" },
+        { "symbol": "SRLN", "conid": 125373044, "name": "Senior Loans", "sector": "rates-proxy", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "SRLN" },
+        { "symbol": "PFF", "conid": 41037032, "name": "Preferred Securities", "sector": "rates-proxy", "currency": "USD", "exchange": "SMART", "primary_exchange": "NASDAQ", "local_symbol": "PFF" },
+        { "symbol": "EMLC", "conid": 337332930, "name": "EM Local Currency Debt", "sector": "rates-proxy", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "EMLC" }
+      ]
+    }
+  ]
+}

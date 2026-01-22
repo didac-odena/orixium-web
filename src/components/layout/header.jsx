@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../app/auth/auth-context.jsx";
+import { HeaderDropdown } from "../ui/header-dropdown.jsx";
 import { ThemeToggle } from "../ui/theme-toggle.jsx";
 import {
   Bars3Icon,
@@ -31,29 +32,24 @@ function NavItem(props) {
 
   if (children && children.length) {
     return (
-      <div className="relative group h-16 flex items-center">
-        <button
-          type="button"
-          className="cursor-pointer h-16 flex items-center text-muted hover:text-accent transition-colors"
-          aria-haspopup="menu"
-        >
-          {label}
-        </button>
-        <div className="absolute left-0 top-full z-10 mt-0 hidden rounded-md border border-border bg-bg py-1 text-sm shadow-sm group-hover:block group-focus-within:block">
-          {children.map(function (child) {
-            return (
-              <Link
-                key={child.to}
-                to={child.to}
-                onClick={onSelect}
-                className="block px-4 py-2 text-ink hover:text-accent"
-              >
-                {child.label}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
+      <HeaderDropdown
+        label={label}
+        wrapperClassName="h-16 flex items-center"
+        buttonClassName="cursor-pointer h-16 flex items-center text-muted hover:text-accent transition-colors"
+      >
+        {children.map(function (child) {
+          return (
+            <Link
+              key={child.to}
+              to={child.to}
+              onClick={onSelect}
+              className="block px-4 py-2 text-ink hover:text-accent"
+            >
+              {child.label}
+            </Link>
+          );
+        })}
+      </HeaderDropdown>
     );
   }
 
@@ -195,27 +191,23 @@ export function Header() {
                 >
                   <ChartPieIcon className="h-4 w-4" aria-hidden="true" />
                 </Link>
-                <div className="relative group">
-                  <button
-                    type="button"
-                    className="cursor-pointer px-1 py-1 text-sm text-ink hover:text-accent"
-                    aria-haspopup="menu"
-                  >
-                    {userLabel}
-                  </button>
-                  <div className="absolute right-0 top-full z-10 mt-2 hidden rounded-md border border-border bg-bg py-6 text-sm shadow-sm group-hover:block group-focus-within:block">
-                    <div className="flex items-center justify-between px-4 py-2 text-ink">
-                      <span>Theme</span>
-                      <ThemeToggle />
-                    </div>
-                    <Link
-                      to="/settings"
-                      className="block px-4 py-2 text-ink hover:text-accent"
-                    >
-                      Settings
-                    </Link>
+                <HeaderDropdown
+                  label={userLabel}
+                  align="right"
+                  wrapperClassName="h-16 flex items-center"
+                  buttonClassName="cursor-pointer h-16 flex items-center px-1 text-sm text-ink hover:text-accent"
+                >
+                  <div className="flex items-center justify-between px-4 py-2 text-ink">
+                    <span>Theme</span>
+                    <ThemeToggle />
                   </div>
-                </div>
+                  <Link
+                    to="/settings"
+                    className="block px-4 py-2 text-ink hover:text-accent"
+                  >
+                    Settings
+                  </Link>
+                </HeaderDropdown>
                 <button
                   type="button"
                   onClick={handleLogout}

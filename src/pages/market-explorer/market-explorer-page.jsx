@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { PageLayout } from "../../components/layout/index.js";
 import { MarketExplorerMobileList } from "../../components/market-explorer/market-explorer-mobile-list.jsx";
+import { MarketExplorerEquityMobileList } from "../../components/market-explorer/market-explorer-equity-mobile-list.jsx";
 import { DataTable } from "../../components/ui/data-table.jsx";
 import { TablePagination } from "../../components/ui/table-pagination.jsx";
 import { TableToolbar } from "../../components/ui/table-toolbar.jsx";
@@ -18,6 +19,7 @@ import { usePaginatedTable } from "../../hooks/use-paginated-table.js";
 import {
   compareAssets,
   createPriceFormatter,
+  createRowPriceFormatter,
   getAccentClass,
   nextSortState,
 } from "./market-explorer-utils.js";
@@ -33,6 +35,7 @@ const PAGE_SIZE = 50;
 export function MarketExplorerPage() {
   // UI-selected quote currency (usd/eur/gbp) drives formatting + fetch.
   const [currency, setCurrency] = useState(DEFAULT_QUOTE_CURRENCY);
+  const [segment, setSegment] = useState("crypto");
 
   // Data source + refresh state (cooldown + notices).
   const {
@@ -44,6 +47,7 @@ export function MarketExplorerPage() {
     refreshError,
     refreshNow,
   } = useMarketExplorer({
+    market: segment,
     currency,
     intervalMs: 5 * 60 * 1000,
     cooldownMs: 60 * 1000,
@@ -70,7 +74,9 @@ export function MarketExplorerPage() {
       return (
         item.id?.toLowerCase().includes(term) ||
         item.symbol?.toLowerCase().includes(term) ||
-        item.name?.toLowerCase().includes(term)
+        item.name?.toLowerCase().includes(term) ||
+        item.sector?.toLowerCase().includes(term) ||
+        item.group?.toLowerCase().includes(term)
       );
     },
     compareFn: compareAssets,
@@ -89,6 +95,10 @@ export function MarketExplorerPage() {
     [currency],
   );
 
+  const formatEquityPrice = useMemo(function () {
+    return createRowPriceFormatter();
+  }, []);
+
   const percentFormatter = useMemo(function () {
     return createPercentFormatter();
   }, []);
@@ -104,14 +114,29 @@ export function MarketExplorerPage() {
     return createDateTimeFormatter();
   }, []);
 
-  // Market segments are visual for now; only crypto is active.
-  //TODO: implementar resto de mercados con apì de stooq.
   const segments = [
-    { label: "Crypto", isActive: true },
-    { label: "Indexes", isActive: false },
-    { label: "Forex", isActive: false },
-    { label: "Commodities", isActive: false },
+    { id: "crypto", label: "Crypto" },
+    { id: "equity", label: "Equity" },
+    { id: "rates", label: "Rates" },
+    { id: "forex", label: "Forex" },
+    { id: "commodities", label: "Commodities" },
   ];
+
+  const isCrypto = segment === "crypto";
+  const isEquity = segment === "equity";
+  const searchPlaceholder = isCrypto
+    ? "Bitcoin, BTC, bitcoin..."
+    : isEquity
+      ? "Apple, AAPL, technology..."
+      : "Search assets...";
+  const emptyMessage = isCrypto
+    ? "No crypto assets found."
+    : isEquity
+      ? "No equity assets found."
+      : "No market data available yet.";
+  const subtitle = isCrypto
+    ? "Market data for UI testing only. Snapshots persist in localStorage."
+    : "Market data for UI testing only. Snapshots loaded from fixtures.";
 
   // Shape expected by DataTable for showing sort icons.
   const sortState = { key: sortKey, mode: sortMode, dir: sortDir };
@@ -139,7 +164,7 @@ export function MarketExplorerPage() {
   }
 
   // Column definitions wire labels, sort keys, and formatters.
-  const columns = useMemo(
+  const cryptoColumns = useMemo(
     function () {
       return [
         {
@@ -292,29 +317,166 @@ export function MarketExplorerPage() {
     [compactFormatter, dateFormatter, formatPrice, percentFormatter],
   );
 
+  const equityColumns = useMemo(
+    function () {
+      return [
+        {
+          key: "asset",
+          label: "Asset",
+          className: "px-4 py-2 w-64",
+          renderCell: function (asset) {
+            return (
+              <div>
+                <div className="font-semibold">{asset.name}</div>
+                <div className="text-xs text-muted">
+                  {asset.symbol?.toUpperCase()} · {asset.sector || "Equity"}
+                </div>
+              </div>
+            );
+          },
+        },
+        {
+          key: "price",
+          label: "Price",
+          className: "px-4 py-2",
+          renderCell: function (asset) {
+            return formatEquityPrice(asset.last, asset.currency);
+          },
+        },
+        {
+          key: "change",
+          label: "1D %",
+          className: "px-4 py-2",
+          renderCell: function (asset) {
+            const accentClass = getAccentClass(asset.change_1d_pct);
+            return (
+              <span className={accentClass}>
+                {asset.change_1d_pct != null
+                  ? `${percentFormatter.format(asset.change_1d_pct)}%`
+                  : "--"}
+              </span>
+            );
+          },
+        },
+        {
+          key: "priceChange",
+          label: "1D",
+          className: "px-4 py-2",
+          renderCell: function (asset) {
+            const accentClass = getAccentClass(asset.change_1d_pct);
+            return (
+              <span className={accentClass}>
+                {formatEquityPrice(asset.change_1d, asset.currency)}
+              </span>
+            );
+          },
+        },
+        {
+          key: "change1w",
+          label: "1W %",
+          className: "px-4 py-2",
+          renderCell: function (asset) {
+            const accentClass = getAccentClass(asset.change_1w_pct);
+            return (
+              <span className={accentClass}>
+                {asset.change_1w_pct != null
+                  ? `${percentFormatter.format(asset.change_1w_pct)}%`
+                  : "--"}
+              </span>
+            );
+          },
+        },
+        {
+          key: "change1m",
+          label: "1M %",
+          className: "px-4 py-2",
+          renderCell: function (asset) {
+            const accentClass = getAccentClass(asset.change_1m_pct);
+            return (
+              <span className={accentClass}>
+                {asset.change_1m_pct != null
+                  ? `${percentFormatter.format(asset.change_1m_pct)}%`
+                  : "--"}
+              </span>
+            );
+          },
+        },
+        {
+          key: "change1y",
+          label: "1Y %",
+          className: "px-4 py-2",
+          renderCell: function (asset) {
+            const accentClass = getAccentClass(asset.change_1y_pct);
+            return (
+              <span className={accentClass}>
+                {asset.change_1y_pct != null
+                  ? `${percentFormatter.format(asset.change_1y_pct)}%`
+                  : "--"}
+              </span>
+            );
+          },
+        },
+        {
+          key: "bid",
+          label: "Bid",
+          className: "px-4 py-2",
+          renderCell: function (asset) {
+            return formatEquityPrice(asset.bid, asset.currency);
+          },
+        },
+        {
+          key: "ask",
+          label: "Ask",
+          className: "px-4 py-2",
+          renderCell: function (asset) {
+            return formatEquityPrice(asset.ask, asset.currency);
+          },
+        },
+        {
+          key: "updated",
+          label: "Last updated",
+          className: "px-4 py-2 text-muted whitespace-nowrap",
+          renderCell: function (asset) {
+            return asset.last_updated
+              ? dateFormatter.format(new Date(asset.last_updated))
+              : "--";
+          },
+        },
+      ];
+    },
+    [dateFormatter, formatEquityPrice, percentFormatter],
+  );
+
+  const columns = isEquity
+    ? equityColumns
+    : isCrypto
+      ? cryptoColumns
+      : [];
+
   return (
     <PageLayout>
       <section className="space-y-2">
         <header className="space-y-1">
           <h1 className="text-2xl font-semibold">Market Explorer</h1>
-          <p className="text-xs text-muted">
-            Market data for UI testing only. Snapshots persist in localStorage.
-          </p>
+          <p className="text-xs text-muted">{subtitle}</p>
         </header>
 
         <TableToolbar
-          topLeft={segments.map(function (segment) {
+          topLeft={segments.map(function (segmentOption) {
+            const isActive = segmentOption.id === segment;
             return (
               <button
-                key={segment.label}
+                key={segmentOption.id}
                 type="button"
                 className={`rounded-full border border-border px-3 py-1 text-xs uppercase tracking-wide ${
-                  segment.isActive ? "text-ink" : "text-muted opacity-60"
+                  isActive ? "text-ink" : "text-muted opacity-60"
                 }`}
-                disabled={!segment.isActive}
-                aria-current={segment.isActive ? "page" : undefined}
+                onClick={function () {
+                  setSegment(segmentOption.id);
+                }}
+                aria-current={isActive ? "page" : undefined}
               >
-                {segment.label}
+                {segmentOption.label}
               </button>
             );
           })}
@@ -329,7 +491,7 @@ export function MarketExplorerPage() {
                 onChange={function (event) {
                   setQuery(event.target.value);
                 }}
-                placeholder="Bitcoin, BTC, bitcoin..."
+                placeholder={searchPlaceholder}
                 className="h-9 w-56 rounded-md border border-border bg-bg px-3 text-sm text-ink placeholder:text-muted"
               />
             </>
@@ -345,24 +507,28 @@ export function MarketExplorerPage() {
           }
           bottomRight={
             <>
-              <label className="text-xs uppercase tracking-wide text-muted">
-                Quote
-              </label>
-              <select
-                value={currency}
-                onChange={function (event) {
-                  setCurrency(event.target.value);
-                }}
-                className="h-9 rounded-md border border-border bg-bg px-2 text-sm text-ink"
-              >
-                {SUPPORTED_QUOTE_CURRENCIES.map(function (ccy) {
-                  return (
-                    <option key={ccy} value={ccy}>
-                      {ccy.toUpperCase()}
-                    </option>
-                  );
-                })}
-              </select>
+              {isCrypto ? (
+                <>
+                  <label className="text-xs uppercase tracking-wide text-muted">
+                    Quote
+                  </label>
+                  <select
+                    value={currency}
+                    onChange={function (event) {
+                      setCurrency(event.target.value);
+                    }}
+                    className="h-9 rounded-md border border-border bg-bg px-2 text-sm text-ink"
+                  >
+                    {SUPPORTED_QUOTE_CURRENCIES.map(function (ccy) {
+                      return (
+                        <option key={ccy} value={ccy}>
+                          {ccy.toUpperCase()}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </>
+              ) : null}
               <div className="relative flex flex-col items-start">
                 <button
                   type="button"
@@ -424,13 +590,22 @@ export function MarketExplorerPage() {
           filteredRows.length ? (
             <div className="space-y-3">
               {/* Mobile uses a collapsible list; desktop uses the data table. */}
-              <MarketExplorerMobileList
-                rows={paginatedRows}
-                formatPrice={formatPrice}
-                percentFormatter={percentFormatter}
-                compactFormatter={compactFormatter}
-                dateFormatter={dateFormatter}
-              />
+              {isEquity ? (
+                <MarketExplorerEquityMobileList
+                  rows={paginatedRows}
+                  formatPrice={formatEquityPrice}
+                  percentFormatter={percentFormatter}
+                  dateFormatter={dateFormatter}
+                />
+              ) : isCrypto ? (
+                <MarketExplorerMobileList
+                  rows={paginatedRows}
+                  formatPrice={formatPrice}
+                  percentFormatter={percentFormatter}
+                  compactFormatter={compactFormatter}
+                  dateFormatter={dateFormatter}
+                />
+              ) : null}
               <DataTable
                 columns={columns}
                 rows={paginatedRows}
@@ -445,7 +620,7 @@ export function MarketExplorerPage() {
               />
             </div>
           ) : (
-            <p className="text-muted">No crypto assets found.</p>
+            <p className="text-muted">{emptyMessage}</p>
           )
         ) : null}
 

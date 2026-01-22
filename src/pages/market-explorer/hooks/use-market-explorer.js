@@ -4,10 +4,45 @@ import {
   getCryptoMarketSnapshots,
   hasCachedCryptoMarketSnapshots,
   refreshCryptoMarketSnapshots,
+  getEquityMarketMeta,
+  getEquityMarketSnapshots,
+  hasCachedEquityMarketSnapshots,
+  refreshEquityMarketSnapshots,
 } from "../../../services/index.js";
+
+const MARKET_PROVIDERS = {
+  crypto: {
+    hasCache: hasCachedCryptoMarketSnapshots,
+    getSnapshots: getCryptoMarketSnapshots,
+    getMeta: getCryptoMarketMeta,
+    refreshSnapshots: refreshCryptoMarketSnapshots,
+  },
+  equity: {
+    hasCache: hasCachedEquityMarketSnapshots,
+    getSnapshots: getEquityMarketSnapshots,
+    getMeta: getEquityMarketMeta,
+    refreshSnapshots: refreshEquityMarketSnapshots,
+  },
+};
+
+const EMPTY_PROVIDER = {
+  hasCache: function () {
+    return false;
+  },
+  getSnapshots: function () {
+    return [];
+  },
+  getMeta: function () {
+    return null;
+  },
+  refreshSnapshots: async function () {
+    return [];
+  },
+};
 
 export function useMarketExplorer(options) {
   const {
+    market = "crypto",
     currency,
     intervalMs = 5 * 60 * 1000,
     cooldownMs = 60 * 1000,
@@ -42,9 +77,11 @@ export function useMarketExplorer(options) {
     [clearNoticeTimer],
   );
 
+  const provider = MARKET_PROVIDERS[market] || EMPTY_PROVIDER;
+
   function loadSnapshots(targetCurrency) {
-    // Pull cached snapshots for the selected currency.
-    const data = getCryptoMarketSnapshots(targetCurrency);
+    // Pull cached snapshots for the selected market.
+    const data = provider.getSnapshots(targetCurrency);
     setSnapshots(Array.isArray(data) ? data : []);
   }
 
@@ -52,8 +89,8 @@ export function useMarketExplorer(options) {
     async function (params = {}) {
       const force = Boolean(params.force);
       const silent = Boolean(params.silent);
-      const hasCache = hasCachedCryptoMarketSnapshots(currency);
-      const meta = getCryptoMarketMeta(currency);
+      const hasCache = provider.hasCache(currency);
+      const meta = provider.getMeta(currency);
       const lastFetched = meta?.fetched_at ? Date.parse(meta.fetched_at) : 0;
       const now = Date.now();
       // Refresh if forced, missing cache, or stale beyond interval.
@@ -79,7 +116,7 @@ export function useMarketExplorer(options) {
       lastRefreshAtRef.current = Date.now();
       setIsRefreshing(true);
       try {
-        const updated = await refreshCryptoMarketSnapshots(currency);
+        const updated = await provider.refreshSnapshots(currency);
         setSnapshots(Array.isArray(updated) ? updated : []);
       } catch (err) {
         if (!silent) {
@@ -93,7 +130,7 @@ export function useMarketExplorer(options) {
         setIsRefreshing(false);
       }
     },
-    [currency, intervalMs, cooldownMs, showNotice],
+    [provider, currency, intervalMs, cooldownMs, showNotice],
   );
 
   useEffect(
@@ -101,9 +138,9 @@ export function useMarketExplorer(options) {
       // Load cached data first to avoid blank UI.
       let isActive = true;
       try {
-        loadSnapshots(currency);
-        if (!isActive) return;
-        setStatus("ready");
+      loadSnapshots(currency);
+      if (!isActive) return;
+      setStatus("ready");
       } catch (err) {
         if (!isActive) return;
         setError(
@@ -116,7 +153,17 @@ export function useMarketExplorer(options) {
         isActive = false;
       };
     },
-    [currency],
+    [currency, market],
+  );
+
+  useEffect(
+    function () {
+      // Reset manual refresh cooldown when switching market segments.
+      lastRefreshAtRef.current = 0;
+      setRefreshNotice("");
+      setRefreshError("");
+    },
+    [market],
   );
 
   useEffect(
