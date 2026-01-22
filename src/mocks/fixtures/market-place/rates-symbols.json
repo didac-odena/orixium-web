@@ -37,8 +37,7 @@
         { "symbol": "GOVT", "conid": 102436165, "name": "US Treasury All", "sector": "rates-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "BATS", "local_symbol": "GOVT" },
         { "symbol": "TIP", "conid": 26787475, "name": "US TIPS", "sector": "rates-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "TIP" },
         { "symbol": "VTIP", "conid": 115664156, "name": "Short TIPS", "sector": "rates-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "NASDAQ", "local_symbol": "VTIP" },
-        { "symbol": "IBGL", "name": "Euro Government Bonds", "sector": "rates-etf", "currency": "EUR", "exchange": "SMART" },
-        { "symbol": "BUND", "name": "Euro Gov 10Y", "sector": "rates-etf", "currency": "EUR", "exchange": "SMART" },
+        { "symbol": "IBGL", "conid": 68489977, "name": "Euro Government Bonds", "sector": "rates-etf", "currency": "GBP", "exchange": "SMART", "primary_exchange": "LSEETF", "local_symbol": "IBGL" },
         { "symbol": "EUNA", "conid": 297482853, "name": "Euro Aggregate", "sector": "rates-etf", "currency": "EUR", "exchange": "SMART", "primary_exchange": "IBIS2", "local_symbol": "EUNA" },
         { "symbol": "IGLT", "conid": 42725180, "name": "UK Gilts", "sector": "rates-etf", "currency": "GBP", "exchange": "SMART", "primary_exchange": "LSEETF", "local_symbol": "IGLT" },
         { "symbol": "WIP", "conid": 49632419, "name": "Global Inflation-Linked", "sector": "rates-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "WIP" },
@@ -51,8 +50,6 @@
     {
       "group": "rates-curve-policy-credit",
       "symbols": [
-        { "symbol": "STPP", "name": "US Curve Steepener", "sector": "rates-proxy" },
-        { "symbol": "FLAT", "name": "US Curve Flattener", "sector": "rates-proxy" },
         { "symbol": "TFLO", "conid": 143667474, "name": "Floating Rate Notes", "sector": "rates-proxy", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "TFLO" },
         { "symbol": "FLOT", "conid": 89553569, "name": "Floating Rate Bonds", "sector": "rates-proxy", "currency": "USD", "exchange": "SMART", "primary_exchange": "BATS", "local_symbol": "FLOT" },
         { "symbol": "LQD", "conid": 15547816, "name": "Investment Grade Credit", "sector": "credit-etf", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "LQD" },
