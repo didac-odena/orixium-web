@@ -1,0 +1,59 @@
+{
+  "groups": [
+    {
+      "group": "commodities-energy",
+      "symbols": [
+        { "symbol": "USO", "conid": 418893644, "name": "United States Oil Fund", "sector": "commodities-energy", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "USO" },
+        { "symbol": "BNO", "conid": 75961365, "name": "United States Brent Oil Fund", "sector": "commodities-energy", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "BNO" },
+        { "symbol": "UNG", "conid": 676612559, "name": "United States Natural Gas Fund", "sector": "commodities-energy", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "UNG" },
+        { "symbol": "XLE", "conid": 4215217, "name": "Energy Select Sector SPDR", "sector": "commodities-energy", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "XLE" },
+        { "symbol": "XOP", "conid": 413951498, "name": "S&P Oil & Gas Exploration", "sector": "commodities-energy", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "XOP" },
+        { "symbol": "IXC", "conid": 13832153, "name": "iShares Global Energy ETF", "sector": "commodities-energy", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "IXC" }
+      ]
+    },
+    {
+      "group": "commodities-precious-metals",
+      "symbols": [
+        { "symbol": "GLD", "conid": 51529211, "name": "SPDR Gold Shares", "sector": "commodities-precious", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "GLD" },
+        { "symbol": "SLV", "conid": 39039301, "name": "iShares Silver Trust", "sector": "commodities-precious", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "SLV" },
+        { "symbol": "PPLT", "conid": 334909224, "name": "Aberdeen Physical Platinum", "sector": "commodities-precious", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "PPLT" },
+        { "symbol": "PALL", "conid": 334909223, "name": "Aberdeen Physical Palladium", "sector": "commodities-precious", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "PALL" },
+        { "symbol": "GDX", "conid": 229726316, "name": "VanEck Gold Miners ETF", "sector": "commodities-precious", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "GDX" }
+      ]
+    },
+    {
+      "group": "commodities-industrial-metals",
+      "symbols": [
+        { "symbol": "CPER", "conid": 97462781, "name": "United States Copper Index Fund", "sector": "commodities-industrial", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "CPER" },
+        { "symbol": "ALUM", "conid": 41015900, "name": "WT Aluminium", "sector": "commodities-industrial", "currency": "USD", "exchange": "SMART", "primary_exchange": "LSE", "local_symbol": "ALUM" },
+        { "symbol": "ZINC", "conid": 42922198, "name": "WT Zinc", "sector": "commodities-industrial", "currency": "EUR", "exchange": "SMART", "primary_exchange": "BVME.ETF", "local_symbol": "ZINC" },
+        { "symbol": "NICK", "conid": 42922136, "name": "WT Nickel", "sector": "commodities-industrial", "currency": "EUR", "exchange": "SMART", "primary_exchange": "BVME.ETF", "local_symbol": "NICK" },
+        { "symbol": "SLX", "conid": 229726273, "name": "VanEck Steel ETF", "sector": "commodities-industrial", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "SLX" },
+        { "symbol": "PICK", "conid": 253190571, "name": "iShares Global Metals & Mining", "sector": "commodities-industrial", "currency": "USD", "exchange": "SMART", "primary_exchange": "BATS", "local_symbol": "PICK" }
+      ]
+    },
+    {
+      "group": "commodities-agriculture",
+      "symbols": [
+        { "symbol": "CORN", "conid": 76093929, "name": "Teucrium Corn Fund", "sector": "commodities-agriculture", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "CORN" },
+        { "symbol": "WEAT", "conid": 828938322, "name": "Teucrium Wheat Fund", "sector": "commodities-agriculture", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "WEAT" },
+        { "symbol": "SOYB", "conid": 94440548, "name": "Teucrium Soybean Fund", "sector": "commodities-agriculture", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "SOYB" },
+        { "symbol": "CANE", "conid": 94440555, "name": "Teucrium Sugar Fund", "sector": "commodities-agriculture", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "CANE" },
+        { "symbol": "COFF", "conid": 663871637, "name": "WT Coffee (BVME)", "sector": "commodities-agriculture", "ib_symbol": "COFF", "currency": "EUR", "exchange": "SMART", "primary_exchange": "BVME.ETF", "local_symbol": "COFF" },
+        { "symbol": "ECTN", "conid": 110115990, "name": "WT Cotton (EUR Hedged)", "sector": "commodities-agriculture", "ib_symbol": "ECTN", "currency": "EUR", "exchange": "SMART", "primary_exchange": "BVME.ETF", "local_symbol": "ECTN" },
+        { "symbol": "DBA", "conid": 319355717, "name": "Invesco DB Agriculture Fund", "sector": "commodities-agriculture", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "DBA" }
+      ]
+    },
+    {
+      "group": "commodities-livestock-soft",
+      "symbols": [
+        { "symbol": "COW", "conid": 105236041, "name": "iPath Livestock ETN", "sector": "commodities-soft", "currency": "CAD", "exchange": "SMART", "primary_exchange": "TSE", "local_symbol": "COW" },
+        { "symbol": "COCO", "conid": 522320539, "name": "WT Cocoa (NASDAQ)", "sector": "commodities-soft", "ib_symbol": "COCO", "currency": "USD", "exchange": "SMART", "primary_exchange": "NASDAQ", "local_symbol": "COCO" },
+        { "symbol": "WOOD", "conid": 52170899, "name": "iShares Global Timber", "sector": "commodities-soft", "currency": "USD", "exchange": "SMART", "primary_exchange": "NASDAQ", "local_symbol": "WOOD" },
+        { "symbol": "RUBI", "conid": 835599810, "name": "Rubber Producers ETF", "sector": "commodities-soft", "currency": "USD", "exchange": "SMART", "primary_exchange": "NASDAQ", "local_symbol": "RUBI" },
+        { "symbol": "VEGI", "conid": 101780386, "name": "iShares Global Agriculture", "sector": "commodities-soft", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "VEGI" },
+        { "symbol": "XLP", "conid": 4215210, "name": "Consumer Staples SPDR", "sector": "commodities-soft", "currency": "USD", "exchange": "SMART", "primary_exchange": "ARCA", "local_symbol": "XLP" }
+      ]
+    }
+  ]
+}

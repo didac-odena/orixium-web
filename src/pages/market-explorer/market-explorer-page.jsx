@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PageLayout } from "../../components/layout/index.js";
 import { MarketExplorerMobileList } from "../../components/market-explorer/market-explorer-mobile-list.jsx";
 import { MarketExplorerEquityMobileList } from "../../components/market-explorer/market-explorer-equity-mobile-list.jsx";
@@ -20,6 +20,7 @@ import {
   compareAssets,
   createPriceFormatter,
   createRowPriceFormatter,
+  formatGroupLabel,
   getAccentClass,
   nextSortState,
 } from "./market-explorer-utils.js";
@@ -36,6 +37,7 @@ export function MarketExplorerPage() {
   // UI-selected quote currency (usd/eur/gbp) drives formatting + fetch.
   const [currency, setCurrency] = useState(DEFAULT_QUOTE_CURRENCY);
   const [segment, setSegment] = useState("crypto");
+  const [groupFilter, setGroupFilter] = useState("all");
 
   // Data source + refresh state (cooldown + notices).
   const {
@@ -51,40 +53,6 @@ export function MarketExplorerPage() {
     currency,
     intervalMs: 5 * 60 * 1000,
     cooldownMs: 60 * 1000,
-  });
-
-  // Client-side filtering, plus page/global sorting and pagination.
-  const {
-    query,
-    setQuery,
-    setPage,
-    totalPages,
-    currentPage,
-    filteredRows,
-    paginatedRows,
-    sortKey,
-    sortMode,
-    sortDir,
-    handleSort,
-  } = usePaginatedTable({
-    rows: snapshots,
-    pageSize: PAGE_SIZE,
-    // Simple client filter by id/symbol/name.
-    filterFn: function (item, term) {
-      return (
-        item.id?.toLowerCase().includes(term) ||
-        item.symbol?.toLowerCase().includes(term) ||
-        item.name?.toLowerCase().includes(term) ||
-        item.sector?.toLowerCase().includes(term) ||
-        item.group?.toLowerCase().includes(term)
-      );
-    },
-    compareFn: compareAssets,
-    getNextSortState: nextSortState,
-    // Jump to page 1 when switching into global sort.
-    shouldResetPage: function (nextState) {
-      return nextState.mode === "global";
-    },
   });
 
   // Formatters are memoized to avoid recreating on every render.
@@ -124,19 +92,102 @@ export function MarketExplorerPage() {
 
   const isCrypto = segment === "crypto";
   const isEquity = segment === "equity";
+  const isRates = segment === "rates";
+  const isForex = segment === "forex";
+  const isCommodities = segment === "commodities";
+  const isNonCrypto = !isCrypto;
+  const groupFilterKey = isEquity
+    ? "sector"
+    : isRates || isForex || isCommodities
+      ? "group"
+      : "";
+  const groupFilterOptions = useMemo(
+    function () {
+      if (!groupFilterKey) return [];
+      const seen = new Set();
+      const options = [];
+      snapshots.forEach(function (row) {
+        const value = row?.[groupFilterKey];
+        if (!value) return;
+        const key = String(value);
+        if (seen.has(key)) return;
+        seen.add(key);
+        options.push({ id: key, label: formatGroupLabel(key) });
+      });
+      return options;
+    },
+    [groupFilterKey, snapshots],
+  );
+  const showGroupFilters = groupFilterOptions.length > 0;
   const searchPlaceholder = isCrypto
     ? "Bitcoin, BTC, bitcoin..."
     : isEquity
       ? "Apple, AAPL, technology..."
-      : "Search assets...";
+      : isRates
+        ? "Treasury, TLT, ZN..."
+        : isForex
+          ? "EUR/USD, USD/JPY..."
+          : isCommodities
+            ? "Gold, Oil, COFF..."
+            : "Search assets...";
   const emptyMessage = isCrypto
     ? "No crypto assets found."
     : isEquity
       ? "No equity assets found."
-      : "No market data available yet.";
+      : isRates
+        ? "No rates assets found."
+        : isForex
+          ? "No FX pairs found."
+          : isCommodities
+            ? "No commodities found."
+            : "No market data available yet.";
   const subtitle = isCrypto
     ? "Market data for UI testing only. Snapshots persist in localStorage."
     : "Market data for UI testing only. Snapshots loaded from fixtures.";
+
+  const filteredByGroup = useMemo(
+    function () {
+      if (!groupFilterKey || groupFilter === "all") return snapshots;
+      return snapshots.filter(function (row) {
+        return String(row?.[groupFilterKey] || "") === groupFilter;
+      });
+    },
+    [groupFilter, groupFilterKey, snapshots],
+  );
+
+  // Client-side filtering, plus page/global sorting and pagination.
+  const {
+    query,
+    setQuery,
+    setPage,
+    totalPages,
+    currentPage,
+    filteredRows,
+    paginatedRows,
+    sortKey,
+    sortMode,
+    sortDir,
+    handleSort,
+  } = usePaginatedTable({
+    rows: filteredByGroup,
+    pageSize: PAGE_SIZE,
+    // Simple client filter by id/symbol/name.
+    filterFn: function (item, term) {
+      return (
+        item.id?.toLowerCase().includes(term) ||
+        item.symbol?.toLowerCase().includes(term) ||
+        item.name?.toLowerCase().includes(term) ||
+        item.sector?.toLowerCase().includes(term) ||
+        item.group?.toLowerCase().includes(term)
+      );
+    },
+    compareFn: compareAssets,
+    getNextSortState: nextSortState,
+    // Jump to page 1 when switching into global sort.
+    shouldResetPage: function (nextState) {
+      return nextState.mode === "global";
+    },
+  });
 
   // Shape expected by DataTable for showing sort icons.
   const sortState = { key: sortKey, mode: sortMode, dir: sortDir };
@@ -447,11 +498,25 @@ export function MarketExplorerPage() {
     [dateFormatter, formatEquityPrice, percentFormatter],
   );
 
-  const columns = isEquity
-    ? equityColumns
-    : isCrypto
-      ? cryptoColumns
-      : [];
+  const columns = isCrypto ? cryptoColumns : equityColumns;
+
+  useEffect(
+    function () {
+      setGroupFilter("all");
+    },
+    [segment],
+  );
+
+  useEffect(
+    function () {
+      if (!showGroupFilters || groupFilter === "all") return;
+      const exists = groupFilterOptions.some(function (option) {
+        return option.id === groupFilter;
+      });
+      if (!exists) setGroupFilter("all");
+    },
+    [groupFilter, groupFilterOptions, showGroupFilters],
+  );
 
   return (
     <PageLayout>
@@ -462,24 +527,68 @@ export function MarketExplorerPage() {
         </header>
 
         <TableToolbar
-          topLeft={segments.map(function (segmentOption) {
-            const isActive = segmentOption.id === segment;
-            return (
-              <button
-                key={segmentOption.id}
-                type="button"
-                className={`rounded-full border border-border px-3 py-1 text-xs uppercase tracking-wide ${
-                  isActive ? "text-ink" : "text-muted opacity-60"
-                }`}
-                onClick={function () {
-                  setSegment(segmentOption.id);
-                }}
-                aria-current={isActive ? "page" : undefined}
-              >
-                {segmentOption.label}
-              </button>
-            );
-          })}
+          topLeft={
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-wrap items-center gap-3">
+                {segments.map(function (segmentOption) {
+                  const isActive = segmentOption.id === segment;
+                  return (
+                    <button
+                      key={segmentOption.id}
+                      type="button"
+                      className={`rounded-full border border-border px-3 py-1 text-xs uppercase tracking-wide transition-colors hover:border-accent hover:text-accent ${
+                        isActive ? "text-ink" : "text-muted opacity-60"
+                      }`}
+                      onClick={function () {
+                        setSegment(segmentOption.id);
+                      }}
+                      aria-current={isActive ? "page" : undefined}
+                    >
+                      {segmentOption.label}
+                    </button>
+                  );
+                })}
+              </div>
+              {showGroupFilters ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    className={`rounded-full border border-border px-3 py-1 text-[11px] uppercase tracking-wide transition-colors hover:border-accent hover:text-accent ${
+                      groupFilter === "all"
+                        ? "text-ink"
+                        : "text-muted opacity-60"
+                    }`}
+                    onClick={function () {
+                      setGroupFilter("all");
+                      setPage(1);
+                    }}
+                    aria-pressed={groupFilter === "all"}
+                  >
+                    No filter
+                  </button>
+                  {groupFilterOptions.map(function (option) {
+                    const isActive = option.id === groupFilter;
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        className={`rounded-full border border-border px-3 py-1 text-[11px] uppercase tracking-wide transition-colors hover:border-accent hover:text-accent ${
+                          isActive ? "text-ink" : "text-muted opacity-60"
+                        }`}
+                        onClick={function () {
+                          setGroupFilter(option.id);
+                          setPage(1);
+                        }}
+                        aria-pressed={isActive}
+                      >
+                        {option.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </div>
+          }
           bottomLeft={
             <>
               <label className="text-xs uppercase tracking-wide text-muted">
@@ -567,7 +676,7 @@ export function MarketExplorerPage() {
                   </svg>
                 </button>
                 {refreshNotice ? (
-                  <span className="absolute right-0 top-full z-50 mt-2 w-56 rounded-md border border-danger/40 bg-bg px-2 py-1 text-xs text-danger shadow-lg">
+                  <span className="absolute right-0 top-full z-50 mt-2 w-56 break-all rounded-md border border-danger/40 bg-bg px-2 py-1 text-xs text-danger shadow-lg">
                     {refreshNotice}
                   </span>
                 ) : null}
@@ -590,7 +699,7 @@ export function MarketExplorerPage() {
           filteredRows.length ? (
             <div className="space-y-3">
               {/* Mobile uses a collapsible list; desktop uses the data table. */}
-              {isEquity ? (
+              {isNonCrypto ? (
                 <MarketExplorerEquityMobileList
                   rows={paginatedRows}
                   formatPrice={formatEquityPrice}

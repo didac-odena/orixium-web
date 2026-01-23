@@ -1,0 +1,63 @@
+{
+  "groups": [
+    {
+      "group": "forex-g10-majors",
+      "symbols": [
+        { "symbol": "EUR/USD", "name": "EUR/USD", "sector": "fx-g10", "ib_symbol": "EUR", "currency": "USD", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "GBP/USD", "name": "GBP/USD", "sector": "fx-g10", "ib_symbol": "GBP", "currency": "USD", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "USD/JPY", "name": "USD/JPY", "sector": "fx-g10", "ib_symbol": "USD", "currency": "JPY", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "USD/CHF", "name": "USD/CHF", "sector": "fx-g10", "ib_symbol": "USD", "currency": "CHF", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "AUD/USD", "name": "AUD/USD", "sector": "fx-g10", "ib_symbol": "AUD", "currency": "USD", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "NZD/USD", "name": "NZD/USD", "sector": "fx-g10", "ib_symbol": "NZD", "currency": "USD", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "USD/CAD", "name": "USD/CAD", "sector": "fx-g10", "ib_symbol": "USD", "currency": "CAD", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "USD/NOK", "name": "USD/NOK", "sector": "fx-g10", "ib_symbol": "USD", "currency": "NOK", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "USD/SEK", "name": "USD/SEK", "sector": "fx-g10", "ib_symbol": "USD", "currency": "SEK", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "USD/DKK", "name": "USD/DKK", "sector": "fx-g10", "ib_symbol": "USD", "currency": "DKK", "exchange": "IDEALPRO", "sec_type": "CASH" }
+      ]
+    },
+    {
+      "group": "forex-g10-crosses",
+      "symbols": [
+        { "symbol": "EUR/GBP", "name": "EUR/GBP", "sector": "fx-cross", "ib_symbol": "EUR", "currency": "GBP", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "EUR/JPY", "name": "EUR/JPY", "sector": "fx-cross", "ib_symbol": "EUR", "currency": "JPY", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "EUR/CHF", "name": "EUR/CHF", "sector": "fx-cross", "ib_symbol": "EUR", "currency": "CHF", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "GBP/JPY", "name": "GBP/JPY", "sector": "fx-cross", "ib_symbol": "GBP", "currency": "JPY", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "AUD/JPY", "name": "AUD/JPY", "sector": "fx-cross", "ib_symbol": "AUD", "currency": "JPY", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "NZD/JPY", "name": "NZD/JPY", "sector": "fx-cross", "ib_symbol": "NZD", "currency": "JPY", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "CAD/JPY", "name": "CAD/JPY", "sector": "fx-cross", "ib_symbol": "CAD", "currency": "JPY", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "CHF/JPY", "name": "CHF/JPY", "sector": "fx-cross", "ib_symbol": "CHF", "currency": "JPY", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "AUD/NZD", "name": "AUD/NZD", "sector": "fx-cross", "ib_symbol": "AUD", "currency": "NZD", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "EUR/AUD", "name": "EUR/AUD", "sector": "fx-cross", "ib_symbol": "EUR", "currency": "AUD", "exchange": "IDEALPRO", "sec_type": "CASH" }
+      ]
+    },
+    {
+      "group": "forex-em-usd",
+      "symbols": [
+        { "symbol": "USD/CNH", "name": "USD/CNH", "sector": "fx-em", "ib_symbol": "USD", "currency": "CNH", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "USD/MXN", "name": "USD/MXN", "sector": "fx-em", "ib_symbol": "USD", "currency": "MXN", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "USD/ILS", "name": "USD/ILS", "sector": "fx-em", "ib_symbol": "USD", "currency": "ILS", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "USD/ZAR", "name": "USD/ZAR", "sector": "fx-em", "ib_symbol": "USD", "currency": "ZAR", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "USD/TRY", "name": "USD/TRY", "sector": "fx-em", "ib_symbol": "USD", "currency": "TRY", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "USD/HKD", "name": "USD/HKD", "sector": "fx-em", "ib_symbol": "USD", "currency": "HKD", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "USD/KRW", "name": "USD/KRW", "sector": "fx-em", "ib_symbol": "USD", "currency": "KRW", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "USD/PLN", "name": "USD/PLN", "sector": "fx-em", "ib_symbol": "USD", "currency": "PLN", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "USD/HUF", "name": "USD/HUF", "sector": "fx-em", "ib_symbol": "USD", "currency": "HUF", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "USD/CZK", "name": "USD/CZK", "sector": "fx-em", "ib_symbol": "USD", "currency": "CZK", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "USD/SGD", "name": "USD/SGD", "sector": "fx-em", "ib_symbol": "USD", "currency": "SGD", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "USD/ILS", "name": "USD/ILS", "sector": "fx-em", "ib_symbol": "USD", "currency": "ILS", "exchange": "IDEALPRO", "sec_type": "CASH" }
+      ]
+    },
+    {
+      "group": "forex-macro",
+      "symbols": [
+        { "symbol": "AUD/CAD", "name": "AUD/CAD", "sector": "fx-macro", "ib_symbol": "AUD", "currency": "CAD", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "AUD/CHF", "name": "AUD/CHF", "sector": "fx-macro", "ib_symbol": "AUD", "currency": "CHF", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "CAD/CHF", "name": "CAD/CHF", "sector": "fx-macro", "ib_symbol": "CAD", "currency": "CHF", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "NOK/SEK", "name": "NOK/SEK", "sector": "fx-macro", "ib_symbol": "NOK", "currency": "SEK", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "EUR/NOK", "name": "EUR/NOK", "sector": "fx-macro", "ib_symbol": "EUR", "currency": "NOK", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "EUR/SEK", "name": "EUR/SEK", "sector": "fx-macro", "ib_symbol": "EUR", "currency": "SEK", "exchange": "IDEALPRO", "sec_type": "CASH" },
+        { "symbol": "GBP/CHF", "name": "GBP/CHF", "sector": "fx-macro", "ib_symbol": "GBP", "currency": "CHF", "exchange": "IDEALPRO", "sec_type": "CASH" },
+      ]
+    }
+  ]
+}

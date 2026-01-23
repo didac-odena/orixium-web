@@ -60,6 +60,15 @@ export function getAccentClass(value) {
   return (value || 0) >= 0 ? "text-accent" : "text-accent-2";
 }
 
+export function formatGroupLabel(value) {
+  if (!value) return "";
+  return String(value)
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, function (letter) {
+      return letter.toUpperCase();
+    });
+}
+
 export function nextSortState(current, nextKey) {
   // Cycle: page asc -> page desc -> global asc -> global desc -> page asc.
   if (current.key !== nextKey) {

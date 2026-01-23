@@ -16,3 +16,21 @@ export {
   getEquityMarketMeta,
   refreshEquityMarketSnapshots,
 } from "./market/equity-market-service.js";
+export {
+  hasCachedRatesMarketSnapshots,
+  getRatesMarketSnapshots,
+  getRatesMarketMeta,
+  refreshRatesMarketSnapshots,
+} from "./market/rates-market-service.js";
+export {
+  hasCachedForexMarketSnapshots,
+  getForexMarketSnapshots,
+  getForexMarketMeta,
+  refreshForexMarketSnapshots,
+} from "./market/forex-market-service.js";
+export {
+  hasCachedCommoditiesMarketSnapshots,
+  getCommoditiesMarketSnapshots,
+  getCommoditiesMarketMeta,
+  refreshCommoditiesMarketSnapshots,
+} from "./market/commodities-market-service.js";

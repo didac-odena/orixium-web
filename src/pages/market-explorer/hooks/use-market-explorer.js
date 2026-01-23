@@ -8,7 +8,27 @@ import {
   getEquityMarketSnapshots,
   hasCachedEquityMarketSnapshots,
   refreshEquityMarketSnapshots,
+  getRatesMarketMeta,
+  getRatesMarketSnapshots,
+  hasCachedRatesMarketSnapshots,
+  refreshRatesMarketSnapshots,
+  getForexMarketMeta,
+  getForexMarketSnapshots,
+  hasCachedForexMarketSnapshots,
+  refreshForexMarketSnapshots,
+  getCommoditiesMarketMeta,
+  getCommoditiesMarketSnapshots,
+  hasCachedCommoditiesMarketSnapshots,
+  refreshCommoditiesMarketSnapshots,
 } from "../../../services/index.js";
+
+const MANUAL_REFRESH_SCRIPTS = {
+  equity: "E:\\Orixium\\scripts\\IBKR\\data-market\\update-equity-snapshots.ps1",
+  rates: "E:\\Orixium\\scripts\\IBKR\\data-market\\update-rates-snapshots.ps1",
+  forex: "E:\\Orixium\\scripts\\IBKR\\data-market\\update-forex-snapshots.ps1",
+  commodities:
+    "E:\\Orixium\\scripts\\IBKR\\data-market\\update-commodities-snapshots.ps1",
+};
 
 const MARKET_PROVIDERS = {
   crypto: {
@@ -22,6 +42,24 @@ const MARKET_PROVIDERS = {
     getSnapshots: getEquityMarketSnapshots,
     getMeta: getEquityMarketMeta,
     refreshSnapshots: refreshEquityMarketSnapshots,
+  },
+  rates: {
+    hasCache: hasCachedRatesMarketSnapshots,
+    getSnapshots: getRatesMarketSnapshots,
+    getMeta: getRatesMarketMeta,
+    refreshSnapshots: refreshRatesMarketSnapshots,
+  },
+  forex: {
+    hasCache: hasCachedForexMarketSnapshots,
+    getSnapshots: getForexMarketSnapshots,
+    getMeta: getForexMarketMeta,
+    refreshSnapshots: refreshForexMarketSnapshots,
+  },
+  commodities: {
+    hasCache: hasCachedCommoditiesMarketSnapshots,
+    getSnapshots: getCommoditiesMarketSnapshots,
+    getMeta: getCommoditiesMarketMeta,
+    refreshSnapshots: refreshCommoditiesMarketSnapshots,
   },
 };
 
@@ -66,13 +104,13 @@ export function useMarketExplorer(options) {
   }, []);
 
   const showNotice = useCallback(
-    function (message) {
+    function (message, durationMs = 2000) {
       // Short-lived tooltip message for cooldown feedback.
       setRefreshNotice(message);
       clearNoticeTimer();
       noticeTimerRef.current = setTimeout(function () {
         setRefreshNotice("");
-      }, 2000);
+      }, durationMs);
     },
     [clearNoticeTimer],
   );
@@ -89,6 +127,16 @@ export function useMarketExplorer(options) {
     async function (params = {}) {
       const force = Boolean(params.force);
       const silent = Boolean(params.silent);
+      const manualScript = MANUAL_REFRESH_SCRIPTS[market];
+      if (manualScript) {
+        if (!silent && force) {
+          showNotice(
+            `Manual refresh only (backend TODO). Run: ${manualScript}`,
+            6000,
+          );
+        }
+        return;
+      }
       const hasCache = provider.hasCache(currency);
       const meta = provider.getMeta(currency);
       const lastFetched = meta?.fetched_at ? Date.parse(meta.fetched_at) : 0;
@@ -130,7 +178,7 @@ export function useMarketExplorer(options) {
         setIsRefreshing(false);
       }
     },
-    [provider, currency, intervalMs, cooldownMs, showNotice],
+    [provider, currency, intervalMs, cooldownMs, showNotice, market],
   );
 
   useEffect(
