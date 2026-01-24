@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { PageLayout } from "../components/layout/index.js";
 import { MarketExplorerMobileList } from "../components/market-explorer/market-explorer-mobile-list.jsx";
 import { MarketExplorerEquityMobileList } from "../components/market-explorer/market-explorer-equity-mobile-list.jsx";
+import { MarketExplorerToolbar } from "../components/market-explorer/market-explorer-toolbar.jsx";
 import { DataTable } from "../components/ui/table/data-table.jsx";
 import { TablePagination } from "../components/ui/table/table-pagination.jsx";
-import { TableToolbar } from "../components/ui/table/table-toolbar.jsx";
 import { PageHeader } from "../components/ui/page-header.jsx";
 import {
   DEFAULT_QUOTE_CURRENCY,
@@ -18,11 +18,14 @@ import {
 import { useMarketExplorer } from "./market-explorer/hooks/use-market-explorer.js";
 import { usePaginatedTable } from "../hooks/use-paginated-table.js";
 import {
+  buildCryptoColumns,
+  buildNonCryptoColumns,
+} from "../components/market-explorer/market-explorer-columns.jsx";
+import {
   compareAssets,
   createPriceFormatter,
   createRowPriceFormatter,
   formatGroupLabel,
-  getAccentClass,
   nextSortState,
 } from "./market-explorer/market-explorer-utils.js";
 import {
@@ -187,279 +190,24 @@ export function MarketExplorerPage() {
   }
 
   // Column definitions wire labels, sort keys, and formatters.
-  const cryptoColumns = [
-    {
-      key: "rank",
-      label: "Market Cap Ranking",
-      className: "px-4 py-2 w-28 text-muted",
-      renderCell: (asset) => {
-        return asset.market_cap_rank || "--";
-      },
-    },
-    {
-      key: "asset",
-      label: "Asset",
-      className: "px-4 py-2 w-60",
-      renderCell: (asset) => {
-        const iconSrc = asset.image || "";
-        return (
-          <div className="flex items-center gap-3">
-            {iconSrc ? (
-              <img
-                src={iconSrc}
-                alt={asset.name}
-                className="h-8 w-8 rounded-md"
-                loading="lazy"
-              />
-            ) : (
-              <span className="flex h-8 w-8 items-center justify-center rounded-md border border-border text-xs">
-                {asset.symbol?.toUpperCase()}
-              </span>
-            )}
-            <div>
-              <div className="font-semibold">{asset.name}</div>
-              <div className="text-xs text-muted">
-                {asset.symbol?.toUpperCase()}
-              </div>
-            </div>
-          </div>
-        );
-      },
-    },
-    {
-      key: "price",
-      label: "Price",
-      className: "px-4 py-2",
-      renderCell: (asset) => {
-        return formatPrice(asset.current_price);
-      },
-    },
-    {
-      key: "change",
-      label: "Price 24h %",
-      className: "px-4 py-2",
-      renderCell: (asset) => {
-        const accentClass = getAccentClass(
-          asset.price_change_percentage_24h,
-        );
-        return (
-          <span className={accentClass}>
-            {asset.price_change_percentage_24h != null
-              ? `${percentFormatter.format(
-                  asset.price_change_percentage_24h,
-                )}%`
-              : "--"}
-          </span>
-        );
-      },
-    },
-    {
-      key: "priceChange",
-      label: "Price 24h",
-      className: "px-4 py-2",
-      renderCell: (asset) => {
-        const accentClass = getAccentClass(
-          asset.price_change_percentage_24h,
-        );
-        return (
-          <span className={accentClass}>
-            {formatPrice(asset.price_change_24h)}
-          </span>
-        );
-      },
-    },
-    {
-      key: "high",
-      label: "High 24h",
-      className: "px-4 py-2",
-      renderCell: (asset) => {
-        return formatPrice(asset.high_24h);
-      },
-    },
-    {
-      key: "low",
-      label: "Low 24h",
-      className: "px-4 py-2",
-      renderCell: (asset) => {
-        return formatPrice(asset.low_24h);
-      },
-    },
-    {
-      key: "marketCap",
-      label: "Market cap",
-      className: "px-4 py-2",
-      renderCell: (asset) => {
-        return asset.market_cap != null
-          ? compactFormatter.format(asset.market_cap)
-          : "--";
-      },
-    },
-    {
-      key: "marketCapChange",
-      label: "Market cap 24h %",
-      className: "px-4 py-2",
-      renderCell: (asset) => {
-        const accentClass = getAccentClass(
-          asset.market_cap_change_percentage_24h,
-        );
-        return (
-          <span className={accentClass}>
-            {asset.market_cap_change_percentage_24h != null
-              ? `${percentFormatter.format(
-                  asset.market_cap_change_percentage_24h,
-                )}%`
-              : "--"}
-          </span>
-        );
-      },
-    },
-    {
-      key: "volume",
-      label: "24h volume",
-      className: "px-4 py-2",
-      renderCell: (asset) => {
-        return asset.total_volume != null
-          ? compactFormatter.format(asset.total_volume)
-          : "--";
-      },
-    },
-    {
-      key: "updated",
-      label: "Last updated",
-      className: "px-4 py-2 text-muted whitespace-nowrap",
-      renderCell: (asset) => {
-        return asset.last_updated
-          ? dateFormatter.format(new Date(asset.last_updated))
-          : "--";
-      },
-    },
-  ];
-  const equityColumns = [
-    {
-      key: "asset",
-      label: "Asset",
-      className: "px-4 py-2 w-64",
-      renderCell: (asset) => {
-        return (
-          <div>
-            <div className="font-semibold">{asset.name}</div>
-            <div className="text-xs text-muted">
-              {asset.symbol?.toUpperCase()} · {asset.sector || "Equity"}
-            </div>
-          </div>
-        );
-      },
-    },
-    {
-      key: "price",
-      label: "Price",
-      className: "px-4 py-2",
-      renderCell: (asset) => {
-        return formatEquityPrice(asset.last, asset.currency);
-      },
-    },
-    {
-      key: "change",
-      label: "1D %",
-      className: "px-4 py-2",
-      renderCell: (asset) => {
-        const accentClass = getAccentClass(asset.change_1d_pct);
-        return (
-          <span className={accentClass}>
-            {asset.change_1d_pct != null
-              ? `${percentFormatter.format(asset.change_1d_pct)}%`
-              : "--"}
-          </span>
-        );
-      },
-    },
-    {
-      key: "priceChange",
-      label: "1D",
-      className: "px-4 py-2",
-      renderCell: (asset) => {
-        const accentClass = getAccentClass(asset.change_1d_pct);
-        return (
-          <span className={accentClass}>
-            {formatEquityPrice(asset.change_1d, asset.currency)}
-          </span>
-        );
-      },
-    },
-    {
-      key: "change1w",
-      label: "1W %",
-      className: "px-4 py-2",
-      renderCell: (asset) => {
-        const accentClass = getAccentClass(asset.change_1w_pct);
-        return (
-          <span className={accentClass}>
-            {asset.change_1w_pct != null
-              ? `${percentFormatter.format(asset.change_1w_pct)}%`
-              : "--"}
-          </span>
-        );
-      },
-    },
-    {
-      key: "change1m",
-      label: "1M %",
-      className: "px-4 py-2",
-      renderCell: (asset) => {
-        const accentClass = getAccentClass(asset.change_1m_pct);
-        return (
-          <span className={accentClass}>
-            {asset.change_1m_pct != null
-              ? `${percentFormatter.format(asset.change_1m_pct)}%`
-              : "--"}
-          </span>
-        );
-      },
-    },
-    {
-      key: "change1y",
-      label: "1Y %",
-      className: "px-4 py-2",
-      renderCell: (asset) => {
-        const accentClass = getAccentClass(asset.change_1y_pct);
-        return (
-          <span className={accentClass}>
-            {asset.change_1y_pct != null
-              ? `${percentFormatter.format(asset.change_1y_pct)}%`
-              : "--"}
-          </span>
-        );
-      },
-    },
-    {
-      key: "bid",
-      label: "Bid",
-      className: "px-4 py-2",
-      renderCell: (asset) => {
-        return formatEquityPrice(asset.bid, asset.currency);
-      },
-    },
-    {
-      key: "ask",
-      label: "Ask",
-      className: "px-4 py-2",
-      renderCell: (asset) => {
-        return formatEquityPrice(asset.ask, asset.currency);
-      },
-    },
-    {
-      key: "updated",
-      label: "Last updated",
-      className: "px-4 py-2 text-muted whitespace-nowrap",
-      renderCell: (asset) => {
-        return asset.last_updated
-          ? dateFormatter.format(new Date(asset.last_updated))
-          : "--";
-      },
-    },
-  ];
+  const cryptoColumns = buildCryptoColumns({
+    formatPrice,
+    percentFormatter,
+    compactFormatter,
+    dateFormatter,
+  });
+  const nonCryptoColumns = buildNonCryptoColumns({
+    formatEquityPrice,
+    percentFormatter,
+    dateFormatter,
+  });
 
-  const columns = isCrypto ? cryptoColumns : equityColumns;
+  const columns = isCrypto ? cryptoColumns : nonCryptoColumns;
+
+  const handleRefresh = () => {
+    // Force refresh respects cooldown in the hook.
+    refreshNow({ force: true });
+  };
 
   useEffect(
     () => {
@@ -488,166 +236,30 @@ export function MarketExplorerPage() {
           subtitleClassName="text-xs text-muted"
         />
 
-        <TableToolbar
-          topLeft={
-            <div className="flex flex-col gap-2">
-              <div className="flex flex-wrap items-center gap-3">
-                {segments.map((segmentOption) => {
-                  const isActive = segmentOption.id === segment;
-                  return (
-                    <button
-                      key={segmentOption.id}
-                      type="button"
-                      className={`rounded-full border border-border px-3 py-1 text-xs uppercase tracking-wide transition-colors hover:border-accent hover:text-accent ${
-                        isActive ? "text-ink" : "text-muted opacity-60"
-                      }`}
-                      onClick={() => {
-                        setSegment(segmentOption.id);
-                      }}
-                      aria-current={isActive ? "page" : undefined}
-                    >
-                      {segmentOption.label}
-                    </button>
-                  );
-                })}
-              </div>
-              {showGroupFilters ? (
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    className={`rounded-full border border-border px-3 py-1 text-[11px] uppercase tracking-wide transition-colors hover:border-accent hover:text-accent ${
-                      groupFilter === "all"
-                        ? "text-ink"
-                        : "text-muted opacity-60"
-                    }`}
-                    onClick={() => {
-                      setGroupFilter("all");
-                      setPage(1);
-                    }}
-                    aria-pressed={groupFilter === "all"}
-                  >
-                    No filter
-                  </button>
-                  {groupFilterOptions.map((option) => {
-                    const isActive = option.id === groupFilter;
-                    return (
-                      <button
-                        key={option.id}
-                        type="button"
-                        className={`rounded-full border border-border px-3 py-1 text-[11px] uppercase tracking-wide transition-colors hover:border-accent hover:text-accent ${
-                          isActive ? "text-ink" : "text-muted opacity-60"
-                        }`}
-                        onClick={() => {
-                          setGroupFilter(option.id);
-                          setPage(1);
-                        }}
-                        aria-pressed={isActive}
-                      >
-                        {option.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : null}
-            </div>
-          }
-          bottomLeft={
-            <>
-              <label className="text-xs uppercase tracking-wide text-muted">
-                Search
-              </label>
-              <input
-                type="search"
-                value={query}
-                onChange={(event) => {
-                  setQuery(event.target.value);
-                }}
-                placeholder={searchPlaceholder}
-                className="h-9 w-56 rounded-md border border-border bg-bg px-3 text-sm text-ink placeholder:text-muted"
-              />
-            </>
-          }
-          bottomCenter={
-            <TablePagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalCount={filteredRows.length}
-              pageSize={PAGE_SIZE}
-              onPageChange={setPage}
-            />
-          }
-          bottomRight={
-            <>
-              {isCrypto ? (
-                <>
-                  <label className="text-xs uppercase tracking-wide text-muted">
-                    Quote
-                  </label>
-                  <select
-                    value={currency}
-                    onChange={(event) => {
-                      setCurrency(event.target.value);
-                    }}
-                    className="h-9 rounded-md border border-border bg-bg px-2 text-sm text-ink"
-                  >
-                    {SUPPORTED_QUOTE_CURRENCIES.map((ccy) => {
-                      return (
-                        <option key={ccy} value={ccy}>
-                          {ccy.toUpperCase()}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </>
-              ) : null}
-              <div className="relative flex flex-col items-start">
-                <button
-                  type="button"
-                  onClick={() => {
-                    // Force refresh respects cooldown in the hook.
-                    refreshNow({ force: true });
-                  }}
-                  className={`group inline-flex h-9 items-center justify-center rounded-md border border-border px-2 text-sm text-ink hover:text-accent ${
-                    isRefreshing ? "opacity-50" : ""
-                  }`}
-                  aria-disabled={isRefreshing}
-                  aria-label="Refresh all"
-                  title="Refresh all"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="h-4 w-4 text-muted transition-colors group-hover:text-accent"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M4 4v6h6M20 20v-6h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M20 10a8 8 0 0 0-14-4M4 14a8 8 0 0 0 14 4"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </button>
-                {refreshNotice ? (
-                  <span className="absolute right-0 top-full z-50 mt-2 w-56 break-all rounded-md border border-danger/40 bg-bg px-2 py-1 text-xs text-danger shadow-lg">
-                    {refreshNotice}
-                  </span>
-                ) : null}
-              </div>
-              {refreshError ? (
-                <span className="text-xs text-danger">{refreshError}</span>
-              ) : null}
-            </>
-          }
+        <MarketExplorerToolbar
+          segments={segments}
+          activeSegment={segment}
+          onSegmentChange={setSegment}
+          groupFilter={groupFilter}
+          onGroupFilterChange={setGroupFilter}
+          groupFilterOptions={groupFilterOptions}
+          showGroupFilters={showGroupFilters}
+          searchQuery={query}
+          onSearchChange={setQuery}
+          searchPlaceholder={searchPlaceholder}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalCount={filteredRows.length}
+          pageSize={PAGE_SIZE}
+          onPageChange={setPage}
+          isCrypto={isCrypto}
+          currency={currency}
+          supportedCurrencies={SUPPORTED_QUOTE_CURRENCIES}
+          onCurrencyChange={setCurrency}
+          onRefresh={handleRefresh}
+          isRefreshing={isRefreshing}
+          refreshNotice={refreshNotice}
+          refreshError={refreshError}
         />
 
         {status === "loading" ? (
