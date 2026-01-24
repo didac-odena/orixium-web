@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../app/auth/auth-context.jsx";
+import { useAuth } from "../contexts/auth/auth-context.jsx";
 import { LoginForm } from "../components/auth/login-form.jsx";
 import { AUTH_USERS } from "../mocks/fixtures/auth-users.js";
 

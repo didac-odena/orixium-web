@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../app/auth/auth-context.jsx";
+import { useAuth } from "../../contexts/auth/auth-context.jsx";
 import { HeaderDropdown } from "../ui/dropdown/header-dropdown.jsx";
 import { ThemeToggle } from "../ui/theme/theme-toggle.jsx";
 import {
