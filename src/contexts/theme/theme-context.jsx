@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import {
   applyTheme,
   getInitialTheme,
@@ -46,15 +46,11 @@ export const ThemeProvider = ({ children }) => {
     setTheme(nextTheme);
   };
 
-  const buildValue = () => {
-    return {
-      theme,
-      setTheme,
-      toggleTheme,
-    };
+  const value = {
+    theme,
+    setTheme,
+    toggleTheme,
   };
-
-  const value = useMemo(buildValue, [theme]);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 export function usePaginatedTable(options) {
   const {
@@ -24,46 +24,34 @@ export function usePaginatedTable(options) {
     [query],
   );
 
-  const filteredRows = useMemo(
-    () => {
-      if (!filterFn) return rows;
-      const term = query.trim().toLowerCase();
-      if (!term) return rows;
-      return rows.filter((item) => {
-        return filterFn(item, term);
-      });
-    },
-    [rows, query, filterFn],
-  );
+  const term = query.trim().toLowerCase();
+  const filteredRows =
+    !filterFn || !term
+      ? rows
+      : rows.filter((item) => {
+          return filterFn(item, term);
+        });
 
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
   const currentPage = Math.min(page, totalPages);
 
-  const sortedRows = useMemo(
-    () => {
-      // Global sort reorders the full filtered list.
-      if (!sortKey || sortMode !== "global" || !compareFn) return filteredRows;
-      const list = filteredRows.slice();
-      list.sort((a, b) => {
-        return compareFn(a, b, sortKey, sortDir);
-      });
-      return list;
-    },
-    [filteredRows, sortKey, sortMode, sortDir, compareFn],
-  );
+  // Global sort reorders the full filtered list.
+  const sortedRows =
+    !sortKey || sortMode !== "global" || !compareFn
+      ? filteredRows
+      : filteredRows.slice().sort((a, b) => {
+          return compareFn(a, b, sortKey, sortDir);
+        });
 
-  const paginatedRows = useMemo(
-    () => {
-      const start = (currentPage - 1) * pageSize;
-      const pageItems = sortedRows.slice(start, start + pageSize);
-      // Page sort only reorders the current slice.
-      if (!sortKey || sortMode !== "page" || !compareFn) return pageItems;
-      return pageItems.slice().sort((a, b) => {
-        return compareFn(a, b, sortKey, sortDir);
-      });
-    },
-    [sortedRows, currentPage, pageSize, sortKey, sortMode, sortDir, compareFn],
-  );
+  const start = (currentPage - 1) * pageSize;
+  const pageItems = sortedRows.slice(start, start + pageSize);
+  // Page sort only reorders the current slice.
+  const paginatedRows =
+    !sortKey || sortMode !== "page" || !compareFn
+      ? pageItems
+      : pageItems.slice().sort((a, b) => {
+          return compareFn(a, b, sortKey, sortDir);
+        });
 
   function handleSort(nextKey) {
     const currentState = { key: sortKey, mode: sortMode, dir: sortDir };

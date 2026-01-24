@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { PageLayout } from "../components/layout/index.js";
 import { MarketExplorerMobileList } from "../components/market-explorer/market-explorer-mobile-list.jsx";
 import { MarketExplorerEquityMobileList } from "../components/market-explorer/market-explorer-equity-mobile-list.jsx";
@@ -56,32 +56,11 @@ export function MarketExplorerPage() {
     cooldownMs: 60 * 1000,
   });
 
-  // Formatters are memoized to avoid recreating on every render.
-  const formatPrice = useMemo(
-    () => {
-      return createPriceFormatter(currency);
-    },
-    [currency],
-  );
-
-  const formatEquityPrice = useMemo(() => {
-    return createRowPriceFormatter();
-  }, []);
-
-  const percentFormatter = useMemo(() => {
-    return createPercentFormatter();
-  }, []);
-
-  const compactFormatter = useMemo(
-    () => {
-      return createCompactCurrencyFormatter(currency);
-    },
-    [currency],
-  );
-
-  const dateFormatter = useMemo(() => {
-    return createDateTimeFormatter();
-  }, []);
+  const formatPrice = createPriceFormatter(currency);
+  const formatEquityPrice = createRowPriceFormatter();
+  const percentFormatter = createPercentFormatter();
+  const compactFormatter = createCompactCurrencyFormatter(currency);
+  const dateFormatter = createDateTimeFormatter();
 
   const segments = [
     { id: "crypto", label: "Crypto" },
@@ -102,23 +81,18 @@ export function MarketExplorerPage() {
     : isRates || isForex || isCommodities
       ? "group"
       : "";
-  const groupFilterOptions = useMemo(
-    () => {
-      if (!groupFilterKey) return [];
-      const seen = new Set();
-      const options = [];
-      snapshots.forEach((row) => {
-        const value = row?.[groupFilterKey];
-        if (!value) return;
-        const key = String(value);
-        if (seen.has(key)) return;
-        seen.add(key);
-        options.push({ id: key, label: formatGroupLabel(key) });
-      });
-      return options;
-    },
-    [groupFilterKey, snapshots],
-  );
+  const groupFilterOptions = [];
+  if (groupFilterKey) {
+    const seen = new Set();
+    snapshots.forEach((row) => {
+      const value = row?.[groupFilterKey];
+      if (!value) return;
+      const key = String(value);
+      if (seen.has(key)) return;
+      seen.add(key);
+      groupFilterOptions.push({ id: key, label: formatGroupLabel(key) });
+    });
+  }
   const showGroupFilters = groupFilterOptions.length > 0;
   const searchPlaceholder = isCrypto
     ? "Bitcoin, BTC, bitcoin..."
@@ -146,15 +120,12 @@ export function MarketExplorerPage() {
     ? "Market data for UI testing only. Snapshots persist in localStorage."
     : "Market data for UI testing only. Snapshots loaded from fixtures.";
 
-  const filteredByGroup = useMemo(
-    () => {
-      if (!groupFilterKey || groupFilter === "all") return snapshots;
-      return snapshots.filter((row) => {
-        return String(row?.[groupFilterKey] || "") === groupFilter;
-      });
-    },
-    [groupFilter, groupFilterKey, snapshots],
-  );
+  const filteredByGroup =
+    !groupFilterKey || groupFilter === "all"
+      ? snapshots
+      : snapshots.filter((row) => {
+          return String(row?.[groupFilterKey] || "") === groupFilter;
+        });
 
   // Client-side filtering, plus page/global sorting and pagination.
   const {
@@ -216,288 +187,277 @@ export function MarketExplorerPage() {
   }
 
   // Column definitions wire labels, sort keys, and formatters.
-  const cryptoColumns = useMemo(
-    () => {
-      return [
-        {
-          key: "rank",
-          label: "Market Cap Ranking",
-          className: "px-4 py-2 w-28 text-muted",
-          renderCell: (asset) => {
-            return asset.market_cap_rank || "--";
-          },
-        },
-        {
-          key: "asset",
-          label: "Asset",
-          className: "px-4 py-2 w-60",
-          renderCell: (asset) => {
-            const iconSrc = asset.image || "";
-            return (
-              <div className="flex items-center gap-3">
-                {iconSrc ? (
-                  <img
-                    src={iconSrc}
-                    alt={asset.name}
-                    className="h-8 w-8 rounded-md"
-                    loading="lazy"
-                  />
-                ) : (
-                  <span className="flex h-8 w-8 items-center justify-center rounded-md border border-border text-xs">
-                    {asset.symbol?.toUpperCase()}
-                  </span>
-                )}
-                <div>
-                  <div className="font-semibold">{asset.name}</div>
-                  <div className="text-xs text-muted">
-                    {asset.symbol?.toUpperCase()}
-                  </div>
-                </div>
-              </div>
-            );
-          },
-        },
-        {
-          key: "price",
-          label: "Price",
-          className: "px-4 py-2",
-          renderCell: (asset) => {
-            return formatPrice(asset.current_price);
-          },
-        },
-        {
-          key: "change",
-          label: "Price 24h %",
-          className: "px-4 py-2",
-          renderCell: (asset) => {
-            const accentClass = getAccentClass(
-              asset.price_change_percentage_24h,
-            );
-            return (
-              <span className={accentClass}>
-                {asset.price_change_percentage_24h != null
-                  ? `${percentFormatter.format(
-                      asset.price_change_percentage_24h,
-                    )}%`
-                  : "--"}
-              </span>
-            );
-          },
-        },
-        {
-          key: "priceChange",
-          label: "Price 24h",
-          className: "px-4 py-2",
-          renderCell: (asset) => {
-            const accentClass = getAccentClass(
-              asset.price_change_percentage_24h,
-            );
-            return (
-              <span className={accentClass}>
-                {formatPrice(asset.price_change_24h)}
-              </span>
-            );
-          },
-        },
-        {
-          key: "high",
-          label: "High 24h",
-          className: "px-4 py-2",
-          renderCell: (asset) => {
-            return formatPrice(asset.high_24h);
-          },
-        },
-        {
-          key: "low",
-          label: "Low 24h",
-          className: "px-4 py-2",
-          renderCell: (asset) => {
-            return formatPrice(asset.low_24h);
-          },
-        },
-        {
-          key: "marketCap",
-          label: "Market cap",
-          className: "px-4 py-2",
-          renderCell: (asset) => {
-            return asset.market_cap != null
-              ? compactFormatter.format(asset.market_cap)
-              : "--";
-          },
-        },
-        {
-          key: "marketCapChange",
-          label: "Market cap 24h %",
-          className: "px-4 py-2",
-          renderCell: (asset) => {
-            const accentClass = getAccentClass(
-              asset.market_cap_change_percentage_24h,
-            );
-            return (
-              <span className={accentClass}>
-                {asset.market_cap_change_percentage_24h != null
-                  ? `${percentFormatter.format(
-                      asset.market_cap_change_percentage_24h,
-                    )}%`
-                  : "--"}
-              </span>
-            );
-          },
-        },
-        {
-          key: "volume",
-          label: "24h volume",
-          className: "px-4 py-2",
-          renderCell: (asset) => {
-            return asset.total_volume != null
-              ? compactFormatter.format(asset.total_volume)
-              : "--";
-          },
-        },
-        {
-          key: "updated",
-          label: "Last updated",
-          className: "px-4 py-2 text-muted whitespace-nowrap",
-          renderCell: (asset) => {
-            return asset.last_updated
-              ? dateFormatter.format(new Date(asset.last_updated))
-              : "--";
-          },
-        },
-      ];
+  const cryptoColumns = [
+    {
+      key: "rank",
+      label: "Market Cap Ranking",
+      className: "px-4 py-2 w-28 text-muted",
+      renderCell: (asset) => {
+        return asset.market_cap_rank || "--";
+      },
     },
-    [compactFormatter, dateFormatter, formatPrice, percentFormatter],
-  );
-
-  const equityColumns = useMemo(
-    () => {
-      return [
-        {
-          key: "asset",
-          label: "Asset",
-          className: "px-4 py-2 w-64",
-          renderCell: (asset) => {
-            return (
-              <div>
-                <div className="font-semibold">{asset.name}</div>
-                <div className="text-xs text-muted">
-                  {asset.symbol?.toUpperCase()} · {asset.sector || "Equity"}
-                </div>
+    {
+      key: "asset",
+      label: "Asset",
+      className: "px-4 py-2 w-60",
+      renderCell: (asset) => {
+        const iconSrc = asset.image || "";
+        return (
+          <div className="flex items-center gap-3">
+            {iconSrc ? (
+              <img
+                src={iconSrc}
+                alt={asset.name}
+                className="h-8 w-8 rounded-md"
+                loading="lazy"
+              />
+            ) : (
+              <span className="flex h-8 w-8 items-center justify-center rounded-md border border-border text-xs">
+                {asset.symbol?.toUpperCase()}
+              </span>
+            )}
+            <div>
+              <div className="font-semibold">{asset.name}</div>
+              <div className="text-xs text-muted">
+                {asset.symbol?.toUpperCase()}
               </div>
-            );
-          },
-        },
-        {
-          key: "price",
-          label: "Price",
-          className: "px-4 py-2",
-          renderCell: (asset) => {
-            return formatEquityPrice(asset.last, asset.currency);
-          },
-        },
-        {
-          key: "change",
-          label: "1D %",
-          className: "px-4 py-2",
-          renderCell: (asset) => {
-            const accentClass = getAccentClass(asset.change_1d_pct);
-            return (
-              <span className={accentClass}>
-                {asset.change_1d_pct != null
-                  ? `${percentFormatter.format(asset.change_1d_pct)}%`
-                  : "--"}
-              </span>
-            );
-          },
-        },
-        {
-          key: "priceChange",
-          label: "1D",
-          className: "px-4 py-2",
-          renderCell: (asset) => {
-            const accentClass = getAccentClass(asset.change_1d_pct);
-            return (
-              <span className={accentClass}>
-                {formatEquityPrice(asset.change_1d, asset.currency)}
-              </span>
-            );
-          },
-        },
-        {
-          key: "change1w",
-          label: "1W %",
-          className: "px-4 py-2",
-          renderCell: (asset) => {
-            const accentClass = getAccentClass(asset.change_1w_pct);
-            return (
-              <span className={accentClass}>
-                {asset.change_1w_pct != null
-                  ? `${percentFormatter.format(asset.change_1w_pct)}%`
-                  : "--"}
-              </span>
-            );
-          },
-        },
-        {
-          key: "change1m",
-          label: "1M %",
-          className: "px-4 py-2",
-          renderCell: (asset) => {
-            const accentClass = getAccentClass(asset.change_1m_pct);
-            return (
-              <span className={accentClass}>
-                {asset.change_1m_pct != null
-                  ? `${percentFormatter.format(asset.change_1m_pct)}%`
-                  : "--"}
-              </span>
-            );
-          },
-        },
-        {
-          key: "change1y",
-          label: "1Y %",
-          className: "px-4 py-2",
-          renderCell: (asset) => {
-            const accentClass = getAccentClass(asset.change_1y_pct);
-            return (
-              <span className={accentClass}>
-                {asset.change_1y_pct != null
-                  ? `${percentFormatter.format(asset.change_1y_pct)}%`
-                  : "--"}
-              </span>
-            );
-          },
-        },
-        {
-          key: "bid",
-          label: "Bid",
-          className: "px-4 py-2",
-          renderCell: (asset) => {
-            return formatEquityPrice(asset.bid, asset.currency);
-          },
-        },
-        {
-          key: "ask",
-          label: "Ask",
-          className: "px-4 py-2",
-          renderCell: (asset) => {
-            return formatEquityPrice(asset.ask, asset.currency);
-          },
-        },
-        {
-          key: "updated",
-          label: "Last updated",
-          className: "px-4 py-2 text-muted whitespace-nowrap",
-          renderCell: (asset) => {
-            return asset.last_updated
-              ? dateFormatter.format(new Date(asset.last_updated))
-              : "--";
-          },
-        },
-      ];
+            </div>
+          </div>
+        );
+      },
     },
-    [dateFormatter, formatEquityPrice, percentFormatter],
-  );
+    {
+      key: "price",
+      label: "Price",
+      className: "px-4 py-2",
+      renderCell: (asset) => {
+        return formatPrice(asset.current_price);
+      },
+    },
+    {
+      key: "change",
+      label: "Price 24h %",
+      className: "px-4 py-2",
+      renderCell: (asset) => {
+        const accentClass = getAccentClass(
+          asset.price_change_percentage_24h,
+        );
+        return (
+          <span className={accentClass}>
+            {asset.price_change_percentage_24h != null
+              ? `${percentFormatter.format(
+                  asset.price_change_percentage_24h,
+                )}%`
+              : "--"}
+          </span>
+        );
+      },
+    },
+    {
+      key: "priceChange",
+      label: "Price 24h",
+      className: "px-4 py-2",
+      renderCell: (asset) => {
+        const accentClass = getAccentClass(
+          asset.price_change_percentage_24h,
+        );
+        return (
+          <span className={accentClass}>
+            {formatPrice(asset.price_change_24h)}
+          </span>
+        );
+      },
+    },
+    {
+      key: "high",
+      label: "High 24h",
+      className: "px-4 py-2",
+      renderCell: (asset) => {
+        return formatPrice(asset.high_24h);
+      },
+    },
+    {
+      key: "low",
+      label: "Low 24h",
+      className: "px-4 py-2",
+      renderCell: (asset) => {
+        return formatPrice(asset.low_24h);
+      },
+    },
+    {
+      key: "marketCap",
+      label: "Market cap",
+      className: "px-4 py-2",
+      renderCell: (asset) => {
+        return asset.market_cap != null
+          ? compactFormatter.format(asset.market_cap)
+          : "--";
+      },
+    },
+    {
+      key: "marketCapChange",
+      label: "Market cap 24h %",
+      className: "px-4 py-2",
+      renderCell: (asset) => {
+        const accentClass = getAccentClass(
+          asset.market_cap_change_percentage_24h,
+        );
+        return (
+          <span className={accentClass}>
+            {asset.market_cap_change_percentage_24h != null
+              ? `${percentFormatter.format(
+                  asset.market_cap_change_percentage_24h,
+                )}%`
+              : "--"}
+          </span>
+        );
+      },
+    },
+    {
+      key: "volume",
+      label: "24h volume",
+      className: "px-4 py-2",
+      renderCell: (asset) => {
+        return asset.total_volume != null
+          ? compactFormatter.format(asset.total_volume)
+          : "--";
+      },
+    },
+    {
+      key: "updated",
+      label: "Last updated",
+      className: "px-4 py-2 text-muted whitespace-nowrap",
+      renderCell: (asset) => {
+        return asset.last_updated
+          ? dateFormatter.format(new Date(asset.last_updated))
+          : "--";
+      },
+    },
+  ];
+  const equityColumns = [
+    {
+      key: "asset",
+      label: "Asset",
+      className: "px-4 py-2 w-64",
+      renderCell: (asset) => {
+        return (
+          <div>
+            <div className="font-semibold">{asset.name}</div>
+            <div className="text-xs text-muted">
+              {asset.symbol?.toUpperCase()} · {asset.sector || "Equity"}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: "price",
+      label: "Price",
+      className: "px-4 py-2",
+      renderCell: (asset) => {
+        return formatEquityPrice(asset.last, asset.currency);
+      },
+    },
+    {
+      key: "change",
+      label: "1D %",
+      className: "px-4 py-2",
+      renderCell: (asset) => {
+        const accentClass = getAccentClass(asset.change_1d_pct);
+        return (
+          <span className={accentClass}>
+            {asset.change_1d_pct != null
+              ? `${percentFormatter.format(asset.change_1d_pct)}%`
+              : "--"}
+          </span>
+        );
+      },
+    },
+    {
+      key: "priceChange",
+      label: "1D",
+      className: "px-4 py-2",
+      renderCell: (asset) => {
+        const accentClass = getAccentClass(asset.change_1d_pct);
+        return (
+          <span className={accentClass}>
+            {formatEquityPrice(asset.change_1d, asset.currency)}
+          </span>
+        );
+      },
+    },
+    {
+      key: "change1w",
+      label: "1W %",
+      className: "px-4 py-2",
+      renderCell: (asset) => {
+        const accentClass = getAccentClass(asset.change_1w_pct);
+        return (
+          <span className={accentClass}>
+            {asset.change_1w_pct != null
+              ? `${percentFormatter.format(asset.change_1w_pct)}%`
+              : "--"}
+          </span>
+        );
+      },
+    },
+    {
+      key: "change1m",
+      label: "1M %",
+      className: "px-4 py-2",
+      renderCell: (asset) => {
+        const accentClass = getAccentClass(asset.change_1m_pct);
+        return (
+          <span className={accentClass}>
+            {asset.change_1m_pct != null
+              ? `${percentFormatter.format(asset.change_1m_pct)}%`
+              : "--"}
+          </span>
+        );
+      },
+    },
+    {
+      key: "change1y",
+      label: "1Y %",
+      className: "px-4 py-2",
+      renderCell: (asset) => {
+        const accentClass = getAccentClass(asset.change_1y_pct);
+        return (
+          <span className={accentClass}>
+            {asset.change_1y_pct != null
+              ? `${percentFormatter.format(asset.change_1y_pct)}%`
+              : "--"}
+          </span>
+        );
+      },
+    },
+    {
+      key: "bid",
+      label: "Bid",
+      className: "px-4 py-2",
+      renderCell: (asset) => {
+        return formatEquityPrice(asset.bid, asset.currency);
+      },
+    },
+    {
+      key: "ask",
+      label: "Ask",
+      className: "px-4 py-2",
+      renderCell: (asset) => {
+        return formatEquityPrice(asset.ask, asset.currency);
+      },
+    },
+    {
+      key: "updated",
+      label: "Last updated",
+      className: "px-4 py-2 text-muted whitespace-nowrap",
+      renderCell: (asset) => {
+        return asset.last_updated
+          ? dateFormatter.format(new Date(asset.last_updated))
+          : "--";
+      },
+    },
+  ];
 
   const columns = isCrypto ? cryptoColumns : equityColumns;
 

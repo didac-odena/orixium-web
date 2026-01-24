@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as AuthService from "../../services/index.js";
 
@@ -49,20 +49,14 @@ export function AuthProvider({ children }) {
 
   const isAuthenticated = Boolean(user);
 
-  // Memoize context value to avoid unnecessary re-renders.
-  const value = useMemo(
-    () => {
-      return {
-        user: user,
-        isAuthenticated: isAuthenticated,
-        isInitializing: isInitializing,
-        error: error,
-        login: login,
-        logout: logout,
-      };
-    },
-    [user, isAuthenticated, isInitializing, error],
-  );
+  const value = {
+    user: user,
+    isAuthenticated: isAuthenticated,
+    isInitializing: isInitializing,
+    error: error,
+    login: login,
+    logout: logout,
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
