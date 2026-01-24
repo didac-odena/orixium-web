@@ -43,10 +43,10 @@ export function getUser() {
 
 export async function login(credentials) {
   try {
-    const data = await authAdapter.postLogin(credentials);
+    const loginResponse = await authAdapter.postLogin(credentials);
 
-    const user = data?.user || null;
-    const sessionId = String(data?.sessionId || "");
+    const user = loginResponse?.user || null;
+    const sessionId = String(loginResponse?.sessionId || "");
     if (!user || !sessionId) throw new Error("Login failed");
 
     // Normalize + persist the session user shape.

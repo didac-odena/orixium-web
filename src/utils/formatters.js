@@ -6,6 +6,13 @@ export function createPercentFormatter() {
   });
 }
 
+export function createMoneyFormatter() {
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
 export function createCompactCurrencyFormatter(currency) {
   // Compact currency (K/M/B) for market cap/volume.
   return new Intl.NumberFormat("en-US", {

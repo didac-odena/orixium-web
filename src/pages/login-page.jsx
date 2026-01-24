@@ -26,13 +26,12 @@ export function LoginPage() {
   useEffect(
     () => {
       // If there's an active session, skip the login page.
-      if (auth.isInitializing) return;
       if (auth.isAuthenticated) {
         const nextPath = getNextPath(location.search);
         navigate(nextPath, { replace: true });
       }
     },
-    [auth.isInitializing, auth.isAuthenticated, location.search, navigate]
+    [auth.isAuthenticated, location.search, navigate]
   );
 
   async function handleSubmit(values) {

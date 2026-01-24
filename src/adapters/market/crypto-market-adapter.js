@@ -9,7 +9,7 @@ const coingeckoClient = axios.create({
 
 export async function fetchCoinMarkets(params) {
   // CoinGecko market list endpoint (single page).
-  const res = await coingeckoClient.get("/coins/markets", {
+  const response = await coingeckoClient.get("/coins/markets", {
     params: {
       vs_currency: params.vsCurrency,
       order: "market_cap_desc",
@@ -18,5 +18,5 @@ export async function fetchCoinMarkets(params) {
       sparkline: "false",
     },
   });
-  return res.data;
+  return response.data;
 }

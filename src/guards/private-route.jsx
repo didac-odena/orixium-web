@@ -6,11 +6,6 @@ export function PrivateRoute({ children }) {
   const auth = useAuth();
   const location = useLocation();
 
-  if (auth.isInitializing) {
-    // Wait for auth bootstrap before deciding on redirect.
-    return <div>Loading...</div>;
-  }
-
   if (!auth.isAuthenticated) {
     // Preserve intended URL so login can redirect back.
     console.log("REDIRECTING TO LOGIN")

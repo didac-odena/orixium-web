@@ -133,13 +133,7 @@ export function useMarketExplorer(options) {
     }, durationMs);
   };
 
-  function loadSnapshots(targetCurrency) {
-    // Pull cached snapshots for the selected market.
-    const data = getMarketSnapshots(market, targetCurrency);
-    setSnapshots(Array.isArray(data) ? data : []);
-  }
-
-  const refreshNow = async (params = {}) => {
+  async function refreshNow(params = {}) {
     const force = Boolean(params.force);
     const silent = Boolean(params.silent);
     const manualScript = MANUAL_REFRESH_SCRIPTS[market];
@@ -179,8 +173,13 @@ export function useMarketExplorer(options) {
     lastRefreshAtRef.current = Date.now();
     setIsRefreshing(true);
     try {
-      const updated = await refreshMarketSnapshots(market, currency);
-      setSnapshots(Array.isArray(updated) ? updated : []);
+      const refreshedSnapshots = await refreshMarketSnapshots(
+        market,
+        currency,
+      );
+      setSnapshots(
+        Array.isArray(refreshedSnapshots) ? refreshedSnapshots : [],
+      );
     } catch (err) {
       if (!silent) {
         setRefreshError(
@@ -196,7 +195,8 @@ export function useMarketExplorer(options) {
     // Load cached data first to avoid blank UI.
     let isActive = true;
     try {
-      loadSnapshots(currency);
+      const snapshotRows = getMarketSnapshots(market, currency);
+      setSnapshots(Array.isArray(snapshotRows) ? snapshotRows : []);
       if (!isActive) return;
       setStatus("ready");
     } catch (err) {
@@ -220,15 +220,10 @@ export function useMarketExplorer(options) {
   }, [market]);
 
   useEffect(() => {
-    // Background refresh interval (stale-only unless forced).
+    // Refresh once when entering or switching market.
     refreshNow({ silent: true });
-    const intervalId = setInterval(() => {
-      refreshNow({ silent: true });
-    }, intervalMs);
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [currency, intervalMs, cooldownMs, market]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currency, intervalMs, market]);
 
   useEffect(() => {
     return () => {

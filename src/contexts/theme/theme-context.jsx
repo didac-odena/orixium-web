@@ -46,15 +46,20 @@ export const ThemeProvider = ({ children }) => {
     setTheme(nextTheme);
   };
 
-  const value = {
+  const themeContextValue = {
     theme,
     setTheme,
     toggleTheme,
   };
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={themeContextValue}>
+      {children}
+    </ThemeContext.Provider>
+  );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTheme = () => {
   const ctx = useContext(ThemeContext);
   if (!ctx) {

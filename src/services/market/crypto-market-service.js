@@ -61,9 +61,14 @@ export async function refreshCryptoMarketSnapshots(
   // fetchedAt is stored to drive stale checks and UI timestamps.
   const fetchedAt = new Date().toISOString();
   // CoinGecko returns a full market list ordered by market cap.
-  const data = await fetchCoinMarkets({ vsCurrency: key, perPage: 250 });
-  if (!Array.isArray(data)) throw new Error("Invalid market response.");
-  const normalized = data.map((item) => {
+  const marketListResponse = await fetchCoinMarkets({
+    vsCurrency: key,
+    perPage: 250,
+  });
+  if (!Array.isArray(marketListResponse)) {
+    throw new Error("Invalid market response.");
+  }
+  const normalized = marketListResponse.map((item) => {
     return normalizeMarketItem(item, key);
   });
   setCachedMarketList(key, normalized, fetchedAt);

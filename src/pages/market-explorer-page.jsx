@@ -1,8 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { PageLayout } from "../components/layout/index.js";
-import { MarketExplorerMobileList } from "../components/market-explorer/market-explorer-mobile-list.jsx";
-import { MarketExplorerEquityMobileList } from "../components/market-explorer/market-explorer-equity-mobile-list.jsx";
-import { MarketExplorerToolbar } from "../components/market-explorer/market-explorer-toolbar.jsx";
+import {
+  MarketExplorerMobileList,
+  MarketExplorerEquityMobileList,
+  MarketExplorerToolbar,
+  buildCryptoColumns,
+  buildNonCryptoColumns,
+} from "../components/market-explorer/index.js";
 import { DataTable } from "../components/ui/table/data-table.jsx";
 import { TablePagination } from "../components/ui/table/table-pagination.jsx";
 import { PageHeader } from "../components/ui/page-header.jsx";
@@ -18,10 +22,6 @@ import {
 import { useMarketExplorer } from "./market-explorer/hooks/use-market-explorer.js";
 import { usePaginatedTable } from "../hooks/use-paginated-table.js";
 import {
-  buildCryptoColumns,
-  buildNonCryptoColumns,
-} from "../components/market-explorer/market-explorer-columns.jsx";
-import {
   compareAssets,
   createPriceFormatter,
   createRowPriceFormatter,
@@ -36,6 +36,34 @@ import {
 } from "@heroicons/react/24/outline";
 
 const PAGE_SIZE = 50;
+const SEGMENT_COPY = {
+  crypto: {
+    searchPlaceholder: "Bitcoin, BTC, bitcoin...",
+    emptyMessage: "No crypto assets found.",
+    subtitle:
+      "Market data for UI testing only. Snapshots persist in localStorage.",
+  },
+  equity: {
+    searchPlaceholder: "Apple, AAPL, technology...",
+    emptyMessage: "No equity assets found.",
+    subtitle: "Market data for UI testing only. Snapshots loaded from fixtures.",
+  },
+  rates: {
+    searchPlaceholder: "Treasury, TLT, ZN...",
+    emptyMessage: "No rates assets found.",
+    subtitle: "Market data for UI testing only. Snapshots loaded from fixtures.",
+  },
+  forex: {
+    searchPlaceholder: "EUR/USD, USD/JPY...",
+    emptyMessage: "No FX pairs found.",
+    subtitle: "Market data for UI testing only. Snapshots loaded from fixtures.",
+  },
+  commodities: {
+    searchPlaceholder: "Gold, Oil, COFF...",
+    emptyMessage: "No commodities found.",
+    subtitle: "Market data for UI testing only. Snapshots loaded from fixtures.",
+  },
+};
 
 export function MarketExplorerPage() {
   // UI-selected quote currency (usd/eur/gbp) drives formatting + fetch.
@@ -73,61 +101,52 @@ export function MarketExplorerPage() {
     { id: "commodities", label: "Commodities" },
   ];
 
-  const isCrypto = segment === "crypto";
-  const isEquity = segment === "equity";
-  const isRates = segment === "rates";
-  const isForex = segment === "forex";
-  const isCommodities = segment === "commodities";
-  const isNonCrypto = !isCrypto;
-  const groupFilterKey = isEquity
+  const isCryptoSegment = segment === "crypto";
+  const isEquitySegment = segment === "equity";
+  const isRatesSegment = segment === "rates";
+  const isForexSegment = segment === "forex";
+  const isCommoditiesSegment = segment === "commodities";
+  const groupFilterKey = isEquitySegment
     ? "sector"
-    : isRates || isForex || isCommodities
+    : isRatesSegment || isForexSegment || isCommoditiesSegment
       ? "group"
       : "";
   const groupFilterOptions = [];
   if (groupFilterKey) {
     const seen = new Set();
-    snapshots.forEach((row) => {
-      const value = row?.[groupFilterKey];
-      if (!value) return;
-      const key = String(value);
+    snapshots.forEach((asset) => {
+      const groupValue = asset?.[groupFilterKey];
+      if (!groupValue) return;
+      const key = String(groupValue);
       if (seen.has(key)) return;
       seen.add(key);
       groupFilterOptions.push({ id: key, label: formatGroupLabel(key) });
     });
   }
   const showGroupFilters = groupFilterOptions.length > 0;
-  const searchPlaceholder = isCrypto
-    ? "Bitcoin, BTC, bitcoin..."
-    : isEquity
-      ? "Apple, AAPL, technology..."
-      : isRates
-        ? "Treasury, TLT, ZN..."
-        : isForex
-          ? "EUR/USD, USD/JPY..."
-          : isCommodities
-            ? "Gold, Oil, COFF..."
-            : "Search assets...";
-  const emptyMessage = isCrypto
-    ? "No crypto assets found."
-    : isEquity
-      ? "No equity assets found."
-      : isRates
-        ? "No rates assets found."
-        : isForex
-          ? "No FX pairs found."
-          : isCommodities
-            ? "No commodities found."
-            : "No market data available yet.";
-  const subtitle = isCrypto
-    ? "Market data for UI testing only. Snapshots persist in localStorage."
-    : "Market data for UI testing only. Snapshots loaded from fixtures.";
+  const resolvedGroupFilter = showGroupFilters
+    ? groupFilterOptions.some((option) => {
+        return option.id === groupFilter;
+      })
+      ? groupFilter
+      : "all"
+    : "all";
+  const segmentCopy = SEGMENT_COPY[segment] || {
+    searchPlaceholder: "Search assets...",
+    emptyMessage: "No market data available yet.",
+    subtitle: "Market data for UI testing only. Snapshots loaded from fixtures.",
+  };
+  const searchPlaceholder = segmentCopy.searchPlaceholder;
+  const emptyMessage = segmentCopy.emptyMessage;
+  const subtitle = segmentCopy.subtitle;
 
   const filteredByGroup =
-    !groupFilterKey || groupFilter === "all"
+    !groupFilterKey || resolvedGroupFilter === "all"
       ? snapshots
-      : snapshots.filter((row) => {
-          return String(row?.[groupFilterKey] || "") === groupFilter;
+      : snapshots.filter((asset) => {
+          return (
+            String(asset?.[groupFilterKey] || "") === resolvedGroupFilter
+          );
         });
 
   // Client-side filtering, plus page/global sorting and pagination.
@@ -202,30 +221,17 @@ export function MarketExplorerPage() {
     dateFormatter,
   });
 
-  const columns = isCrypto ? cryptoColumns : nonCryptoColumns;
+  const columns = isCryptoSegment ? cryptoColumns : nonCryptoColumns;
 
   const handleRefresh = () => {
     // Force refresh respects cooldown in the hook.
     refreshNow({ force: true });
   };
 
-  useEffect(
-    () => {
-      setGroupFilter("all");
-    },
-    [segment],
-  );
-
-  useEffect(
-    () => {
-      if (!showGroupFilters || groupFilter === "all") return;
-      const exists = groupFilterOptions.some((option) => {
-        return option.id === groupFilter;
-      });
-      if (!exists) setGroupFilter("all");
-    },
-    [groupFilter, groupFilterOptions, showGroupFilters],
-  );
+  const handleSegmentChange = (nextSegment) => {
+    setSegment(nextSegment);
+    setGroupFilter("all");
+  };
 
   return (
     <PageLayout>
@@ -239,8 +245,8 @@ export function MarketExplorerPage() {
         <MarketExplorerToolbar
           segments={segments}
           activeSegment={segment}
-          onSegmentChange={setSegment}
-          groupFilter={groupFilter}
+          onSegmentChange={handleSegmentChange}
+          groupFilter={resolvedGroupFilter}
           onGroupFilterChange={setGroupFilter}
           groupFilterOptions={groupFilterOptions}
           showGroupFilters={showGroupFilters}
@@ -252,7 +258,7 @@ export function MarketExplorerPage() {
           totalCount={filteredRows.length}
           pageSize={PAGE_SIZE}
           onPageChange={setPage}
-          isCrypto={isCrypto}
+          isCrypto={isCryptoSegment}
           currency={currency}
           supportedCurrencies={SUPPORTED_QUOTE_CURRENCIES}
           onCurrencyChange={setCurrency}
@@ -273,14 +279,14 @@ export function MarketExplorerPage() {
           filteredRows.length ? (
             <div className="space-y-3">
               {/* Mobile uses a collapsible list; desktop uses the data table. */}
-              {isNonCrypto ? (
+              {!isCryptoSegment ? (
                 <MarketExplorerEquityMobileList
                   rows={paginatedRows}
                   formatPrice={formatEquityPrice}
                   percentFormatter={percentFormatter}
                   dateFormatter={dateFormatter}
                 />
-              ) : isCrypto ? (
+              ) : isCryptoSegment ? (
                 <MarketExplorerMobileList
                   rows={paginatedRows}
                   formatPrice={formatPrice}

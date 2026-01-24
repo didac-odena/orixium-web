@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/auth/auth-context.jsx";
 import { HeaderDropdown } from "../ui/dropdown/header-dropdown.jsx";
 import { ThemeToggle } from "../ui/theme/theme-toggle.jsx";
@@ -64,7 +64,6 @@ function NavItem({ to, label, children, onSelect }) {
 
 export function Header() {
   const { isAuthenticated, logout, user } = useAuth();
-  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const userLabel = user?.name || user?.email || "Account";
 
@@ -73,7 +72,6 @@ export function Header() {
 
   async function handleLogout() {
     await logout();
-    navigate("/", { replace: true });
   }
 
   function handleToggleMenu() {

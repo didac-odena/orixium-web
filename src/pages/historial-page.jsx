@@ -3,6 +3,11 @@ import { PageLayout } from "../components/layout/index.js";
 import { PageHeader } from "../components/ui/page-header.jsx";
 import { getTradeHistory } from "../services/index.js";
 import {
+  createDateTimeFormatter,
+  createMoneyFormatter,
+  createPercentFormatter,
+} from "../utils/formatters.js";
+import {
   ArrowTrendingDownIcon,
   ArrowTrendingUpIcon,
 } from "@heroicons/react/24/outline";
@@ -12,29 +17,20 @@ export function HistorialPage() {
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState("");
 
-  const moneyFormatter = new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-  const percentFormatter = new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-  const dateFormatter = new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "short",
-    timeStyle: "short",
-  });
+  const moneyFormatter = createMoneyFormatter();
+  const percentFormatter = createPercentFormatter();
+  const dateFormatter = createDateTimeFormatter();
 
   useEffect(() => {
     let isActive = true;
     // Avoid state updates if the component unmounts mid-request.
 
-    async function loadHistory() {
+    async function loadTradeHistory() {
       try {
         // Fetch closed trades for the history view.
-        const data = await getTradeHistory();
+        const historyRows = await getTradeHistory();
         if (!isActive) return;
-        setTrades(data);
+        setTrades(historyRows);
         setStatus("ready");
       } catch (err) {
         if (!isActive) return;
@@ -45,7 +41,7 @@ export function HistorialPage() {
       }
     }
 
-    loadHistory();
+    loadTradeHistory();
 
     return () => {
       isActive = false;

@@ -3,6 +3,11 @@ import { PageLayout } from "../components/layout/index.js";
 import { PageHeader } from "../components/ui/page-header.jsx";
 import { getOpenTrades } from "../services/index.js";
 import {
+  createDateTimeFormatter,
+  createMoneyFormatter,
+  createPercentFormatter,
+} from "../utils/formatters.js";
+import {
   ArrowTrendingDownIcon,
   ArrowTrendingUpIcon,
 } from "@heroicons/react/24/outline";
@@ -12,26 +17,17 @@ export function TradingPage() {
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState("");
 
-  const moneyFormatter = new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-  const percentFormatter = new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-  const dateFormatter = new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "short",
-    timeStyle: "short",
-  });
+  const moneyFormatter = createMoneyFormatter();
+  const percentFormatter = createPercentFormatter();
+  const dateFormatter = createDateTimeFormatter();
 
-  function getPnl(trade) {
+  function calcTradePnl(trade) {
     // P&L in quote currency; invert for shorts.
     const direction = trade.side === "short" ? -1 : 1;
     return (trade.currentPrice - trade.entryPrice) * trade.qty * direction;
   }
 
-  function getPnlPercent(trade) {
+  function calcTradePnlPercent(trade) {
     // Percentage P&L relative to entry.
     const direction = trade.side === "short" ? -1 : 1;
     return (
@@ -48,9 +44,9 @@ export function TradingPage() {
     async function loadOpenTrades() {
       try {
         // Fetch current open positions.
-        const data = await getOpenTrades();
+        const openTrades = await getOpenTrades();
         if (!isActive) return;
-        setTrades(data);
+        setTrades(openTrades);
         setStatus("ready");
       } catch (err) {
         if (!isActive) return;
@@ -83,8 +79,8 @@ export function TradingPage() {
             <div className="space-y-3">
               <div className="space-y-2 md:hidden">
                 {trades.map((trade) => {
-                  const pnl = getPnl(trade);
-                  const pnlPercent = getPnlPercent(trade);
+                  const pnl = calcTradePnl(trade);
+                  const pnlPercent = calcTradePnlPercent(trade);
                   const isPositive = pnl >= 0;
                   const accentClass = isPositive
                     ? "text-accent"
@@ -173,8 +169,8 @@ export function TradingPage() {
                   </thead>
                   <tbody>
                     {trades.map((trade) => {
-                      const pnl = getPnl(trade);
-                      const pnlPercent = getPnlPercent(trade);
+                      const pnl = calcTradePnl(trade);
+                      const pnlPercent = calcTradePnlPercent(trade);
                       const isPositive = pnl >= 0;
                       const accentClass = isPositive
                         ? "text-accent"

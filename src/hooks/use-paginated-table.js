@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export function usePaginatedTable(options) {
   const {
@@ -16,13 +16,10 @@ export function usePaginatedTable(options) {
   const [sortMode, setSortMode] = useState("page");
   const [sortDir, setSortDir] = useState("asc");
 
-  useEffect(
-    () => {
-      // Reset pagination when the filter query changes.
-      setPage(1);
-    },
-    [query],
-  );
+  function handleQueryChange(nextQuery) {
+    setQuery(nextQuery);
+    setPage(1);
+  }
 
   const term = query.trim().toLowerCase();
   const filteredRows =
@@ -77,7 +74,7 @@ export function usePaginatedTable(options) {
 
   return {
     query,
-    setQuery,
+    setQuery: handleQueryChange,
     page,
     setPage,
     totalPages,

@@ -7,8 +7,10 @@ const THEMES = {
 function getStoredTheme() {
   // Read theme preference from localStorage, if any.
   try {
-    const value = localStorage.getItem(STORAGE_KEY);
-    if (value === THEMES.LIGHT || value === THEMES.DARK) return value;
+    const storedValue = localStorage.getItem(STORAGE_KEY);
+    if (storedValue === THEMES.LIGHT || storedValue === THEMES.DARK) {
+      return storedValue;
+    }
     return null;
   } catch {
     return null;
@@ -53,13 +55,4 @@ export function setTheme(theme) {
   }
   applyTheme(theme);
   return theme;
-}
-
-export function toggleTheme() {
-  const current = document.documentElement.classList.contains("dark")
-    ? THEMES.DARK
-    : THEMES.LIGHT;
-
-  const next = current === THEMES.DARK ? THEMES.LIGHT : THEMES.DARK;
-  return setTheme(next);
 }

@@ -22,6 +22,23 @@ function clearSession() {
   localStorage.removeItem(SESSION_STORAGE_KEY);
 }
 
+function respondNotAuthenticated() {
+  return HttpResponse.json({ message: "Not authenticated" }, { status: 401 });
+}
+
+function getSessionUser() {
+  const session = getSession();
+  if (!session) return null;
+  const user = AUTH_USERS.find((item) => {
+    return item.id === session.userId;
+  });
+  if (!user) {
+    clearSession();
+    return null;
+  }
+  return { session, user };
+}
+
 // Strip sensitive fields (password) from responses.
 function safeUser(user) {
   return {
@@ -46,11 +63,11 @@ export const authHandlers = [
       .toLowerCase();
     const password = String(body?.password || "");
 
-    const found = AUTH_USERS.find((u) => {
-      return u.email === email && u.password === password;
+    const matchedUser = AUTH_USERS.find((item) => {
+      return item.email === email && item.password === password;
     });
 
-    if (!found) {
+    if (!matchedUser) {
       return HttpResponse.json(
         { message: "Invalid credentials" },
         { status: 401 }
@@ -63,14 +80,14 @@ export const authHandlers = [
         (crypto?.randomUUID
           ? crypto.randomUUID()
           : Math.random().toString(36).slice(2, 10)),
-      userId: found.id,
+      userId: matchedUser.id,
       createdAt: new Date().toISOString(),
     };
 
     setSession(session);
 
     return HttpResponse.json({
-      user: safeUser(found),
+      user: safeUser(matchedUser),
       sessionId: session.sessionId,
     });
   }),
@@ -79,29 +96,12 @@ export const authHandlers = [
   http.get("/api/auth/me", async () => {
     await delay(150);
 
-    const session = getSession();
-    if (!session) {
-      return HttpResponse.json(
-        { message: "Not authenticated" },
-        { status: 401 }
-      );
-    }
-
-    const found = AUTH_USERS.find((u) => {
-      return u.id === session.userId;
-    });
-
-    if (!found) {
-      clearSession();
-      return HttpResponse.json(
-        { message: "Not authenticated" },
-        { status: 401 }
-      );
-    }
+    const sessionUser = getSessionUser();
+    if (!sessionUser) return respondNotAuthenticated();
 
     return HttpResponse.json({
-      user: safeUser(found),
-      sessionId: session.sessionId,
+      user: safeUser(sessionUser.user),
+      sessionId: sessionUser.session.sessionId,
     });
   }),
 

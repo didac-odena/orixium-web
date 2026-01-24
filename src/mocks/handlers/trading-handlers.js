@@ -32,41 +32,31 @@ function filterByAccount(items, searchParams) {
   });
 }
 
+function respondWithUserData(request, rows) {
+  const session = getSession();
+  if (!session?.userId) {
+    return HttpResponse.json([], { status: 200 });
+  }
+  const url = new URL(request.url);
+  const userRows = filterByUserId(rows, session.userId);
+  const filteredRows = filterByAccount(userRows, url.searchParams);
+  return HttpResponse.json(filteredRows);
+}
+
 export const tradingHandlers = [
   http.get("/api/portfolio/summary", async ({ request }) => {
     await delay(200);
-    const session = getSession();
-    if (!session?.userId) {
-      return HttpResponse.json([], { status: 200 });
-    }
-    const url = new URL(request.url);
-    const base = filterByUserId(PortfolioSummary, session.userId);
-    const data = filterByAccount(base, url.searchParams);
-    return HttpResponse.json(data);
+    return respondWithUserData(request, PortfolioSummary);
   }),
 
   http.get("/api/trades/open", async ({ request }) => {
     await delay(200);
-    const session = getSession();
-    if (!session?.userId) {
-      return HttpResponse.json([], { status: 200 });
-    }
-    const url = new URL(request.url);
-    const base = filterByUserId(TradesOpen, session.userId);
-    const data = filterByAccount(base, url.searchParams);
-    return HttpResponse.json(data);
+    return respondWithUserData(request, TradesOpen);
   }),
 
   http.get("/api/trades/history", async ({ request }) => {
     await delay(200);
-    const session = getSession();
-    if (!session?.userId) {
-      return HttpResponse.json([], { status: 200 });
-    }
-    const url = new URL(request.url);
-    const base = filterByUserId(TradesHistory, session.userId);
-    const data = filterByAccount(base, url.searchParams);
-    return HttpResponse.json(data);
+    return respondWithUserData(request, TradesHistory);
   }),
 ];
 
