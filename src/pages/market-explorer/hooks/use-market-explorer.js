@@ -99,7 +99,7 @@ export function useMarketExplorer(options) {
 
   const clearNoticeTimer = useCallback(function () {
     if (!noticeTimerRef.current) return;
-    clearTimeout(noticeTimerRef.current);
+    clearTimeout(noticeTimerRºef.current);
     noticeTimerRef.current = null;
   }, []);
 

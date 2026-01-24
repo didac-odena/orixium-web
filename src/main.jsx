@@ -5,6 +5,7 @@ import App from "./App.jsx";
 import "./index.css";
 
 import { AuthProvider, ThemeProvider, initDevMocks } from "./app/index.js";
+import { BrowserRouter } from "react-router-dom";
 
 async function start() {
   // Start MSW before rendering so requests are intercepted in dev.
@@ -12,12 +13,14 @@ async function start() {
 
   ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
-      <ThemeProvider>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
-      </ThemeProvider>
-    </React.StrictMode>
+      <BrowserRouter>
+        <ThemeProvider>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </ThemeProvider>
+      </BrowserRouter>
+    </React.StrictMode>,
   );
 }
 

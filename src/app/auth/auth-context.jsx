@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import * as authService from "../../services/index.js";
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext(null);
 
@@ -9,6 +10,8 @@ export function AuthProvider(props) {
   const [user, setUser] = useState(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(function () {
     // Bootstrap auth state from storage via the service layer.
@@ -36,8 +39,9 @@ export function AuthProvider(props) {
     setError(null);
     try {
       // Clear session on both server and local storage.
+      navigate("/", {replace:true});
       await authService.logout();
-      setUser(null);
+      setUser(null); 
       return true;
     } catch (e) {
       console.error("[AuthContext] logout failed", e);
@@ -60,7 +64,7 @@ export function AuthProvider(props) {
         logout: logout,
       };
     },
-    [user, isAuthenticated, isInitializing, error]
+    [user, isAuthenticated, isInitializing, error],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { PrivateRoute } from "./guards/index.js";
 import {
   DashboardPage,
@@ -14,32 +14,29 @@ import {
   PortfolioPage,
 } from "./pages/index.js";
 
-
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public routes */}
-        <Route path="/login" element={<LoginPage />} />
+    <Routes>
+      {/* Public routes */}
+      <Route path="/login" element={<LoginPage />} />
 
-        <Route path="/" element={<HomePage />} />
-        <Route path="/membership" element={<MembershipPage />} />
-        <Route path="/support" element={<SupportPage />} />
-        <Route path="/strategy" element={<StrategyPage />} />
+      <Route path="/" element={<HomePage />} />
+      <Route path="/membership" element={<MembershipPage />} />
+      <Route path="/support" element={<SupportPage />} />
+      <Route path="/strategy" element={<StrategyPage />} />
 
-        {/* Protected routes */}
-        <Route element={<PrivateRoute />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/portfolio" element={<PortfolioPage />} />
-          <Route path="/trading" element={<TradingPage />} />
-          <Route path="/market-explorer" element={<MarketExplorerPage />} />
-          <Route path="/historial" element={<HistorialPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-        </Route>
+      {/* Protected routes */}
+      <Route element={<PrivateRoute />}>
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/portfolio" element={<PortfolioPage />} />
+        <Route path="/trading" element={<TradingPage />} />
+        <Route path="/market-explorer" element={<MarketExplorerPage />} />
+        <Route path="/historial" element={<HistorialPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+      </Route>
 
-        <Route path="*" element={<div>Not Found</div>} />
-      </Routes>
-    </BrowserRouter>
+      <Route path="*" element={<div>Not Found</div>} />
+    </Routes>
   );
 }
 
