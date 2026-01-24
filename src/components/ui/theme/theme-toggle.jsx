@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
-import { toggleTheme } from "../../utils/theme.js";
+import { toggleTheme } from "../../../utils/theme.js";
 
 export function ThemeToggle() {
   const [isDark, setIsDark] = useState(false);

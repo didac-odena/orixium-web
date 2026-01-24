@@ -1,21 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
-import { PageLayout } from "../../components/layout/index.js";
-import { MarketExplorerMobileList } from "../../components/market-explorer/market-explorer-mobile-list.jsx";
-import { MarketExplorerEquityMobileList } from "../../components/market-explorer/market-explorer-equity-mobile-list.jsx";
-import { DataTable } from "../../components/ui/data-table.jsx";
-import { TablePagination } from "../../components/ui/table-pagination.jsx";
-import { TableToolbar } from "../../components/ui/table-toolbar.jsx";
+import { PageLayout } from "../components/layout/index.js";
+import { MarketExplorerMobileList } from "../components/market-explorer/market-explorer-mobile-list.jsx";
+import { MarketExplorerEquityMobileList } from "../components/market-explorer/market-explorer-equity-mobile-list.jsx";
+import { DataTable } from "../components/ui/table/data-table.jsx";
+import { TablePagination } from "../components/ui/table/table-pagination.jsx";
+import { TableToolbar } from "../components/ui/table/table-toolbar.jsx";
 import {
   DEFAULT_QUOTE_CURRENCY,
   SUPPORTED_QUOTE_CURRENCIES,
-} from "../../services/index.js";
+} from "../services/index.js";
 import {
   createCompactCurrencyFormatter,
   createDateTimeFormatter,
   createPercentFormatter,
-} from "../../utils/formatters.js";
-import { useMarketExplorer } from "./hooks/use-market-explorer.js";
-import { usePaginatedTable } from "../../hooks/use-paginated-table.js";
+} from "../utils/formatters.js";
+import { useMarketExplorer } from "./market-explorer/hooks/use-market-explorer.js";
+import { usePaginatedTable } from "../hooks/use-paginated-table.js";
 import {
   compareAssets,
   createPriceFormatter,
@@ -23,7 +23,7 @@ import {
   formatGroupLabel,
   getAccentClass,
   nextSortState,
-} from "./market-explorer-utils.js";
+} from "./market-explorer/market-explorer-utils.js";
 import {
   ChevronDownIcon,
   ChevronUpIcon,

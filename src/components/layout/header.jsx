@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../app/auth/auth-context.jsx";
-import { HeaderDropdown } from "../ui/header-dropdown.jsx";
-import { ThemeToggle } from "../ui/theme-toggle.jsx";
+import { HeaderDropdown } from "../ui/dropdown/header-dropdown.jsx";
+import { ThemeToggle } from "../ui/theme/theme-toggle.jsx";
 import {
   Bars3Icon,
   ChartPieIcon,

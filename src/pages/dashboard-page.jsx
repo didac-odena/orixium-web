@@ -1,4 +1,4 @@
-import { PageLayout } from "../../components/layout/index.js";
+import { PageLayout } from "../components/layout/index.js";
 
 export function DashboardPage() {
   return (

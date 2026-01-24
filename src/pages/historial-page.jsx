@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { PageLayout } from "../../components/layout/index.js";
-import { getOpenTrades } from "../../services/index.js";
+import { PageLayout } from "../components/layout/index.js";
+import { getTradeHistory } from "../services/index.js";
 import {
   ArrowTrendingDownIcon,
   ArrowTrendingUpIcon,
 } from "@heroicons/react/24/outline";
 
-export function TradingPage() {
+export function HistorialPage() {
   const [trades, setTrades] = useState([]);
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState("");
@@ -24,41 +24,27 @@ export function TradingPage() {
     timeStyle: "short",
   });
 
-  function getPnl(trade) {
-    // P&L in quote currency; invert for shorts.
-    const direction = trade.side === "short" ? -1 : 1;
-    return (trade.currentPrice - trade.entryPrice) * trade.qty * direction;
-  }
-
-  function getPnlPercent(trade) {
-    // Percentage P&L relative to entry.
-    const direction = trade.side === "short" ? -1 : 1;
-    return (
-      ((trade.currentPrice - trade.entryPrice) / trade.entryPrice) *
-      100 *
-      direction
-    );
-  }
-
   useEffect(function () {
     let isActive = true;
     // Avoid state updates if the component unmounts mid-request.
 
-    async function loadOpenTrades() {
+    async function loadHistory() {
       try {
-        // Fetch current open positions.
-        const data = await getOpenTrades();
+        // Fetch closed trades for the history view.
+        const data = await getTradeHistory();
         if (!isActive) return;
         setTrades(data);
         setStatus("ready");
       } catch (err) {
         if (!isActive) return;
-        setError(err instanceof Error ? err.message : "Failed to load trades.");
+        setError(
+          err instanceof Error ? err.message : "Failed to load history.",
+        );
         setStatus("error");
       }
     }
 
-    loadOpenTrades();
+    loadHistory();
 
     return function () {
       isActive = false;
@@ -69,10 +55,8 @@ export function TradingPage() {
     <PageLayout>
       <section className="space-y-6">
         <header>
-          <h1 className="text-2xl font-semibold">Trading</h1>
-          <p className="text-muted text-xs">
-            Open trades (private). Real-time view of active positions.
-          </p>
+          <h1 className="text-2xl font-semibold">Historial</h1>
+          <p className="text-muted">Closed trades (private)</p>
         </header>
 
         {status === "loading" ? <p>Loading...</p> : null}
@@ -81,11 +65,10 @@ export function TradingPage() {
         {status === "ready" ? (
           trades.length ? (
             <div className="space-y-3">
+              {/* Mobile: expandable cards for quick scanning. */}
               <div className="space-y-2 md:hidden">
                 {trades.map(function (trade) {
-                  const pnl = getPnl(trade);
-                  const pnlPercent = getPnlPercent(trade);
-                  const isPositive = pnl >= 0;
+                  const isPositive = trade.pnlUsd >= 0;
                   const accentClass = isPositive
                     ? "text-accent"
                     : "text-accent-2";
@@ -114,25 +97,27 @@ export function TradingPage() {
                           <div>
                             <div className="font-semibold">{trade.symbol}</div>
                             <div className="text-xs text-muted">
-                              {dateFormatter.format(new Date(trade.openedAt))}
+                              {dateFormatter.format(new Date(trade.closedAt))}
                             </div>
                           </div>
                         </div>
                         <div className={`text-sm ${accentClass}`}>
-                          {percentFormatter.format(pnlPercent)}%
+                          {percentFormatter.format(trade.pnlPct)}%
                         </div>
                       </summary>
                       <div className="border-t border-border px-4 py-3 text-sm text-muted">
                         <div>Side: {trade.side}</div>
-                        <div>Type: {trade.orderType}</div>
-                        <div>Entry: {moneyFormatter.format(trade.entryPrice)}</div>
                         <div>
-                          Current: {moneyFormatter.format(trade.currentPrice)}
+                          Entry: {moneyFormatter.format(trade.entryPrice)}
+                        </div>
+                        <div>
+                          Exit: {moneyFormatter.format(trade.exitPrice)}
                         </div>
                         <div>Qty: {trade.qty}</div>
                         <div className={accentClass}>
-                          P&amp;L: {moneyFormatter.format(pnl)}
+                          P&amp;L: {moneyFormatter.format(trade.pnlUsd)}
                         </div>
+                        <div>Reason: {trade.exitReason}</div>
                       </div>
                     </details>
                   );
@@ -146,18 +131,18 @@ export function TradingPage() {
                       {[
                         { key: "trend", label: "" },
                         {
-                          key: "opened",
-                          label: "Opened",
+                          key: "closed",
+                          label: "Closed",
                           className: "px-4 py-3 whitespace-nowrap w-40",
                         },
                         { key: "symbol", label: "Symbol" },
                         { key: "side", label: "Side" },
-                        { key: "type", label: "Type" },
                         { key: "entry", label: "Entry" },
-                        { key: "current", label: "Current" },
+                        { key: "exit", label: "Exit" },
                         { key: "qty", label: "Qty" },
                         { key: "pnl", label: "P&L" },
                         { key: "pnlPercent", label: "P&L %" },
+                        { key: "reason", label: "Reason" },
                       ].map(function (column) {
                         return (
                           <th
@@ -173,9 +158,7 @@ export function TradingPage() {
                   </thead>
                   <tbody>
                     {trades.map(function (trade) {
-                      const pnl = getPnl(trade);
-                      const pnlPercent = getPnlPercent(trade);
-                      const isPositive = pnl >= 0;
+                      const isPositive = trade.pnlUsd >= 0;
                       const accentClass = isPositive
                         ? "text-accent"
                         : "text-accent-2";
@@ -201,10 +184,11 @@ export function TradingPage() {
                           ),
                         },
                         {
-                          key: "opened",
-                          className: "px-4 py-3 text-muted whitespace-nowrap w-40",
+                          key: "closed",
+                          className:
+                            "px-4 py-3 text-muted whitespace-nowrap w-40",
                           content: dateFormatter.format(
-                            new Date(trade.openedAt)
+                            new Date(trade.closedAt),
                           ),
                         },
                         {
@@ -218,19 +202,14 @@ export function TradingPage() {
                           content: trade.side,
                         },
                         {
-                          key: "type",
-                          className: "px-4 py-3 uppercase text-muted",
-                          content: trade.orderType,
-                        },
-                        {
                           key: "entry",
                           className: "px-4 py-3",
                           content: moneyFormatter.format(trade.entryPrice),
                         },
                         {
-                          key: "current",
+                          key: "exit",
                           className: "px-4 py-3",
-                          content: moneyFormatter.format(trade.currentPrice),
+                          content: moneyFormatter.format(trade.exitPrice),
                         },
                         {
                           key: "qty",
@@ -240,12 +219,17 @@ export function TradingPage() {
                         {
                           key: "pnl",
                           className: `px-4 py-3 ${accentClass}`,
-                          content: moneyFormatter.format(pnl),
+                          content: moneyFormatter.format(trade.pnlUsd),
                         },
                         {
                           key: "pnlPercent",
                           className: `px-4 py-3 ${accentClass}`,
-                          content: `${percentFormatter.format(pnlPercent)}%`,
+                          content: `${percentFormatter.format(trade.pnlPct)}%`,
+                        },
+                        {
+                          key: "reason",
+                          className: "px-4 py-3 uppercase text-muted",
+                          content: trade.exitReason,
                         },
                       ];
 
@@ -266,7 +250,7 @@ export function TradingPage() {
               </div>
             </div>
           ) : (
-            <p className="text-muted">No open trades yet.</p>
+            <p className="text-muted">No history yet.</p>
           )
         ) : null}
       </section>
