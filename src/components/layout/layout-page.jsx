@@ -1,4 +1,5 @@
-import { Header, Footer } from "../index.js";
+import { Header } from "./header.jsx";
+import { Footer } from "./footer.jsx";
 
 export function PageLayout({ children }) {
 

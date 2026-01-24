@@ -1,25 +1,17 @@
-import { useEffect, useState } from "react";
 import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
-import { toggleTheme } from "../../../utils/theme.js";
+import { useTheme } from "../../../contexts/theme/theme-context.jsx";
 
 export function ThemeToggle() {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    // Read initial state from the document class.
-    setIsDark(document.documentElement.classList.contains("dark"));
-  }, []);
-
-  function onClick() {
-    // Toggle theme and reflect the new DOM state.
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === "dark";
+  const handleToggle = () => {
     toggleTheme();
-    setIsDark(document.documentElement.classList.contains("dark"));
-  }
+  };
 
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={handleToggle}
       className="cursor-pointer p-1 text-ink hover:text-accent"
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >

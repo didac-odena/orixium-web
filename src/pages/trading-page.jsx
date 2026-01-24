@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { PageLayout } from "../components/layout/index.js";
+import { PageHeader } from "../components/ui/page-header.jsx";
 import { getOpenTrades } from "../services/index.js";
 import {
   ArrowTrendingDownIcon,
@@ -68,12 +69,11 @@ export function TradingPage() {
   return (
     <PageLayout>
       <section className="space-y-6">
-        <header>
-          <h1 className="text-2xl font-semibold">Trading</h1>
-          <p className="text-muted text-xs">
-            Open trades (private). Real-time view of active positions.
-          </p>
-        </header>
+        <PageHeader
+          title="Trading"
+          subtitle="Open trades (private). Real-time view of active positions."
+          subtitleClassName="text-muted text-xs"
+        />
 
         {status === "loading" ? <p>Loading...</p> : null}
         {status === "error" ? <p className="text-danger">{error}</p> : null}
@@ -273,4 +273,6 @@ export function TradingPage() {
     </PageLayout>
   );
 }
+
+
 

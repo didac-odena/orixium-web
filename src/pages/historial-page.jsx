@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { PageLayout } from "../components/layout/index.js";
+import { PageHeader } from "../components/ui/page-header.jsx";
 import { getTradeHistory } from "../services/index.js";
 import {
   ArrowTrendingDownIcon,
@@ -54,10 +55,7 @@ export function HistorialPage() {
   return (
     <PageLayout>
       <section className="space-y-6">
-        <header>
-          <h1 className="text-2xl font-semibold">Historial</h1>
-          <p className="text-muted">Closed trades (private)</p>
-        </header>
+        <PageHeader title="Historial" subtitle="Closed trades (private)" />
 
         {status === "loading" ? <p>Loading...</p> : null}
         {status === "error" ? <p className="text-danger">{error}</p> : null}
@@ -257,4 +255,6 @@ export function HistorialPage() {
     </PageLayout>
   );
 }
+
+
 

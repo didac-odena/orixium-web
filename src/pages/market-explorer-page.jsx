@@ -5,6 +5,7 @@ import { MarketExplorerEquityMobileList } from "../components/market-explorer/ma
 import { DataTable } from "../components/ui/table/data-table.jsx";
 import { TablePagination } from "../components/ui/table/table-pagination.jsx";
 import { TableToolbar } from "../components/ui/table/table-toolbar.jsx";
+import { PageHeader } from "../components/ui/page-header.jsx";
 import {
   DEFAULT_QUOTE_CURRENCY,
   SUPPORTED_QUOTE_CURRENCIES,
@@ -521,10 +522,11 @@ export function MarketExplorerPage() {
   return (
     <PageLayout>
       <section className="space-y-2">
-        <header className="space-y-1">
-          <h1 className="text-2xl font-semibold">Market Explorer</h1>
-          <p className="text-xs text-muted">{subtitle}</p>
-        </header>
+        <PageHeader
+          title="Market Explorer"
+          subtitle={subtitle}
+          subtitleClassName="text-xs text-muted"
+        />
 
         <TableToolbar
           topLeft={
@@ -744,4 +746,6 @@ export function MarketExplorerPage() {
     </PageLayout>
   );
 }
+
+
 
