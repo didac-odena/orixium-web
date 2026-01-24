@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { applyTheme, getInitialTheme, hasUserThemePreference } from "../../utils/theme.js";
 
 export function ThemeProvider({ children }) {
-  useEffect(function () {
+  useEffect(() => {
     // Apply initial theme (stored preference wins over system).
     const initial = getInitialTheme();
     applyTheme(initial);
@@ -20,13 +20,13 @@ export function ThemeProvider({ children }) {
     // Support modern and legacy matchMedia listeners.
     if (typeof media.addEventListener === "function") {
       media.addEventListener("change", onChange);
-      return function () {
+      return () => {
         media.removeEventListener("change", onChange);
       };
     }
 
     media.addListener(onChange);
-    return function () {
+    return () => {
       media.removeListener(onChange);
     };
   }, []);
@@ -34,3 +34,4 @@ export function ThemeProvider({ children }) {
   // ThemeProvider only wires behavior; it doesn't render UI.
   return children;
 }
+

@@ -34,10 +34,10 @@ function safeUser(user) {
 
 export const authHandlers = [
   // POST /api/auth/login
-  http.post("/api/auth/login", async function ({ request }) {
+  http.post("/api/auth/login", async ({ request }) => {
     await delay(300);
 
-    const body = await request.json().catch(function () {
+    const body = await request.json().catch(() => {
       return null;
     });
 
@@ -46,7 +46,7 @@ export const authHandlers = [
       .toLowerCase();
     const password = String(body?.password || "");
 
-    const found = AUTH_USERS.find(function (u) {
+    const found = AUTH_USERS.find((u) => {
       return u.email === email && u.password === password;
     });
 
@@ -76,7 +76,7 @@ export const authHandlers = [
   }),
 
   // GET /api/auth/me
-  http.get("/api/auth/me", async function () {
+  http.get("/api/auth/me", async () => {
     await delay(150);
 
     const session = getSession();
@@ -87,7 +87,7 @@ export const authHandlers = [
       );
     }
 
-    const found = AUTH_USERS.find(function (u) {
+    const found = AUTH_USERS.find((u) => {
       return u.id === session.userId;
     });
 
@@ -106,9 +106,10 @@ export const authHandlers = [
   }),
 
   // POST /api/auth/logout
-  http.post("/api/auth/logout", async function () {
+  http.post("/api/auth/logout", async () => {
     await delay(150);
     clearSession();
     return HttpResponse.json({ ok: true });
   }),
 ];
+

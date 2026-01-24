@@ -5,7 +5,7 @@ import { toggleTheme } from "../../../utils/theme.js";
 export function ThemeToggle() {
   const [isDark, setIsDark] = useState(false);
 
-  useEffect(function () {
+  useEffect(() => {
     // Read initial state from the document class.
     setIsDark(document.documentElement.classList.contains("dark"));
   }, []);
@@ -31,3 +31,4 @@ export function ThemeToggle() {
     </button>
   );
 }
+

@@ -17,7 +17,7 @@ export function usePaginatedTable(options) {
   const [sortDir, setSortDir] = useState("asc");
 
   useEffect(
-    function () {
+    () => {
       // Reset pagination when the filter query changes.
       setPage(1);
     },
@@ -25,11 +25,11 @@ export function usePaginatedTable(options) {
   );
 
   const filteredRows = useMemo(
-    function () {
+    () => {
       if (!filterFn) return rows;
       const term = query.trim().toLowerCase();
       if (!term) return rows;
-      return rows.filter(function (item) {
+      return rows.filter((item) => {
         return filterFn(item, term);
       });
     },
@@ -40,11 +40,11 @@ export function usePaginatedTable(options) {
   const currentPage = Math.min(page, totalPages);
 
   const sortedRows = useMemo(
-    function () {
+    () => {
       // Global sort reorders the full filtered list.
       if (!sortKey || sortMode !== "global" || !compareFn) return filteredRows;
       const list = filteredRows.slice();
-      list.sort(function (a, b) {
+      list.sort((a, b) => {
         return compareFn(a, b, sortKey, sortDir);
       });
       return list;
@@ -53,12 +53,12 @@ export function usePaginatedTable(options) {
   );
 
   const paginatedRows = useMemo(
-    function () {
+    () => {
       const start = (currentPage - 1) * pageSize;
       const pageItems = sortedRows.slice(start, start + pageSize);
       // Page sort only reorders the current slice.
       if (!sortKey || sortMode !== "page" || !compareFn) return pageItems;
-      return pageItems.slice().sort(function (a, b) {
+      return pageItems.slice().sort((a, b) => {
         return compareFn(a, b, sortKey, sortDir);
       });
     },
@@ -102,3 +102,4 @@ export function usePaginatedTable(options) {
     handleSort,
   };
 }
+

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import * as authService from "../../services/index.js";
+import * as AuthService from "../../services/index.js";
 
 const AuthContext = createContext(null);
 
@@ -10,9 +10,9 @@ export function AuthProvider({ children }) {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(function () {
+  useEffect(() => {
     // Bootstrap auth state from storage via the service layer.
-    const existingUser = authService.getUser();
+    const existingUser = AuthService.getUser();
     setUser(existingUser);
     setIsInitializing(false);
   }, []);
@@ -21,7 +21,7 @@ export function AuthProvider({ children }) {
     setError(null);
     try {
       // Service handles API call + persistence of the session user.
-      const currentUser = await authService.login(credentials);
+      const currentUser = await AuthService.login(credentials);
       setUser(currentUser);
       return currentUser;
     } catch (e) {
@@ -37,7 +37,7 @@ export function AuthProvider({ children }) {
     try {
       // Clear session on both server and local storage.
       navigate("/", { replace: true });
-      await authService.logout();
+      await AuthService.logout();
       setUser(null);
       return true;
     } catch (e) {
@@ -51,7 +51,7 @@ export function AuthProvider({ children }) {
 
   // Memoize context value to avoid unnecessary re-renders.
   const value = useMemo(
-    function () {
+    () => {
       return {
         user: user,
         isAuthenticated: isAuthenticated,
@@ -74,3 +74,4 @@ export function useAuth() {
   }
   return ctx;
 }
+

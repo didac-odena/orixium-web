@@ -64,7 +64,7 @@ export function formatGroupLabel(value) {
   if (!value) return "";
   return String(value)
     .replace(/[_-]+/g, " ")
-    .replace(/\b\w/g, function (letter) {
+    .replace(/\b\w/g, (letter) => {
       return letter.toUpperCase();
     });
 }
@@ -141,3 +141,4 @@ export function compareAssets(a, b, key, dir) {
   }
   return direction * (aValue - bValue);
 }
+

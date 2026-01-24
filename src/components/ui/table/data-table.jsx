@@ -27,7 +27,7 @@ export function DataTable({
               "border-b border-border text-left text-xs uppercase tracking-wide text-muted"
             }
           >
-            {columns.map(function (column) {
+            {columns.map((column) => {
               const isSortable =
                 typeof onSort === "function" && column.sortable !== false;
               const headerClassName = column.headerClassName || column.className;
@@ -45,7 +45,7 @@ export function DataTable({
                   {isSortable ? (
                     <button
                       type="button"
-                      onClick={function () {
+                      onClick={() => {
                         onSort(column.key);
                       }}
                       // Clickable headers toggle sorting via parent hook.
@@ -65,13 +65,13 @@ export function DataTable({
           </tr>
         </thead>
         <tbody>
-          {rows.map(function (row) {
+          {rows.map((row) => {
             return (
               <tr
                 key={getRowKey(row)}
                 className={rowClassName || "border-b border-border"}
               >
-                {columns.map(function (column) {
+                {columns.map((column) => {
                   const cellClassName =
                     column.cellClassName || column.className || "px-4 py-2";
                   const content = column.renderCell
@@ -91,3 +91,4 @@ export function DataTable({
     </div>
   );
 }
+

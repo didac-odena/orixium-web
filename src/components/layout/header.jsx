@@ -35,7 +35,7 @@ function NavItem({ to, label, children, onSelect }) {
         wrapperClassName="h-16 flex items-center"
         buttonClassName="cursor-pointer h-16 flex items-center text-muted hover:text-accent transition-colors"
       >
-        {children.map(function (child) {
+        {children.map((child) => {
           return (
             <Link
               key={child.to}
@@ -78,7 +78,7 @@ export function Header() {
 
   function handleToggleMenu() {
     // Mobile menu toggle.
-    setIsMenuOpen(function (open) {
+    setIsMenuOpen((open) => {
       return !open;
     });
   }
@@ -110,7 +110,7 @@ export function Header() {
             </Link>
 
             <nav className="hidden h-16 items-center gap-6 md:flex">
-              {navItems.map(function (item) {
+              {navItems.map((item) => {
                 return (
                   <NavItem
                     key={item.to || item.label}
@@ -137,7 +137,7 @@ export function Header() {
               </button>
               {isMenuOpen ? (
                 <div className="absolute left-1/2 top-full z-10 mt-0 w-56 -translate-x-1/2 rounded-md border border-border bg-bg py-2 shadow-sm">
-                  {navItems.map(function (item) {
+                  {navItems.map((item) => {
                     if (item.children && item.children.length) {
                       return (
                         <div key={item.label} className="px-4 py-2">
@@ -145,7 +145,7 @@ export function Header() {
                             {item.label}
                           </div>
                           <div className="mt-1 space-y-1">
-                            {item.children.map(function (child) {
+                            {item.children.map((child) => {
                               return (
                                 <Link
                                   key={child.to}
@@ -229,3 +229,4 @@ export function Header() {
     </header>
   );
 }
+

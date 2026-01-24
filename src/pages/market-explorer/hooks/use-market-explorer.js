@@ -64,16 +64,16 @@ const MARKET_PROVIDERS = {
 };
 
 const EMPTY_PROVIDER = {
-  hasCache: function () {
+  hasCache: () => {
     return false;
   },
-  getSnapshots: function () {
+  getSnapshots: () => {
     return [];
   },
-  getMeta: function () {
+  getMeta: () => {
     return null;
   },
-  refreshSnapshots: async function () {
+  refreshSnapshots: async () => {
     return [];
   },
 };
@@ -97,18 +97,18 @@ export function useMarketExplorer(options) {
   const lastRefreshAtRef = useRef(0);
   const noticeTimerRef = useRef(null);
 
-  const clearNoticeTimer = useCallback(function () {
+  const clearNoticeTimer = useCallback(() => {
     if (!noticeTimerRef.current) return;
     clearTimeout(noticeTimerRºef.current);
     noticeTimerRef.current = null;
   }, []);
 
   const showNotice = useCallback(
-    function (message, durationMs = 2000) {
+    (message, durationMs = 2000) => {
       // Short-lived tooltip message for cooldown feedback.
       setRefreshNotice(message);
       clearNoticeTimer();
-      noticeTimerRef.current = setTimeout(function () {
+      noticeTimerRef.current = setTimeout(() => {
         setRefreshNotice("");
       }, durationMs);
     },
@@ -124,7 +124,7 @@ export function useMarketExplorer(options) {
   }
 
   const refreshNow = useCallback(
-    async function (params = {}) {
+    async (params = {}) => {
       const force = Boolean(params.force);
       const silent = Boolean(params.silent);
       const manualScript = MANUAL_REFRESH_SCRIPTS[market];
@@ -182,7 +182,7 @@ export function useMarketExplorer(options) {
   );
 
   useEffect(
-    function () {
+    () => {
       // Load cached data first to avoid blank UI.
       let isActive = true;
       try {
@@ -197,7 +197,7 @@ export function useMarketExplorer(options) {
         setStatus("error");
       }
 
-      return function () {
+      return () => {
         isActive = false;
       };
     },
@@ -205,7 +205,7 @@ export function useMarketExplorer(options) {
   );
 
   useEffect(
-    function () {
+    () => {
       // Reset manual refresh cooldown when switching market segments.
       lastRefreshAtRef.current = 0;
       setRefreshNotice("");
@@ -215,21 +215,21 @@ export function useMarketExplorer(options) {
   );
 
   useEffect(
-    function () {
+    () => {
       // Background refresh interval (stale-only unless forced).
       refreshNow({ silent: true });
-      const intervalId = setInterval(function () {
+      const intervalId = setInterval(() => {
         refreshNow({ silent: true });
       }, intervalMs);
-      return function () {
+      return () => {
         clearInterval(intervalId);
       };
     },
     [refreshNow, intervalMs],
   );
 
-  useEffect(function () {
-    return function () {
+  useEffect(() => {
+    return () => {
       clearNoticeTimer();
     };
   }, [clearNoticeTimer]);
@@ -244,3 +244,4 @@ export function useMarketExplorer(options) {
     refreshNow,
   };
 }
+

@@ -17,7 +17,7 @@ export function MarketExplorerEquityMobileList({
 
   return (
     <div className="space-y-2 md:hidden">
-      {rows.map(function (asset) {
+      {rows.map((asset) => {
         const changeAccentClass = getAccentClass(asset.change_1d_pct);
         const currency = asset.currency || "USD";
 
@@ -87,3 +87,4 @@ export function MarketExplorerEquityMobileList({
     </div>
   );
 }
+

@@ -19,7 +19,7 @@ export function MarketExplorerMobileList({
 
   return (
     <div className="space-y-2 md:hidden">
-      {rows.map(function (asset) {
+      {rows.map((asset) => {
         // Details/summary keeps the list compact on small screens.
         // Accent colors reflect 24h change direction.
         const priceAccentClass = getAccentClass(
@@ -116,3 +116,4 @@ export function MarketExplorerMobileList({
     </div>
   );
 }
+

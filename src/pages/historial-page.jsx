@@ -24,7 +24,7 @@ export function HistorialPage() {
     timeStyle: "short",
   });
 
-  useEffect(function () {
+  useEffect(() => {
     let isActive = true;
     // Avoid state updates if the component unmounts mid-request.
 
@@ -46,7 +46,7 @@ export function HistorialPage() {
 
     loadHistory();
 
-    return function () {
+    return () => {
       isActive = false;
     };
   }, []);
@@ -67,7 +67,7 @@ export function HistorialPage() {
             <div className="space-y-3">
               {/* Mobile: expandable cards for quick scanning. */}
               <div className="space-y-2 md:hidden">
-                {trades.map(function (trade) {
+                {trades.map((trade) => {
                   const isPositive = trade.pnlUsd >= 0;
                   const accentClass = isPositive
                     ? "text-accent"
@@ -143,7 +143,7 @@ export function HistorialPage() {
                         { key: "pnl", label: "P&L" },
                         { key: "pnlPercent", label: "P&L %" },
                         { key: "reason", label: "Reason" },
-                      ].map(function (column) {
+                      ].map((column) => {
                         return (
                           <th
                             key={column.key}
@@ -157,7 +157,7 @@ export function HistorialPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {trades.map(function (trade) {
+                    {trades.map((trade) => {
                       const isPositive = trade.pnlUsd >= 0;
                       const accentClass = isPositive
                         ? "text-accent"
@@ -235,7 +235,7 @@ export function HistorialPage() {
 
                       return (
                         <tr key={trade.id} className="border-b border-border">
-                          {cells.map(function (cell) {
+                          {cells.map((cell) => {
                             return (
                               <td key={cell.key} className={cell.className}>
                                 {cell.content}
@@ -257,3 +257,4 @@ export function HistorialPage() {
     </PageLayout>
   );
 }
+

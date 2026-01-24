@@ -18,7 +18,7 @@ export function TablePagination({
       <div className="flex items-center gap-3 text-xs text-muted">
         <button
           type="button"
-          onClick={function () {
+          onClick={() => {
             onPageChange(Math.max(1, currentPage - 1));
           }}
           disabled={currentPage === 1}
@@ -31,7 +31,7 @@ export function TablePagination({
         </span>
         <button
           type="button"
-          onClick={function () {
+          onClick={() => {
             onPageChange(Math.min(totalPages, currentPage + 1));
           }}
           disabled={currentPage === totalPages}
@@ -43,3 +43,4 @@ export function TablePagination({
     </div>
   );
 }
+

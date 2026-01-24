@@ -57,28 +57,28 @@ export function MarketExplorerPage() {
 
   // Formatters are memoized to avoid recreating on every render.
   const formatPrice = useMemo(
-    function () {
+    () => {
       return createPriceFormatter(currency);
     },
     [currency],
   );
 
-  const formatEquityPrice = useMemo(function () {
+  const formatEquityPrice = useMemo(() => {
     return createRowPriceFormatter();
   }, []);
 
-  const percentFormatter = useMemo(function () {
+  const percentFormatter = useMemo(() => {
     return createPercentFormatter();
   }, []);
 
   const compactFormatter = useMemo(
-    function () {
+    () => {
       return createCompactCurrencyFormatter(currency);
     },
     [currency],
   );
 
-  const dateFormatter = useMemo(function () {
+  const dateFormatter = useMemo(() => {
     return createDateTimeFormatter();
   }, []);
 
@@ -102,11 +102,11 @@ export function MarketExplorerPage() {
       ? "group"
       : "";
   const groupFilterOptions = useMemo(
-    function () {
+    () => {
       if (!groupFilterKey) return [];
       const seen = new Set();
       const options = [];
-      snapshots.forEach(function (row) {
+      snapshots.forEach((row) => {
         const value = row?.[groupFilterKey];
         if (!value) return;
         const key = String(value);
@@ -146,9 +146,9 @@ export function MarketExplorerPage() {
     : "Market data for UI testing only. Snapshots loaded from fixtures.";
 
   const filteredByGroup = useMemo(
-    function () {
+    () => {
       if (!groupFilterKey || groupFilter === "all") return snapshots;
-      return snapshots.filter(function (row) {
+      return snapshots.filter((row) => {
         return String(row?.[groupFilterKey] || "") === groupFilter;
       });
     },
@@ -172,7 +172,7 @@ export function MarketExplorerPage() {
     rows: filteredByGroup,
     pageSize: PAGE_SIZE,
     // Simple client filter by id/symbol/name.
-    filterFn: function (item, term) {
+    filterFn: (item, term) => {
       return (
         item.id?.toLowerCase().includes(term) ||
         item.symbol?.toLowerCase().includes(term) ||
@@ -184,7 +184,7 @@ export function MarketExplorerPage() {
     compareFn: compareAssets,
     getNextSortState: nextSortState,
     // Jump to page 1 when switching into global sort.
-    shouldResetPage: function (nextState) {
+    shouldResetPage: (nextState) => {
       return nextState.mode === "global";
     },
   });
@@ -216,13 +216,13 @@ export function MarketExplorerPage() {
 
   // Column definitions wire labels, sort keys, and formatters.
   const cryptoColumns = useMemo(
-    function () {
+    () => {
       return [
         {
           key: "rank",
           label: "Market Cap Ranking",
           className: "px-4 py-2 w-28 text-muted",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             return asset.market_cap_rank || "--";
           },
         },
@@ -230,7 +230,7 @@ export function MarketExplorerPage() {
           key: "asset",
           label: "Asset",
           className: "px-4 py-2 w-60",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             const iconSrc = asset.image || "";
             return (
               <div className="flex items-center gap-3">
@@ -260,7 +260,7 @@ export function MarketExplorerPage() {
           key: "price",
           label: "Price",
           className: "px-4 py-2",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             return formatPrice(asset.current_price);
           },
         },
@@ -268,7 +268,7 @@ export function MarketExplorerPage() {
           key: "change",
           label: "Price 24h %",
           className: "px-4 py-2",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             const accentClass = getAccentClass(
               asset.price_change_percentage_24h,
             );
@@ -287,7 +287,7 @@ export function MarketExplorerPage() {
           key: "priceChange",
           label: "Price 24h",
           className: "px-4 py-2",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             const accentClass = getAccentClass(
               asset.price_change_percentage_24h,
             );
@@ -302,7 +302,7 @@ export function MarketExplorerPage() {
           key: "high",
           label: "High 24h",
           className: "px-4 py-2",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             return formatPrice(asset.high_24h);
           },
         },
@@ -310,7 +310,7 @@ export function MarketExplorerPage() {
           key: "low",
           label: "Low 24h",
           className: "px-4 py-2",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             return formatPrice(asset.low_24h);
           },
         },
@@ -318,7 +318,7 @@ export function MarketExplorerPage() {
           key: "marketCap",
           label: "Market cap",
           className: "px-4 py-2",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             return asset.market_cap != null
               ? compactFormatter.format(asset.market_cap)
               : "--";
@@ -328,7 +328,7 @@ export function MarketExplorerPage() {
           key: "marketCapChange",
           label: "Market cap 24h %",
           className: "px-4 py-2",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             const accentClass = getAccentClass(
               asset.market_cap_change_percentage_24h,
             );
@@ -347,7 +347,7 @@ export function MarketExplorerPage() {
           key: "volume",
           label: "24h volume",
           className: "px-4 py-2",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             return asset.total_volume != null
               ? compactFormatter.format(asset.total_volume)
               : "--";
@@ -357,7 +357,7 @@ export function MarketExplorerPage() {
           key: "updated",
           label: "Last updated",
           className: "px-4 py-2 text-muted whitespace-nowrap",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             return asset.last_updated
               ? dateFormatter.format(new Date(asset.last_updated))
               : "--";
@@ -369,13 +369,13 @@ export function MarketExplorerPage() {
   );
 
   const equityColumns = useMemo(
-    function () {
+    () => {
       return [
         {
           key: "asset",
           label: "Asset",
           className: "px-4 py-2 w-64",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             return (
               <div>
                 <div className="font-semibold">{asset.name}</div>
@@ -390,7 +390,7 @@ export function MarketExplorerPage() {
           key: "price",
           label: "Price",
           className: "px-4 py-2",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             return formatEquityPrice(asset.last, asset.currency);
           },
         },
@@ -398,7 +398,7 @@ export function MarketExplorerPage() {
           key: "change",
           label: "1D %",
           className: "px-4 py-2",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             const accentClass = getAccentClass(asset.change_1d_pct);
             return (
               <span className={accentClass}>
@@ -413,7 +413,7 @@ export function MarketExplorerPage() {
           key: "priceChange",
           label: "1D",
           className: "px-4 py-2",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             const accentClass = getAccentClass(asset.change_1d_pct);
             return (
               <span className={accentClass}>
@@ -426,7 +426,7 @@ export function MarketExplorerPage() {
           key: "change1w",
           label: "1W %",
           className: "px-4 py-2",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             const accentClass = getAccentClass(asset.change_1w_pct);
             return (
               <span className={accentClass}>
@@ -441,7 +441,7 @@ export function MarketExplorerPage() {
           key: "change1m",
           label: "1M %",
           className: "px-4 py-2",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             const accentClass = getAccentClass(asset.change_1m_pct);
             return (
               <span className={accentClass}>
@@ -456,7 +456,7 @@ export function MarketExplorerPage() {
           key: "change1y",
           label: "1Y %",
           className: "px-4 py-2",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             const accentClass = getAccentClass(asset.change_1y_pct);
             return (
               <span className={accentClass}>
@@ -471,7 +471,7 @@ export function MarketExplorerPage() {
           key: "bid",
           label: "Bid",
           className: "px-4 py-2",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             return formatEquityPrice(asset.bid, asset.currency);
           },
         },
@@ -479,7 +479,7 @@ export function MarketExplorerPage() {
           key: "ask",
           label: "Ask",
           className: "px-4 py-2",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             return formatEquityPrice(asset.ask, asset.currency);
           },
         },
@@ -487,7 +487,7 @@ export function MarketExplorerPage() {
           key: "updated",
           label: "Last updated",
           className: "px-4 py-2 text-muted whitespace-nowrap",
-          renderCell: function (asset) {
+          renderCell: (asset) => {
             return asset.last_updated
               ? dateFormatter.format(new Date(asset.last_updated))
               : "--";
@@ -501,16 +501,16 @@ export function MarketExplorerPage() {
   const columns = isCrypto ? cryptoColumns : equityColumns;
 
   useEffect(
-    function () {
+    () => {
       setGroupFilter("all");
     },
     [segment],
   );
 
   useEffect(
-    function () {
+    () => {
       if (!showGroupFilters || groupFilter === "all") return;
-      const exists = groupFilterOptions.some(function (option) {
+      const exists = groupFilterOptions.some((option) => {
         return option.id === groupFilter;
       });
       if (!exists) setGroupFilter("all");
@@ -530,7 +530,7 @@ export function MarketExplorerPage() {
           topLeft={
             <div className="flex flex-col gap-2">
               <div className="flex flex-wrap items-center gap-3">
-                {segments.map(function (segmentOption) {
+                {segments.map((segmentOption) => {
                   const isActive = segmentOption.id === segment;
                   return (
                     <button
@@ -539,7 +539,7 @@ export function MarketExplorerPage() {
                       className={`rounded-full border border-border px-3 py-1 text-xs uppercase tracking-wide transition-colors hover:border-accent hover:text-accent ${
                         isActive ? "text-ink" : "text-muted opacity-60"
                       }`}
-                      onClick={function () {
+                      onClick={() => {
                         setSegment(segmentOption.id);
                       }}
                       aria-current={isActive ? "page" : undefined}
@@ -558,7 +558,7 @@ export function MarketExplorerPage() {
                         ? "text-ink"
                         : "text-muted opacity-60"
                     }`}
-                    onClick={function () {
+                    onClick={() => {
                       setGroupFilter("all");
                       setPage(1);
                     }}
@@ -566,7 +566,7 @@ export function MarketExplorerPage() {
                   >
                     No filter
                   </button>
-                  {groupFilterOptions.map(function (option) {
+                  {groupFilterOptions.map((option) => {
                     const isActive = option.id === groupFilter;
                     return (
                       <button
@@ -575,7 +575,7 @@ export function MarketExplorerPage() {
                         className={`rounded-full border border-border px-3 py-1 text-[11px] uppercase tracking-wide transition-colors hover:border-accent hover:text-accent ${
                           isActive ? "text-ink" : "text-muted opacity-60"
                         }`}
-                        onClick={function () {
+                        onClick={() => {
                           setGroupFilter(option.id);
                           setPage(1);
                         }}
@@ -597,7 +597,7 @@ export function MarketExplorerPage() {
               <input
                 type="search"
                 value={query}
-                onChange={function (event) {
+                onChange={(event) => {
                   setQuery(event.target.value);
                 }}
                 placeholder={searchPlaceholder}
@@ -623,12 +623,12 @@ export function MarketExplorerPage() {
                   </label>
                   <select
                     value={currency}
-                    onChange={function (event) {
+                    onChange={(event) => {
                       setCurrency(event.target.value);
                     }}
                     className="h-9 rounded-md border border-border bg-bg px-2 text-sm text-ink"
                   >
-                    {SUPPORTED_QUOTE_CURRENCIES.map(function (ccy) {
+                    {SUPPORTED_QUOTE_CURRENCIES.map((ccy) => {
                       return (
                         <option key={ccy} value={ccy}>
                           {ccy.toUpperCase()}
@@ -641,7 +641,7 @@ export function MarketExplorerPage() {
               <div className="relative flex flex-col items-start">
                 <button
                   type="button"
-                  onClick={function () {
+                  onClick={() => {
                     // Force refresh respects cooldown in the hook.
                     refreshNow({ force: true });
                   }}
@@ -744,3 +744,4 @@ export function MarketExplorerPage() {
     </PageLayout>
   );
 }
+

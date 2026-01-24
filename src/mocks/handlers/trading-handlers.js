@@ -33,7 +33,7 @@ function filterByAccount(items, searchParams) {
 }
 
 export const tradingHandlers = [
-  http.get("/api/portfolio/summary", async function ({ request }) {
+  http.get("/api/portfolio/summary", async ({ request }) => {
     await delay(200);
     const session = getSession();
     if (!session?.userId) {
@@ -45,7 +45,7 @@ export const tradingHandlers = [
     return HttpResponse.json(data);
   }),
 
-  http.get("/api/trades/open", async function ({ request }) {
+  http.get("/api/trades/open", async ({ request }) => {
     await delay(200);
     const session = getSession();
     if (!session?.userId) {
@@ -57,7 +57,7 @@ export const tradingHandlers = [
     return HttpResponse.json(data);
   }),
 
-  http.get("/api/trades/history", async function ({ request }) {
+  http.get("/api/trades/history", async ({ request }) => {
     await delay(200);
     const session = getSession();
     if (!session?.userId) {
@@ -69,3 +69,4 @@ export const tradingHandlers = [
     return HttpResponse.json(data);
   }),
 ];
+

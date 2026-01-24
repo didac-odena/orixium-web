@@ -63,9 +63,10 @@ export async function refreshCryptoMarketSnapshots(
   // CoinGecko returns a full market list ordered by market cap.
   const data = await fetchCoinMarkets({ vsCurrency: key, perPage: 250 });
   if (!Array.isArray(data)) throw new Error("Invalid market response.");
-  const normalized = data.map(function (item) {
+  const normalized = data.map((item) => {
     return normalizeMarketItem(item, key);
   });
   setCachedMarketList(key, normalized, fetchedAt);
   return normalized;
 }
+

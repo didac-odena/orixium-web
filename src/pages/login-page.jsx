@@ -24,7 +24,7 @@ export function LoginPage() {
   const defaultUser = AUTH_USERS[0];
 
   useEffect(
-    function () {
+    () => {
       // If there's an active session, skip the login page.
       if (auth.isInitializing) return;
       if (auth.isAuthenticated) {
@@ -60,3 +60,4 @@ export function LoginPage() {
     </div>
   );
 }
+
