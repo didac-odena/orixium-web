@@ -1,7 +1,6 @@
 import { Header, Footer } from "../index.js";
 
-export function PageLayout(props) {
-  const children = props.children;
+export function PageLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-bg text-ink flex flex-col">

@@ -27,9 +27,7 @@ const NAV_APP = [
   { label: "Support", to: "/support" },
 ];
 
-function NavItem(props) {
-  const { to, label, children, onSelect } = props;
-
+function NavItem({ to, label, children, onSelect }) {
   if (children && children.length) {
     return (
       <HeaderDropdown

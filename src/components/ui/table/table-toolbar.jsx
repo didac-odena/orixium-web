@@ -1,5 +1,10 @@
-export function TableToolbar(props) {
-  const { topLeft, topRight, bottomLeft, bottomCenter, bottomRight } = props;
+export function TableToolbar({
+  topLeft,
+  topRight,
+  bottomLeft,
+  bottomCenter,
+  bottomRight,
+}) {
 
   return (
     <div className="space-y-4">

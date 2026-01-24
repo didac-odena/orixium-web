@@ -1,17 +1,16 @@
-export function DataTable(props) {
-  const {
-    columns,
-    rows,
-    rowKey = "id",
-    onSort,
-    sortState,
-    renderSortIcon,
-    stickyHeader = true,
-    className,
-    tableClassName,
-    headerRowClassName,
-    rowClassName,
-  } = props;
+export function DataTable({
+  columns,
+  rows,
+  rowKey = "id",
+  onSort,
+  sortState,
+  renderSortIcon,
+  stickyHeader = true,
+  className,
+  tableClassName,
+  headerRowClassName,
+  rowClassName,
+}) {
 
   function getRowKey(row) {
     // Support string key or custom key selector.

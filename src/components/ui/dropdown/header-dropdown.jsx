@@ -1,12 +1,11 @@
-export function HeaderDropdown(props) {
-  const {
-    label,
-    children,
-    align = "left",
-    wrapperClassName = "",
-    buttonClassName = "",
-    menuClassName = "",
-  } = props;
+export function HeaderDropdown({
+  label,
+  children,
+  align = "left",
+  wrapperClassName = "",
+  buttonClassName = "",
+  menuClassName = "",
+}) {
   const alignClass = align === "right" ? "right-0" : "left-0";
 
   return (

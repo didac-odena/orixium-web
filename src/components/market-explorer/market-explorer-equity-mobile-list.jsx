@@ -1,7 +1,11 @@
 import { getAccentClass } from "../../pages/market-explorer/market-explorer-utils.js";
 
-export function MarketExplorerEquityMobileList(props) {
-  const { rows, formatPrice, percentFormatter, dateFormatter } = props;
+export function MarketExplorerEquityMobileList({
+  rows,
+  formatPrice,
+  percentFormatter,
+  dateFormatter,
+}) {
 
   function renderValueRow(label, value) {
     return (

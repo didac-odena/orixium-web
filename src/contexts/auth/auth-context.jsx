@@ -4,9 +4,7 @@ import * as authService from "../../services/index.js";
 
 const AuthContext = createContext(null);
 
-export function AuthProvider(props) {
-  const children = props.children;
-
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [error, setError] = useState(null);

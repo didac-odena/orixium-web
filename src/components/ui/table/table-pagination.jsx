@@ -1,6 +1,11 @@
-export function TablePagination(props) {
-  const { currentPage, totalPages, totalCount, pageSize, onPageChange, className } =
-    props;
+export function TablePagination({
+  currentPage,
+  totalPages,
+  totalCount,
+  pageSize,
+  onPageChange,
+  className,
+}) {
 
   if (!totalCount) return null;
 

@@ -1,9 +1,7 @@
 import { useEffect } from "react";
 import { applyTheme, getInitialTheme, hasUserThemePreference } from "../../utils/theme.js";
 
-export function ThemeProvider(props) {
-  const children = props.children;
-
+export function ThemeProvider({ children }) {
   useEffect(function () {
     // Apply initial theme (stored preference wins over system).
     const initial = getInitialTheme();
