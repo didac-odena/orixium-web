@@ -4,7 +4,8 @@ import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
 
-import { AuthProvider, ThemeProvider, initDevMocks } from "./app/index.js";
+import { initDevMocks } from "./app/index.js";
+import { AuthProvider, ThemeProvider } from "./contexts/index.js";
 import { BrowserRouter } from "react-router-dom";
 
 async function start() {
