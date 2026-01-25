@@ -8,7 +8,6 @@ export function PrivateRoute({ children }) {
 
   if (!auth.isAuthenticated) {
     // Preserve intended URL so login can redirect back.
-    console.log("REDIRECTING TO LOGIN")
     const next = encodeURIComponent(location.pathname + location.search);
     return <Navigate to={"/login?next=" + next} replace />;
   }

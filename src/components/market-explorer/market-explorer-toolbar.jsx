@@ -58,7 +58,7 @@ export function MarketExplorerToolbar({
         key={segmentOption.id}
         type="button"
         data-segment={segmentOption.id}
-        className={`rounded-full border border-border px-3 py-1 text-xs uppercase tracking-wide transition-colors hover:border-accent hover:text-accent ${
+        className={`cursor-pointer rounded-full border border-border px-3 py-1 text-xs uppercase tracking-wide transition-colors hover:border-accent hover:text-accent ${
           isActive ? "text-ink" : "text-muted opacity-60"
         }`}
         onClick={handleSegmentClick}
@@ -76,7 +76,7 @@ export function MarketExplorerToolbar({
         key={option.id}
         type="button"
         data-filter={option.id}
-        className={`rounded-full border border-border px-3 py-1 text-[11px] uppercase tracking-wide transition-colors hover:border-accent hover:text-accent ${
+        className={`cursor-pointer rounded-full border border-border px-3 py-1 text-[11px] uppercase tracking-wide transition-colors hover:border-accent hover:text-accent ${
           isActive ? "text-ink" : "text-muted opacity-60"
         }`}
         onClick={handleGroupFilterClick}
@@ -101,7 +101,7 @@ export function MarketExplorerToolbar({
               <button
                 type="button"
                 data-filter="all"
-                className={`rounded-full border border-border px-3 py-1 text-[11px] uppercase tracking-wide transition-colors hover:border-accent hover:text-accent ${
+                className={`cursor-pointer rounded-full border border-border px-3 py-1 text-[11px] uppercase tracking-wide transition-colors hover:border-accent hover:text-accent ${
                   groupFilter === "all"
                     ? "text-ink"
                     : "text-muted opacity-60"

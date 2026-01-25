@@ -36,6 +36,13 @@ import {
 } from "@heroicons/react/24/outline";
 
 const PAGE_SIZE = 50;
+const MARKET_SEGMENTS = [
+  { id: "crypto", label: "Crypto" },
+  { id: "equity", label: "Equity" },
+  { id: "rates", label: "Rates" },
+  { id: "forex", label: "Forex" },
+  { id: "commodities", label: "Commodities" },
+];
 const SEGMENT_COPY = {
   crypto: {
     searchPlaceholder: "Bitcoin, BTC, bitcoin...",
@@ -64,6 +71,26 @@ const SEGMENT_COPY = {
     subtitle: "Market data for UI testing only. Snapshots loaded from fixtures.",
   },
 };
+const DEFAULT_SEGMENT_COPY = {
+  searchPlaceholder: "Search assets...",
+  emptyMessage: "No market data available yet.",
+  subtitle: "Market data for UI testing only. Snapshots loaded from fixtures.",
+};
+
+function buildGroupFilterOptions(items, groupKey) {
+  if (!groupKey) return [];
+  const seen = new Set();
+  const options = [];
+  items.forEach((asset) => {
+    const groupValue = asset?.[groupKey];
+    if (!groupValue) return;
+    const key = String(groupValue);
+    if (seen.has(key)) return;
+    seen.add(key);
+    options.push({ id: key, label: formatGroupLabel(key) });
+  });
+  return options;
+}
 
 export function MarketExplorerPage() {
   // UI-selected quote currency (usd/eur/gbp) drives formatting + fetch.
@@ -80,12 +107,7 @@ export function MarketExplorerPage() {
     refreshNotice,
     refreshError,
     refreshNow,
-  } = useMarketExplorer({
-    market: segment,
-    currency,
-    intervalMs: 5 * 60 * 1000,
-    cooldownMs: 60 * 1000,
-  });
+  } = useMarketExplorer({ market: segment, currency });
 
   const formatPrice = createPriceFormatter(currency);
   const formatEquityPrice = createRowPriceFormatter();
@@ -93,49 +115,23 @@ export function MarketExplorerPage() {
   const compactFormatter = createCompactCurrencyFormatter(currency);
   const dateFormatter = createDateTimeFormatter();
 
-  const segments = [
-    { id: "crypto", label: "Crypto" },
-    { id: "equity", label: "Equity" },
-    { id: "rates", label: "Rates" },
-    { id: "forex", label: "Forex" },
-    { id: "commodities", label: "Commodities" },
-  ];
-
   const isCryptoSegment = segment === "crypto";
-  const isEquitySegment = segment === "equity";
-  const isRatesSegment = segment === "rates";
-  const isForexSegment = segment === "forex";
-  const isCommoditiesSegment = segment === "commodities";
-  const groupFilterKey = isEquitySegment
-    ? "sector"
-    : isRatesSegment || isForexSegment || isCommoditiesSegment
-      ? "group"
-      : "";
-  const groupFilterOptions = [];
-  if (groupFilterKey) {
-    const seen = new Set();
-    snapshots.forEach((asset) => {
-      const groupValue = asset?.[groupFilterKey];
-      if (!groupValue) return;
-      const key = String(groupValue);
-      if (seen.has(key)) return;
-      seen.add(key);
-      groupFilterOptions.push({ id: key, label: formatGroupLabel(key) });
-    });
-  }
+  const groupFilterKey = isCryptoSegment
+    ? ""
+    : segment === "equity"
+      ? "sector"
+      : "group";
+  const groupFilterOptions = buildGroupFilterOptions(
+    snapshots,
+    groupFilterKey,
+  );
   const showGroupFilters = groupFilterOptions.length > 0;
-  const resolvedGroupFilter = showGroupFilters
-    ? groupFilterOptions.some((option) => {
-        return option.id === groupFilter;
-      })
-      ? groupFilter
-      : "all"
-    : "all";
-  const segmentCopy = SEGMENT_COPY[segment] || {
-    searchPlaceholder: "Search assets...",
-    emptyMessage: "No market data available yet.",
-    subtitle: "Market data for UI testing only. Snapshots loaded from fixtures.",
-  };
+  const isValidGroupFilter = groupFilterOptions.some((option) => {
+    return option.id === groupFilter;
+  });
+  const resolvedGroupFilter =
+    showGroupFilters && isValidGroupFilter ? groupFilter : "all";
+  const segmentCopy = SEGMENT_COPY[segment] || DEFAULT_SEGMENT_COPY;
   const searchPlaceholder = segmentCopy.searchPlaceholder;
   const emptyMessage = segmentCopy.emptyMessage;
   const subtitle = segmentCopy.subtitle;
@@ -243,7 +239,7 @@ export function MarketExplorerPage() {
         />
 
         <MarketExplorerToolbar
-          segments={segments}
+          segments={MARKET_SEGMENTS}
           activeSegment={segment}
           onSegmentChange={handleSegmentChange}
           groupFilter={resolvedGroupFilter}
@@ -279,14 +275,7 @@ export function MarketExplorerPage() {
           filteredRows.length ? (
             <div className="space-y-3">
               {/* Mobile uses a collapsible list; desktop uses the data table. */}
-              {!isCryptoSegment ? (
-                <MarketExplorerEquityMobileList
-                  rows={paginatedRows}
-                  formatPrice={formatEquityPrice}
-                  percentFormatter={percentFormatter}
-                  dateFormatter={dateFormatter}
-                />
-              ) : isCryptoSegment ? (
+              {isCryptoSegment ? (
                 <MarketExplorerMobileList
                   rows={paginatedRows}
                   formatPrice={formatPrice}
@@ -294,7 +283,14 @@ export function MarketExplorerPage() {
                   compactFormatter={compactFormatter}
                   dateFormatter={dateFormatter}
                 />
-              ) : null}
+              ) : (
+                <MarketExplorerEquityMobileList
+                  rows={paginatedRows}
+                  formatPrice={formatEquityPrice}
+                  percentFormatter={percentFormatter}
+                  dateFormatter={dateFormatter}
+                />
+              )}
               <DataTable
                 columns={columns}
                 rows={paginatedRows}

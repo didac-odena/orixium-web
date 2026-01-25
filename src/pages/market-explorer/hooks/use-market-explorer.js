@@ -22,6 +22,9 @@ import {
   refreshCommoditiesMarketSnapshots,
 } from "../../../services/index.js";
 
+const STALE_INTERVAL_MS = 5 * 60 * 1000;
+const REFRESH_COOLDOWN_MS = 60 * 1000;
+
 const MANUAL_REFRESH_SCRIPTS = {
   equity:
     "E:\\Orixium\\scripts\\IBKR\\data-market\\update-equity-snapshots.ps1",
@@ -68,13 +71,8 @@ function getMarketHandler(market) {
   return MARKET_HANDLERS[market] || null;
 }
 
-export function useMarketExplorer(options) {
-  const {
-    market = "crypto",
-    currency,
-    intervalMs = 5 * 60 * 1000,
-    cooldownMs = 60 * 1000,
-  } = options;
+export function useMarketExplorer(options = {}) {
+  const { market = "crypto", currency } = options;
 
   const [snapshots, setSnapshots] = useState([]);
   const [status, setStatus] = useState("loading");
@@ -116,19 +114,18 @@ export function useMarketExplorer(options) {
       }
       return;
     }
-    const hasCache = marketHandler
-      ? marketHandler.hasCache(currency)
-      : false;
-    const meta = marketHandler
-      ? marketHandler.getMeta(currency)
-      : null;
+    if (!marketHandler) return;
+    const { hasCache, getMeta, refresh } = marketHandler;
+    const hasCachedSnapshots = hasCache(currency);
+    const meta = getMeta(currency);
     const lastFetched = meta?.fetched_at ? Date.parse(meta.fetched_at) : 0;
     const now = Date.now();
     // Refresh if forced, missing cache, or stale beyond interval.
-    const isStale = !lastFetched || now - lastFetched >= intervalMs;
-    const shouldRefresh = force || !hasCache || isStale;
+    const isStale = !lastFetched || now - lastFetched >= STALE_INTERVAL_MS;
+    const shouldRefresh = force || !hasCachedSnapshots || isStale;
     // Cooldown is enforced on manual refresh attempts.
-    const cooldownRemaining = cooldownMs - (now - lastRefreshAtRef.current);
+    const cooldownRemaining =
+      REFRESH_COOLDOWN_MS - (now - lastRefreshAtRef.current);
 
     if (cooldownRemaining > 0) {
       if (force && !silent) {
@@ -147,9 +144,7 @@ export function useMarketExplorer(options) {
     lastRefreshAtRef.current = Date.now();
     setIsRefreshing(true);
     try {
-      const refreshedSnapshots = marketHandler
-        ? await marketHandler.refresh(currency)
-        : [];
+      const refreshedSnapshots = await refresh(currency);
       setSnapshots(
         Array.isArray(refreshedSnapshots) ? refreshedSnapshots : [],
       );
@@ -199,7 +194,7 @@ export function useMarketExplorer(options) {
     // Refresh once when entering or switching market.
     refreshNow({ silent: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currency, intervalMs, market]);
+  }, [currency, market]);
 
   useEffect(() => {
     return () => {
