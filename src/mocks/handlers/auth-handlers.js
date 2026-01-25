@@ -1,26 +1,6 @@
 import { http, HttpResponse, delay } from "msw";
 import { AUTH_USERS } from "../fixtures/auth-users.js";
-
-const SESSION_STORAGE_KEY = "orixium.mock.session";
-
-// Persist a lightweight session to simulate server state in dev.
-function setSession(session) {
-  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
-}
-
-function getSession() {
-  const raw = localStorage.getItem(SESSION_STORAGE_KEY);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
-
-function clearSession() {
-  localStorage.removeItem(SESSION_STORAGE_KEY);
-}
+import { clearSession, getSession, setSession } from "./session-storage.js";
 
 function respondNotAuthenticated() {
   return HttpResponse.json({ message: "Not authenticated" }, { status: 401 });

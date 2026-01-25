@@ -31,72 +31,41 @@ const MANUAL_REFRESH_SCRIPTS = {
     "E:\\Orixium\\scripts\\IBKR\\data-market\\update-commodities-snapshots.ps1",
 };
 
-function hasMarketCache(market, currency) {
-  switch (market) {
-    case "crypto":
-      return hasCachedCryptoMarketSnapshots(currency);
-    case "equity":
-      return hasCachedEquityMarketSnapshots();
-    case "rates":
-      return hasCachedRatesMarketSnapshots();
-    case "forex":
-      return hasCachedForexMarketSnapshots();
-    case "commodities":
-      return hasCachedCommoditiesMarketSnapshots();
-    default:
-      return false;
-  }
-}
+const MARKET_HANDLERS = {
+  crypto: {
+    hasCache: hasCachedCryptoMarketSnapshots,
+    getSnapshots: getCryptoMarketSnapshots,
+    getMeta: getCryptoMarketMeta,
+    refresh: refreshCryptoMarketSnapshots,
+  },
+  equity: {
+    hasCache: hasCachedEquityMarketSnapshots,
+    getSnapshots: getEquityMarketSnapshots,
+    getMeta: getEquityMarketMeta,
+    refresh: refreshEquityMarketSnapshots,
+  },
+  rates: {
+    hasCache: hasCachedRatesMarketSnapshots,
+    getSnapshots: getRatesMarketSnapshots,
+    getMeta: getRatesMarketMeta,
+    refresh: refreshRatesMarketSnapshots,
+  },
+  forex: {
+    hasCache: hasCachedForexMarketSnapshots,
+    getSnapshots: getForexMarketSnapshots,
+    getMeta: getForexMarketMeta,
+    refresh: refreshForexMarketSnapshots,
+  },
+  commodities: {
+    hasCache: hasCachedCommoditiesMarketSnapshots,
+    getSnapshots: getCommoditiesMarketSnapshots,
+    getMeta: getCommoditiesMarketMeta,
+    refresh: refreshCommoditiesMarketSnapshots,
+  },
+};
 
-function getMarketSnapshots(market, currency) {
-  switch (market) {
-    case "crypto":
-      return getCryptoMarketSnapshots(currency);
-    case "equity":
-      return getEquityMarketSnapshots();
-    case "rates":
-      return getRatesMarketSnapshots();
-    case "forex":
-      return getForexMarketSnapshots();
-    case "commodities":
-      return getCommoditiesMarketSnapshots();
-    default:
-      return [];
-  }
-}
-
-function getMarketMeta(market, currency) {
-  switch (market) {
-    case "crypto":
-      return getCryptoMarketMeta(currency);
-    case "equity":
-      return getEquityMarketMeta();
-    case "rates":
-      return getRatesMarketMeta();
-    case "forex":
-      return getForexMarketMeta();
-    case "commodities":
-      return getCommoditiesMarketMeta();
-    default:
-      return null;
-  }
-}
-
-async function refreshMarketSnapshots(market, currency) {
-  switch (market) {
-    case "crypto":
-      return refreshCryptoMarketSnapshots(currency);
-    case "equity":
-      return refreshEquityMarketSnapshots();
-    case "rates":
-      return refreshRatesMarketSnapshots();
-    case "forex":
-      return refreshForexMarketSnapshots();
-    case "commodities":
-      return refreshCommoditiesMarketSnapshots();
-    default:
-      return [];
-  }
+function getMarketHandler(market) {
+  return MARKET_HANDLERS[market] || null;
 }
 
 export function useMarketExplorer(options) {
@@ -137,6 +106,7 @@ export function useMarketExplorer(options) {
     const force = Boolean(params.force);
     const silent = Boolean(params.silent);
     const manualScript = MANUAL_REFRESH_SCRIPTS[market];
+    const marketHandler = getMarketHandler(market);
     if (manualScript) {
       if (!silent && force) {
         showNotice(
@@ -146,8 +116,12 @@ export function useMarketExplorer(options) {
       }
       return;
     }
-    const hasCache = hasMarketCache(market, currency);
-    const meta = getMarketMeta(market, currency);
+    const hasCache = marketHandler
+      ? marketHandler.hasCache(currency)
+      : false;
+    const meta = marketHandler
+      ? marketHandler.getMeta(currency)
+      : null;
     const lastFetched = meta?.fetched_at ? Date.parse(meta.fetched_at) : 0;
     const now = Date.now();
     // Refresh if forced, missing cache, or stale beyond interval.
@@ -173,10 +147,9 @@ export function useMarketExplorer(options) {
     lastRefreshAtRef.current = Date.now();
     setIsRefreshing(true);
     try {
-      const refreshedSnapshots = await refreshMarketSnapshots(
-        market,
-        currency,
-      );
+      const refreshedSnapshots = marketHandler
+        ? await marketHandler.refresh(currency)
+        : [];
       setSnapshots(
         Array.isArray(refreshedSnapshots) ? refreshedSnapshots : [],
       );
@@ -194,8 +167,11 @@ export function useMarketExplorer(options) {
   useEffect(() => {
     // Load cached data first to avoid blank UI.
     let isActive = true;
+    const marketHandler = getMarketHandler(market);
     try {
-      const snapshotRows = getMarketSnapshots(market, currency);
+      const snapshotRows = marketHandler
+        ? marketHandler.getSnapshots(currency)
+        : [];
       setSnapshots(Array.isArray(snapshotRows) ? snapshotRows : []);
       if (!isActive) return;
       setStatus("ready");

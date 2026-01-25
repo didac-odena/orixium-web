@@ -2,19 +2,7 @@ import { http, HttpResponse, delay } from "msw";
 import PortfolioSummary from "../fixtures/portfolio-summary.json";
 import TradesOpen from "../fixtures/trades-open.json";
 import TradesHistory from "../fixtures/trades-history.json";
-
-const SESSION_STORAGE_KEY = "orixium.mock.session";
-
-// Reuse the auth mock session to scope data to a user.
-function getSession() {
-  const raw = localStorage.getItem(SESSION_STORAGE_KEY);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
+import { getSession } from "./session-storage.js";
 
 function filterByUserId(items, userId) {
   return items.filter((item) => item.userId === userId);
