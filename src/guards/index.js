@@ -1,1 +1,1 @@
-export { PrivateRoute } from "./private-route.jsx";
+export { default as PrivateRoute } from "./private-route";

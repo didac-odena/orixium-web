@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../contexts/auth/auth-context.jsx";
-import { HeaderDropdown } from "../ui/dropdown/header-dropdown.jsx";
-import { ThemeToggle } from "../ui/theme/theme-toggle.jsx";
+import { useAuth } from "../../contexts/auth/auth-context";
+import HeaderDropdown from "../ui/dropdown/header-dropdown";
+import ThemeToggle from "../ui/theme/theme-toggle";
 import {
   Bars3Icon,
   ChartPieIcon,
@@ -62,7 +62,7 @@ function NavItem({ to, label, children, onSelect }) {
   );
 }
 
-export function Header() {
+export default function Header() {
   const { isAuthenticated, logout, user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const userLabel = user?.name || user?.email || "Account";

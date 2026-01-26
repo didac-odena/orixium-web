@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useAuth } from "../contexts/auth/auth-context.jsx";
+import { useAuth } from "../contexts/auth/auth-context";
 
-export function PrivateRoute({ children }) {
+export default function PrivateRoute({ children }) {
 
   const auth = useAuth();
   const location = useLocation();

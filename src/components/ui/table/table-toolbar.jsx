@@ -1,4 +1,4 @@
-export function TableToolbar({
+export default function TableToolbar({
   topLeft,
   topRight,
   bottomLeft,

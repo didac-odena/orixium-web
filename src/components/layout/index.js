@@ -1,3 +1,3 @@
-export { Header } from "./header.jsx";
-export { Footer } from "./footer.jsx";
-export { PageLayout } from "./layout-page.jsx";
+export { default as Header } from "./header";
+export { default as Footer } from "./footer";
+export { default as PageLayout } from "./layout-page";

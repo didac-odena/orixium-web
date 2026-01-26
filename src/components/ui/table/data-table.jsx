@@ -1,4 +1,4 @@
-export function DataTable({
+export default function DataTable({
   columns,
   rows,
   rowKey = "id",

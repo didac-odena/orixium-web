@@ -8,7 +8,7 @@ import {
 
 const ThemeContext = createContext(null);
 
-export const ThemeProvider = ({ children }) => {
+export default function ThemeProvider({ children }) {
   const [theme, setThemeState] = useState(getInitialTheme());
 
   const applyCurrentTheme = () => {
@@ -57,7 +57,7 @@ export const ThemeProvider = ({ children }) => {
       {children}
     </ThemeContext.Provider>
   );
-};
+}
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const useTheme = () => {

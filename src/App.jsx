@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { PrivateRoute } from "./guards/index.js";
+import { PrivateRoute } from "./guards";
 import {
   DashboardPage,
   HomePage,
@@ -12,7 +12,7 @@ import {
   SettingsPage,
   TradingPage,
   PortfolioPage,
-} from "./pages/index.js";
+} from "./pages";
 
 function App() {
   return (

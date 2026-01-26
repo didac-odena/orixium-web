@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { PageLayout } from "../components/layout/index.js";
-import { PageHeader } from "../components/ui/page-header.jsx";
+import { PageLayout } from "../components/layout";
+import PageHeader from "../components/ui/page-header";
 import { getTradeHistory } from "../services/index.js";
 import {
   createDateTimeFormatter,
@@ -12,7 +12,7 @@ import {
   ArrowTrendingUpIcon,
 } from "@heroicons/react/24/outline";
 
-export function HistorialPage() {
+export default function HistorialPage() {
   const [trades, setTrades] = useState([]);
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState("");

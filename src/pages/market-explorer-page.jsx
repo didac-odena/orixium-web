@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { PageLayout } from "../components/layout/index.js";
+import { PageLayout } from "../components/layout";
 import {
   MarketExplorerMobileList,
   MarketExplorerEquityMobileList,
   MarketExplorerToolbar,
   buildCryptoColumns,
   buildNonCryptoColumns,
-} from "../components/market-explorer/index.js";
-import { DataTable } from "../components/ui/table/data-table.jsx";
-import { TablePagination } from "../components/ui/table/table-pagination.jsx";
-import { PageHeader } from "../components/ui/page-header.jsx";
+} from "../components/market-explorer";
+import DataTable from "../components/ui/table/data-table";
+import TablePagination from "../components/ui/table/table-pagination";
+import PageHeader from "../components/ui/page-header";
 import {
   DEFAULT_QUOTE_CURRENCY,
   SUPPORTED_QUOTE_CURRENCIES,
@@ -92,7 +92,7 @@ function buildGroupFilterOptions(items, groupKey) {
   return options;
 }
 
-export function MarketExplorerPage() {
+export default function MarketExplorerPage() {
   // UI-selected quote currency (usd/eur/gbp) drives formatting + fetch.
   const [currency, setCurrency] = useState(DEFAULT_QUOTE_CURRENCY);
   const [segment, setSegment] = useState("crypto");

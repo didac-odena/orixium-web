@@ -1,6 +1,6 @@
 import { getAccentClass } from "../../pages/market-explorer/market-explorer-utils.js";
 
-export function MarketExplorerMobileList({
+export default function MarketExplorerMobileList({
   rows,
   formatPrice,
   percentFormatter,

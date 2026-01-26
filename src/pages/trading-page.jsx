@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { PageLayout } from "../components/layout/index.js";
-import { PageHeader } from "../components/ui/page-header.jsx";
+import { PageLayout } from "../components/layout";
+import PageHeader from "../components/ui/page-header";
 import { getOpenTrades } from "../services/index.js";
 import {
   createDateTimeFormatter,
@@ -12,7 +12,7 @@ import {
   ArrowTrendingUpIcon,
 } from "@heroicons/react/24/outline";
 
-export function TradingPage() {
+export default function TradingPage() {
   const [trades, setTrades] = useState([]);
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState("");

@@ -1,10 +1,10 @@
-export const PageHeader = ({
+export default function PageHeader({
   title,
   subtitle,
   className = "space-y-1",
   titleClassName = "text-2xl font-semibold",
   subtitleClassName = "text-muted",
-}) => {
+}) {
   if (!title) return null;
 
   return (
@@ -13,4 +13,4 @@ export const PageHeader = ({
       {subtitle ? <p className={subtitleClassName}>{subtitle}</p> : null}
     </header>
   );
-};
+}

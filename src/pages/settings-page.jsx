@@ -1,7 +1,7 @@
-import { PageLayout } from "../components/layout/index.js";
-import { PageHeader } from "../components/ui/page-header.jsx";
+import { PageLayout } from "../components/layout";
+import PageHeader from "../components/ui/page-header";
 
-export function SettingsPage() {
+export default function SettingsPage() {
   return (
     <PageLayout>
       <div className="space-y-4">

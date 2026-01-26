@@ -1,4 +1,4 @@
-export function HeaderDropdown({
+export default function HeaderDropdown({
   label,
   children,
   align = "left",

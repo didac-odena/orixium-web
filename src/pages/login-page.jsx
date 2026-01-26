@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/auth/auth-context.jsx";
-import { LoginForm } from "../components/auth/login-form.jsx";
+import { useAuth } from "../contexts/auth/auth-context";
+import LoginForm from "../components/auth/login-form";
 import { AUTH_USERS } from "../mocks/fixtures/auth-users.js";
 
 function getNextPath(search) {
@@ -17,7 +17,7 @@ function getNextPath(search) {
   return next;
 }
 
-export function LoginPage() {
+export default function LoginPage() {
   const auth = useAuth();
   const navigate = useNavigate();
   const location = useLocation();

@@ -1,12 +1,12 @@
-export { MarketExplorerMobileList } from "./market-explorer-mobile-list.jsx";
-export { MarketExplorerEquityMobileList } from "./market-explorer-equity-mobile-list.jsx";
-export { MarketExplorerToolbar } from "./market-explorer-toolbar.jsx";
+export { default as MarketExplorerMobileList } from "./market-explorer-mobile-list";
+export { default as MarketExplorerEquityMobileList } from "./market-explorer-equity-mobile-list";
+export { default as MarketExplorerToolbar } from "./market-explorer-toolbar";
 export {
   buildCryptoColumns,
   buildNonCryptoColumns,
-} from "./market-explorer-columns.jsx";
+} from "./market-explorer-columns";
 export {
   ChangeValueCell,
   DateCell,
   PercentCell,
-} from "./market-explorer-cells.jsx";
+} from "./market-explorer-cells";

@@ -1,4 +1,4 @@
-export function TablePagination({
+export default function TablePagination({
   currentPage,
   totalPages,
   totalCount,

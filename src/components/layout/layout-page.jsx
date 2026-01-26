@@ -1,7 +1,7 @@
-import { Header } from "./header.jsx";
-import { Footer } from "./footer.jsx";
+import Header from "./header";
+import Footer from "./footer";
 
-export function PageLayout({ children }) {
+export default function PageLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-bg text-ink flex flex-col">

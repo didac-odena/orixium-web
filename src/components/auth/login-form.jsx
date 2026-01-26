@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 
-export function LoginForm({ onSubmit, defaultValues }) {
+export default function LoginForm({ onSubmit, defaultValues }) {
 
   const {
     register,

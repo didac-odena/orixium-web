@@ -2,7 +2,7 @@ import {
   ChangeValueCell,
   DateCell,
   PercentCell,
-} from "./market-explorer-cells.jsx";
+} from "./market-explorer-cells";
 
 export function buildCryptoColumns({
   formatPrice,

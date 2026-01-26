@@ -1,4 +1,10 @@
-import { httpClient } from "./http-client.js";
+import axios from "axios";
+
+const httpClient = axios.create({
+  baseURL: "/api",
+  headers: { "Content-Type": "application/json" },
+  timeout: 10000,
+});
 
 export async function postLogin(credentials) {
   const response = await httpClient.post("/auth/login", {

@@ -1,7 +1,7 @@
-import { TablePagination } from "../ui/table/table-pagination.jsx";
-import { TableToolbar } from "../ui/table/table-toolbar.jsx";
+import TablePagination from "../ui/table/table-pagination";
+import TableToolbar from "../ui/table/table-toolbar";
 
-export function MarketExplorerToolbar({
+export default function MarketExplorerToolbar({
   segments,
   activeSegment,
   onSegmentChange,

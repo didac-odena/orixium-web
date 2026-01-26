@@ -4,7 +4,7 @@ import * as AuthService from "../../services/index.js";
 
 const AuthContext = createContext(null);
 
-export function AuthProvider({ children }) {
+export default function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     // Bootstrap auth state from storage via the service layer.
     return AuthService.getUser();
