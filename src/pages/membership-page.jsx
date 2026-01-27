@@ -1,5 +1,6 @@
 import { PageLayout } from "../components/layout";
-import PageHeader from "../components/ui/page-header";
+import { PageHeader } from "../components/ui";
+
 
 export default function MembershipPage() {
   return (

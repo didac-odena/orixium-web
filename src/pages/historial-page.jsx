@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { PageLayout } from "../components/layout";
-import PageHeader from "../components/ui/page-header";
+import { PageHeader } from "../components/ui";
+
 import { getTradeHistory } from "../services/index.js";
 import {
   createDateTimeFormatter,

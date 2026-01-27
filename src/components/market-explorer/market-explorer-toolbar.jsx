@@ -1,5 +1,4 @@
-import TablePagination from "../ui/table/table-pagination";
-import TableToolbar from "../ui/table/table-toolbar";
+import { TablePagination, TableToolbar } from "../ui";
 
 export default function MarketExplorerToolbar({
   segments,

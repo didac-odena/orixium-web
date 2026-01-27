@@ -10,7 +10,8 @@ import {
   MembershipPage,
   SupportPage,
   SettingsPage,
-  TradingPage,
+  CurrentTradesPage,
+  NewTradePage,
   PortfolioPage,
 } from "./pages";
 
@@ -29,7 +30,8 @@ function App() {
       <Route element={<PrivateRoute />}>
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
-        <Route path="/trading" element={<TradingPage />} />
+        <Route path="/trading/current-trades" element={<CurrentTradesPage />} />
+        <Route path="/trading/new-trade" element={<NewTradePage />} />
         <Route path="/market-explorer" element={<MarketExplorerPage />} />
         <Route path="/historial" element={<HistorialPage />} />
         <Route path="/settings" element={<SettingsPage />} />

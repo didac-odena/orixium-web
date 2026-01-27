@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/auth/auth-context";
-import HeaderDropdown from "../ui/dropdown/header-dropdown";
-import ThemeToggle from "../ui/theme/theme-toggle";
+import { HeaderDropdown, ThemeToggle } from "../ui";
 import {
   Bars3Icon,
   ChartPieIcon,
@@ -19,7 +18,10 @@ const NAV_APP = [
   { label: "Dashboard", to: "/dashboard" },
   {
     label: "Trading",
-    children: [{ label: "Open Trades", to: "/trading" }],
+    children: [
+      { label: "New Trade", to: "/trading/new-trade" },
+      { label: "Current Trades", to: "/trading/current-trades" },
+    ],
   },
   { label: "Strategy", to: "/strategy" },
   { label: "Market Explorer", to: "/market-explorer" },
@@ -41,7 +43,7 @@ function NavItem({ to, label, children, onSelect }) {
               key={child.to}
               to={child.to}
               onClick={onSelect}
-              className="block px-4 py-2 text-ink hover:text-accent"
+              className="flex px-4 py-2 whitespace-nowrap text-ink hover:text-accent"
             >
               {child.label}
             </Link>
@@ -227,4 +229,3 @@ export default function Header() {
     </header>
   );
 }
-

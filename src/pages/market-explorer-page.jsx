@@ -7,9 +7,8 @@ import {
   buildCryptoColumns,
   buildNonCryptoColumns,
 } from "../components/market-explorer";
-import DataTable from "../components/ui/table/data-table";
-import TablePagination from "../components/ui/table/table-pagination";
-import PageHeader from "../components/ui/page-header";
+import { DataTable, TablePagination, PageHeader } from "../components/ui";
+
 import {
   DEFAULT_QUOTE_CURRENCY,
   SUPPORTED_QUOTE_CURRENCIES,

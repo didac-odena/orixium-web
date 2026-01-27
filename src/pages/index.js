@@ -7,5 +7,5 @@ export { default as HistorialPage } from "./historial-page";
 export { default as MembershipPage } from "./membership-page";
 export { default as SupportPage } from "./support-page";
 export { default as SettingsPage } from "./settings-page";
-export { default as TradingPage } from "./trading-page";
+export { CurrentTradesPage, NewTradePage } from "./trading";
 export { default as PortfolioPage } from "./portfolio-page";

@@ -3,7 +3,8 @@ export default function PageHeader({
   subtitle,
   className = "space-y-1",
   titleClassName = "text-2xl font-semibold",
-  subtitleClassName = "text-muted",
+  subtitleClassName = "text-muted text-xs",
+  
 }) {
   if (!title) return null;
 
