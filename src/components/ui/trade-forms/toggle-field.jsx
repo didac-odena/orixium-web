@@ -8,7 +8,7 @@
     error,
     }) {
     const toggleButtonClass = (isActive) => {
-        return `px-2 py-2 rounded cursor-pointer border border-border uppercase tracking-wide transition-colors hover:border-accent hover:text-accent text-xs ${
+        return `flex-1 text-center px-2 py-2 rounded cursor-pointer border border-border bg-bg uppercase tracking-wide transition-colors hover:border-accent hover:text-accent text-xs ${
             isActive ? "text-ink border border-ink" : "text-muted opacity-50"
         }`;
     };
@@ -33,8 +33,8 @@
 
     return (
         <div className="space-y-2">
-        <label className="text-sm">{label}</label>
-        <div className="flex">{options.map(renderOption)}</div>
+        <label className="text-xs">{label}</label>
+        <div className="flex gap-2">{options.map(renderOption)}</div>
         <input type="hidden" {...register(name, { required: true })} />
         {error ? <p className="text-danger text-xs">{error}</p> : null}
         </div>
