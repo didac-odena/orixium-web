@@ -5,3 +5,4 @@ export { default as TablePagination } from "./table/table-pagination";
 export { default as TableToolbar } from "./table/table-toolbar";
 export { default as ThemeToggle } from "./theme/theme-toggle";
 export { default as ToggleField } from "./trade-forms/toggle-field";
+export { default as SearchableSelect } from "./searchable-select";
