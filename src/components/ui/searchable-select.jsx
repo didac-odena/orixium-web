@@ -46,7 +46,7 @@ export default function SearchableSelect({
                 key={option.value}
                 type="button"
                 onClick={handleClick}
-                className="w-full px-3 py-2 text-left text-xs text-ink hover:bg-surface"
+                className="w-full px-2 py-1 text-left text-xs text-ink hover:bg-surface"
             >
                 {option.label}
             </button>
@@ -63,7 +63,7 @@ export default function SearchableSelect({
             <button
                 type="button"
                 onClick={handleToggle}
-                className={`flex w-full items-center gap-2 rounded border border-border bg-bg px-2 py-2 text-xs text-ink ${buttonAlignClass}`}
+                className={`flex w-full items-center gap-1 rounded border border-border bg-bg px-1 py-1 text-xs text-ink ${buttonAlignClass}`}
             >
                 <span className="flex-1">
                     {selected ? selected.label : placeholder}
@@ -77,11 +77,11 @@ export default function SearchableSelect({
                         <input
                             value={query}
                             onChange={handleQueryChange}
-                            placeholder="Type to search..."
-                            className="w-full rounded border border-border bg-bg px-2 py-1 text-xs text-ink"
+                            placeholder="Search..."
+                            className="w-full rounded border border-border bg-bg px-0 py-1 text-xs text-ink"
                         />
                     </div>
-                    <div className="max-h-48 overflow-auto">
+                    <div className="max-h-60 overflow-auto">
                         {filteredOptions.length ? (
                             filteredOptions.map(renderOption)
                         ) : (
