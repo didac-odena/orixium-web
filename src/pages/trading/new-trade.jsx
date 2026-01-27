@@ -1,8 +1,23 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { PageLayout } from "../../components/layout";
 import { PageHeader, ToggleField } from "../../components/ui";
 
 export default function NewTradePage() {
+  const MARKET_SEGMENTS = [
+    { value: "crypto", label: "Crypto" },
+    { value: "equity", label: "Equity" },
+    { value: "rates", label: "Rates" },
+    { value: "forex", label: "Forex" },
+    { value: "commodities", label: "Commodities" },
+  ];
+
+  const [marketType, setMarketType] = useState("crypto");
+
+  const handleMarketTypeChange = (nextMarket) => {
+    setMarketType(nextMarket);
+  };
+
   const {
     register,
     handleSubmit,
@@ -36,6 +51,31 @@ export default function NewTradePage() {
     <PageLayout>
       <section className="space-y-1">
         <PageHeader title="New Trade" subtitle="Manual order trade" />
+
+        <div className="flex flex-wrap gap-2">
+          {MARKET_SEGMENTS.map((segment) => {
+            const isActive = marketType === segment.value;
+            const buttonClass = isActive
+              ? "cursor-pointer rounded-full border border-ink bg-surface  px-2 py-1 text-xs uppercase tracking-wider text-ink"
+              : "cursor-pointer rounded-full border border-border px-2 py-1 text-xs uppercase tracking-wider text-muted hover:border-accent hover:text-accent transition";
+
+            const handleClick = () => {
+              handleMarketTypeChange(segment.value);
+            };
+
+            return (
+              <button
+                key={segment.value}
+                type="button"
+                onClick={handleClick}
+                className={buttonClass}
+              >
+                {segment.label}
+              </button>
+            );
+          })}
+        </div>
+
         <div className="flex flex-col border border-border bg-surface-3 rounded w-full max-w-[27%] py-1 px-2">
           <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-2">
             <ToggleField
@@ -65,7 +105,10 @@ export default function NewTradePage() {
             />
 
             <div className="flex justify-center">
-              <button type="submit" className="px-2 py-2 rounded cursor-pointer border border-border bg-bg uppercase tracking-wide transition-colors hover:border-accent hover:text-accent text-xs">
+              <button
+                type="submit"
+                className="px-2 py-2 rounded cursor-pointer border border-border bg-bg uppercase tracking-wide transition-colors hover:border-accent hover:text-accent text-xs"
+              >
                 Submit
               </button>
             </div>
