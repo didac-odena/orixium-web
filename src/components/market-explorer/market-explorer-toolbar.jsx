@@ -105,7 +105,9 @@ export default function MarketExplorerToolbar({
                                 type="button"
                                 data-filter="all"
                                 className={`cursor-pointer rounded-full border border-border px-3 py-1 text-[11px] uppercase tracking-wide transition-colors hover:border-accent hover:text-accent ${
-                                    groupFilter === "all" ? "text-ink" : "text-muted opacity-60"
+                                    groupFilter === "all"
+                                        ? "text-ink"
+                                        : "text-muted opacity-60"
                                 }`}
                                 onClick={handleGroupFilterClick}
                                 aria-pressed={groupFilter === "all"}
@@ -119,7 +121,9 @@ export default function MarketExplorerToolbar({
             }
             bottomLeft={
                 <>
-                    <label className="text-xs uppercase tracking-wide text-muted">Search</label>
+                    <label className="text-xs uppercase tracking-wide text-muted">
+                        Search
+                    </label>
                     <input
                         type="search"
                         value={searchQuery}
@@ -201,7 +205,9 @@ export default function MarketExplorerToolbar({
                         ) : null}
                     </div>
                     {refreshError ? (
-                        <span className="text-xs text-danger">{refreshError}</span>
+                        <span className="text-xs text-danger">
+                            {refreshError}
+                        </span>
                     ) : null}
                 </>
             }

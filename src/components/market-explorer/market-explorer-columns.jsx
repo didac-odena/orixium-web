@@ -1,8 +1,4 @@
-import {
-  ChangeValueCell,
-  DateCell,
-  PercentCell,
-} from "./market-explorer-cells";
+import { ChangeValueCell, DateCell, PercentCell } from "./market-explorer-cells";
 
 export function buildCryptoColumns({
   formatPrice,
@@ -28,12 +24,7 @@ export function buildCryptoColumns({
         return (
           <div className="flex items-center gap-3">
             {iconSrc ? (
-              <img
-                src={iconSrc}
-                alt={asset.name}
-                className="h-8 w-8 rounded-md"
-                loading="lazy"
-              />
+              <img src={iconSrc} alt={asset.name} className="h-8 w-8 rounded-md" loading="lazy" />
             ) : (
               <span className="flex h-8 w-8 items-center justify-center rounded-md border border-border text-xs">
                 {asset.symbol?.toUpperCase()}
@@ -41,9 +32,7 @@ export function buildCryptoColumns({
             )}
             <div>
               <div className="font-semibold">{asset.name}</div>
-              <div className="text-xs text-muted">
-                {asset.symbol?.toUpperCase()}
-              </div>
+              <div className="text-xs text-muted">{asset.symbol?.toUpperCase()}</div>
             </div>
           </div>
         );
@@ -63,10 +52,7 @@ export function buildCryptoColumns({
       className: "px-4 py-2",
       renderCell: (asset) => {
         return (
-          <PercentCell
-            value={asset.price_change_percentage_24h}
-            formatter={percentFormatter}
-          />
+          <PercentCell value={asset.price_change_percentage_24h} formatter={percentFormatter} />
         );
       },
     },
@@ -105,9 +91,7 @@ export function buildCryptoColumns({
       label: "Market cap",
       className: "px-4 py-2",
       renderCell: (asset) => {
-        return asset.market_cap != null
-          ? compactFormatter.format(asset.market_cap)
-          : "--";
+        return asset.market_cap != null ? compactFormatter.format(asset.market_cap) : "--";
       },
     },
     {
@@ -128,9 +112,7 @@ export function buildCryptoColumns({
       label: "24h volume",
       className: "px-4 py-2",
       renderCell: (asset) => {
-        return asset.total_volume != null
-          ? compactFormatter.format(asset.total_volume)
-          : "--";
+        return asset.total_volume != null ? compactFormatter.format(asset.total_volume) : "--";
       },
     },
     {
@@ -138,19 +120,13 @@ export function buildCryptoColumns({
       label: "Last updated",
       className: "px-4 py-2 text-muted whitespace-nowrap",
       renderCell: (asset) => {
-        return (
-          <DateCell value={asset.last_updated} formatter={dateFormatter} />
-        );
+        return <DateCell value={asset.last_updated} formatter={dateFormatter} />;
       },
     },
   ];
 }
 
-export function buildNonCryptoColumns({
-  formatEquityPrice,
-  percentFormatter,
-  dateFormatter,
-}) {
+export function buildNonCryptoColumns({ formatEquityPrice, percentFormatter, dateFormatter }) {
   return [
     {
       key: "asset",
@@ -180,12 +156,7 @@ export function buildNonCryptoColumns({
       label: "1D %",
       className: "px-4 py-2",
       renderCell: (asset) => {
-        return (
-          <PercentCell
-            value={asset.change_1d_pct}
-            formatter={percentFormatter}
-          />
-        );
+        return <PercentCell value={asset.change_1d_pct} formatter={percentFormatter} />;
       },
     },
     {
@@ -208,12 +179,7 @@ export function buildNonCryptoColumns({
       label: "1W %",
       className: "px-4 py-2",
       renderCell: (asset) => {
-        return (
-          <PercentCell
-            value={asset.change_1w_pct}
-            formatter={percentFormatter}
-          />
-        );
+        return <PercentCell value={asset.change_1w_pct} formatter={percentFormatter} />;
       },
     },
     {
@@ -221,12 +187,7 @@ export function buildNonCryptoColumns({
       label: "1M %",
       className: "px-4 py-2",
       renderCell: (asset) => {
-        return (
-          <PercentCell
-            value={asset.change_1m_pct}
-            formatter={percentFormatter}
-          />
-        );
+        return <PercentCell value={asset.change_1m_pct} formatter={percentFormatter} />;
       },
     },
     {
@@ -234,12 +195,7 @@ export function buildNonCryptoColumns({
       label: "1Y %",
       className: "px-4 py-2",
       renderCell: (asset) => {
-        return (
-          <PercentCell
-            value={asset.change_1y_pct}
-            formatter={percentFormatter}
-          />
-        );
+        return <PercentCell value={asset.change_1y_pct} formatter={percentFormatter} />;
       },
     },
     {
@@ -263,9 +219,7 @@ export function buildNonCryptoColumns({
       label: "Last updated",
       className: "px-4 py-2 text-muted whitespace-nowrap",
       renderCell: (asset) => {
-        return (
-          <DateCell value={asset.last_updated} formatter={dateFormatter} />
-        );
+        return <DateCell value={asset.last_updated} formatter={dateFormatter} />;
       },
     },
   ];
