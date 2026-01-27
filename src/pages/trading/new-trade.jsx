@@ -40,6 +40,9 @@ const buildQuoteOptions = () => {
 };
 
 const QUOTE_OPTIONS = buildQuoteOptions();
+const PRICE_FORMATTER = new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 8,
+});
 
 const parseAmountValue = (value) => {
     const parsed = Number(value);
@@ -237,6 +240,22 @@ export default function NewTradePage() {
     const side = watch("side");
     const orderType = watch("orderType");
 
+    let lastPriceLabel = "";
+    if (priceStatus === "loading") {
+        lastPriceLabel = "Loading price...";
+    }
+    if (priceStatus === "error") {
+        lastPriceLabel = priceError;
+    }
+    if (priceStatus === "ready" && pairPrice != null) {
+        const currency = String(
+            quoteAsset || DEFAULT_QUOTE_CURRENCY,
+        ).toUpperCase();
+        lastPriceLabel = `Last price: ${PRICE_FORMATTER.format(
+            Number(pairPrice),
+        )} ${currency}`;
+    }
+
     return (
         <PageLayout>
             <section className="space-y-1">
@@ -274,7 +293,7 @@ export default function NewTradePage() {
                         className="space-y-1"
                     >
                         <div className="grid grid-cols-2 gap-2 items-end">
-                            <div className="grid grid-cols-3 gap-2 items-end">
+                            <div className="grid grid-cols-3 gap-1 items-end">
                                 <div className="col-span-2 space-y-1">
                                     <label className="text-xs">Base amount</label>
                                     <input
@@ -323,20 +342,12 @@ export default function NewTradePage() {
                                         placeholder="Select"
                                         align="right"
                                     />
-                                    <div className="text-xs text-muted text-right">
-                                        {priceStatus === "loading"
-                                            ? "Loading price..."
-                                            : null}
-                                        {priceStatus === "error"
-                                            ? priceError
-                                            : null}
-                                        {priceStatus === "ready" &&
-                                        pairPrice != null
-                                            ? `Last price: ${pairPrice}`
-                                            : null}
-                                    </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <div className="flex justify-start text-xs text-muted">
+                            {lastPriceLabel || null}
                         </div>
 
                         <ToggleField

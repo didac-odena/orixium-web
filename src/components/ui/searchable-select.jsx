@@ -46,7 +46,7 @@ export default function SearchableSelect({
                 key={option.value}
                 type="button"
                 onClick={handleClick}
-                className="w-full px-2 py-1 text-left text-xs text-ink hover:bg-surface"
+                className="w-full px-1 py-1 text-left text-xs text-ink hover:bg-surface"
             >
                 {option.label}
             </button>
@@ -73,15 +73,15 @@ export default function SearchableSelect({
 
             {isOpen ? (
                 <div className="absolute z-20 mt-1 w-full rounded border border-border bg-bg shadow">
-                    <div className="p-2">
+                    <div className="p-1">
                         <input
                             value={query}
                             onChange={handleQueryChange}
                             placeholder="Search..."
-                            className="w-full rounded border border-border bg-bg px-0 py-1 text-xs text-ink"
+                            className="w-full rounded text-center border border-border bg-bg px-0 py-1  text-xs text-ink"
                         />
                     </div>
-                    <div className="max-h-60 overflow-auto">
+                    <div className="max-h-60 overflow-autooverflow-y-auto [scrollbar-width:thin] overflow-x-hidden">
                         {filteredOptions.length ? (
                             filteredOptions.map(renderOption)
                         ) : (
