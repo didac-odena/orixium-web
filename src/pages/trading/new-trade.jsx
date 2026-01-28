@@ -5,6 +5,8 @@ import {
     SUPPORTED_QUOTE_CURRENCIES,
     getCryptoMarketSnapshots,
     refreshCryptoMarketSnapshots,
+    getEquityMarketSnapshots,
+    refreshEquityMarketSnapshots,
 } from "../../services";
 import { PageLayout } from "../../components/layout";
 import { PageHeader, SearchableSelect, ToggleField } from "../../components/ui";
@@ -63,7 +65,6 @@ const formatAmount = (value, decimals = MAX_AMOUNT_DECIMALS) => {
 };
 
 export default function NewTradePage() {
-
     const [pairPrice, setPairPrice] = useState(null);
     const [priceStatus, setPriceStatus] = useState("idle");
     const [priceError, setPriceError] = useState("");
@@ -120,33 +121,36 @@ export default function NewTradePage() {
             setBaseAmount("");
             return;
         }
-
         const nextBase = quoteNumber / price;
         setBaseAmount(formatAmount(nextBase));
     };
+
     const handleSideChange = (nextSide) => {
         setValue("side", nextSide, { shouldValidate: true });
     };
     const handleOrderTypeChange = (nextType) => {
         setValue("orderType", nextType, { shouldValidate: true });
+        if (nextType !== "LIMIT") {
+            setValue("limitPrice", "");
+        }
+        if (nextType === "LIMIT" && pairPrice != null) {
+            setValue("limitPrice", String(pairPrice), {
+                shouldValidate: true,
+            });
+        }
     };
+
     const handleSubmitForm = (values) => {
         console.log("NEW_TRADE_FORM_SUBMIT", values);
     };
 
     useEffect(() => {
-        const loadCryptoPrice = async () => {
-            if (marketType !== "crypto") {
-                setPairPrice(null);
-                setPriceError("Price feed is only wired for crypto right now.");
-                setPriceStatus("idle");
-                return;
-            }
-
+        const loadMarketPrice = async () => {
             const quoteLower = String(
                 quoteAsset || DEFAULT_QUOTE_CURRENCY,
             ).toLowerCase();
-            if (quoteLower === "usdt") {
+
+            if (marketType === "crypto" && quoteLower === "usdt") {
                 setPairPrice(null);
                 setPriceError("USDT pricing is not wired yet.");
                 setPriceStatus("idle");
@@ -157,19 +161,33 @@ export default function NewTradePage() {
             setPriceError("");
 
             try {
-                let items = getCryptoMarketSnapshots(quoteLower);
-                if (!items.length) {
-                    items = await refreshCryptoMarketSnapshots(quoteLower);
+                let items = [];
+                if (marketType === "crypto") {
+                    items = getCryptoMarketSnapshots(quoteLower);
+                    if (!items.length) {
+                        items = await refreshCryptoMarketSnapshots(quoteLower);
+                    }
                 }
-
+                if (marketType === "equity") {
+                    items = getEquityMarketSnapshots();
+                    if (!items.length) {
+                        items = await refreshEquityMarketSnapshots();
+                    }
+                }
                 const match = items.find((item) => {
                     return (
                         item.symbol?.toUpperCase() ===
                         String(baseAsset || "").toUpperCase()
                     );
                 });
-
-                setPairPrice(match?.current_price ?? null);
+                let nextPrice = null;
+                if (marketType === "crypto") {
+                    nextPrice = match?.current_price ?? null;
+                }
+                if (marketType === "equity") {
+                    nextPrice = match?.last ?? null;
+                }
+                setPairPrice(nextPrice);
                 setPriceStatus("ready");
             } catch (err) {
                 setPairPrice(null);
@@ -178,12 +196,12 @@ export default function NewTradePage() {
             }
         };
 
-        loadCryptoPrice();
+        loadMarketPrice();
     }, [marketType, baseAsset, quoteAsset]);
 
     useEffect(() => {
         const loadBaseOptions = async () => {
-            if (marketType !== "crypto") {
+            if (marketType !== "crypto" && marketType !== "equity") {
                 setBaseOptions([]);
                 return;
             }
@@ -191,9 +209,20 @@ export default function NewTradePage() {
                 quoteAsset || DEFAULT_QUOTE_CURRENCY,
             ).toLowerCase();
 
-            let items = getCryptoMarketSnapshots(quoteLower);
-            if (!items.length) {
-                items = await refreshCryptoMarketSnapshots(quoteLower);
+            let items = [];
+
+            if (marketType === "crypto") {
+                items = getCryptoMarketSnapshots(quoteLower);
+                if (!items.length) {
+                    items = await refreshCryptoMarketSnapshots(quoteLower);
+                }
+            }
+
+            if (marketType === "equity") {
+                items = getEquityMarketSnapshots();
+                if (!items.length) {
+                    items = await refreshEquityMarketSnapshots();
+                }
             }
 
             const nextBaseOptions = buildBaseOptions(items);
@@ -233,6 +262,7 @@ export default function NewTradePage() {
         defaultValues: {
             side: "BUY",
             orderType: "MARKET",
+            limitPrice: "",
         },
         mode: "onChange",
     });
@@ -287,26 +317,43 @@ export default function NewTradePage() {
                 </div>
 
                 {/*//Form*/}
-                <div className="flex flex-col border border-border bg-surface-3 rounded w-full max-w-[30%] py-1 px-2">
+                <div className="flex flex-col border border-border bg-surface-3 rounded w-full max-w-[31%] py-1 px-2">
                     <form
                         onSubmit={handleSubmit(handleSubmitForm)}
                         className="space-y-1"
                     >
+                        <ToggleField
+                            label="Side"
+                            name="side"
+                            value={side}
+                            options={[
+                                { value: "BUY", label: "Buy" },
+                                { value: "SELL", label: "Sell" },
+                            ]}
+                            onChange={handleSideChange}
+                            register={register}
+                            error={errors.side ? "Side is required." : ""}
+                        />
                         <div className="grid grid-cols-2 gap-2 items-end">
                             <div className="grid grid-cols-3 gap-1 items-end">
                                 <div className="col-span-2 space-y-1">
-                                    <label className="text-xs">Base amount</label>
+                                    <label className="text-xs">
+                                        Base amount
+                                    </label>
                                     <input
                                         value={baseAmount}
                                         onChange={handleBaseAmountChange}
                                         placeholder="0.00"
+                                        type="number"
                                         inputMode="decimal"
-                                        className="w-full rounded border border-border bg-bg px-2 py-1 text-xs text-right text-ink"
+                                        className="w-full rounded border border-border bg-bg py-1 text-xs text-right text-ink"
                                     />
                                 </div>
 
                                 <div className="col-span-1 space-y-1">
-                                    <label className="text-xs">Base asset</label>
+                                    <label className="text-xs">
+                                        Base asset
+                                    </label>
                                     <SearchableSelect
                                         value={baseAsset}
                                         options={baseOptions}
@@ -327,7 +374,8 @@ export default function NewTradePage() {
                                         onChange={handleQuoteAmountChange}
                                         placeholder="0.00"
                                         inputMode="decimal"
-                                        className="w-full rounded border border-border bg-bg px-2 py-1 text-xs text-right text-ink"
+                                        type="number"
+                                        className="w-full rounded border border-border bg-bg py-1 text-xs text-right text-ink"
                                     />
                                 </div>
 
@@ -351,19 +399,6 @@ export default function NewTradePage() {
                         </div>
 
                         <ToggleField
-                            label="Side"
-                            name="side"
-                            value={side}
-                            options={[
-                                { value: "BUY", label: "Buy" },
-                                { value: "SELL", label: "Sell" },
-                            ]}
-                            onChange={handleSideChange}
-                            register={register}
-                            error={errors.side ? "Side is required." : ""}
-                        />
-
-                        <ToggleField
                             label="Order Type"
                             name="orderType"
                             value={orderType}
@@ -374,9 +409,39 @@ export default function NewTradePage() {
                             onChange={handleOrderTypeChange}
                             register={register}
                             error={
-                                errors.orderType ? "Order type is required." : ""
+                                errors.orderType
+                                    ? "Order type is required."
+                                    : ""
                             }
                         />
+
+                        {orderType === "LIMIT" ? (
+                            <div className="space-y-1">
+                                <label className="text-xs">Limit Price</label>
+                                <div className="relative">
+                                    <input
+                                        type="number"
+                                        inputMode="decimal"
+                                        placeholder="0.00"
+                                        className="w-full rounded border border-border bg-bg px-2 py-1 pr-7 text-xs text-right text-ink"
+                                        {...register("limitPrice", {
+                                            required: true,
+                                        })}
+                                    />
+                                    {errors.limitPrice ? (
+                                        <p className="text-danger text-xs">
+                                            Limit price is required.
+                                        </p>
+                                    ) : null}
+                                    <span className="pointer-events-none absolute top-1/2 -translate-y-1/2 right-1 text-xs text-muted">
+                                        {String(
+                                            quoteAsset ||
+                                                DEFAULT_QUOTE_CURRENCY,
+                                        ).toUpperCase()}
+                                    </span>
+                                </div>
+                            </div>
+                        ) : null}
 
                         <div className="flex justify-center">
                             <button

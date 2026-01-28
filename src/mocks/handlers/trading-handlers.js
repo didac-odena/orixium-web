@@ -5,46 +5,45 @@ import TradesHistory from "../fixtures/trades-history.json";
 import { getSession } from "./session-storage.js";
 
 function filterByUserId(items, userId) {
-  return items.filter((item) => item.userId === userId);
+    return items.filter((item) => item.userId === userId);
 }
 
 // Allow optional filtering by broker/account via query params.
 function filterByAccount(items, searchParams) {
-  const broker = searchParams.get("broker");
-  const accountId = searchParams.get("accountId");
+    const broker = searchParams.get("broker");
+    const accountId = searchParams.get("accountId");
 
-  return items.filter((item) => {
-    if (broker && item.broker !== broker) return false;
-    if (accountId && item.accountId !== accountId) return false;
-    return true;
-  });
+    return items.filter((item) => {
+        if (broker && item.broker !== broker) return false;
+        if (accountId && item.accountId !== accountId) return false;
+        return true;
+    });
 }
 
 function respondWithUserData(request, rows) {
-  const session = getSession();
-  if (!session?.userId) {
-    return HttpResponse.json([], { status: 200 });
-  }
-  const url = new URL(request.url);
-  const userRows = filterByUserId(rows, session.userId);
-  const filteredRows = filterByAccount(userRows, url.searchParams);
-  return HttpResponse.json(filteredRows);
+    const session = getSession();
+    if (!session?.userId) {
+        return HttpResponse.json([], { status: 200 });
+    }
+    const url = new URL(request.url);
+    const userRows = filterByUserId(rows, session.userId);
+    const filteredRows = filterByAccount(userRows, url.searchParams);
+    return HttpResponse.json(filteredRows);
 }
 
 export const tradingHandlers = [
-  http.get("/api/portfolio/summary", async ({ request }) => {
-    await delay(200);
-    return respondWithUserData(request, PortfolioSummary);
-  }),
+    http.get("/api/portfolio/summary", async ({ request }) => {
+        await delay(200);
+        return respondWithUserData(request, PortfolioSummary);
+    }),
 
-  http.get("/api/trades/open", async ({ request }) => {
-    await delay(200);
-    return respondWithUserData(request, TradesOpen);
-  }),
+    http.get("/api/trades/open", async ({ request }) => {
+        await delay(200);
+        return respondWithUserData(request, TradesOpen);
+    }),
 
-  http.get("/api/trades/history", async ({ request }) => {
-    await delay(200);
-    return respondWithUserData(request, TradesHistory);
-  }),
+    http.get("/api/trades/history", async ({ request }) => {
+        await delay(200);
+        return respondWithUserData(request, TradesHistory);
+    }),
 ];
-
