@@ -25,7 +25,7 @@ export default function ToggleField({ label, name, value, options, onChange, reg
 
     return (
         <div className="space-y-2">
-            <label className="text-xs">{label}</label>
+            <label className="text-xs text-muted">{label}</label>
             <div className="flex gap-2">{options.map(renderOption)}</div>
             <input type="hidden" {...register(name, { required: true })} />
             {error ? <p className="text-danger text-xs">{error}</p> : null}

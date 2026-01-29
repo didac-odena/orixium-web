@@ -371,7 +371,7 @@ export default function NewTradePage() {
                             error={errors.side ? "Side is required." : ""}
                         />
                         <div className="flex items-end gap-2">
-                            <div className="flex flex-col gap-2 flex-1">
+                            <div className="flex flex-col gap-1 flex-1">
                                 <label className="text-xs text-muted">
                                     {amountMode === "base"
                                         ? "Base amount"
@@ -384,7 +384,7 @@ export default function NewTradePage() {
                                         {...register("amount", {
                                             required: true,
                                         })}
-                                        className="w-full bg-surface border border-border rounded px-2 py-1 text-sm text-ink pr-9"
+                                        className="w-full bg-surface border border-ink rounded px-2 py-1 text-sm text-ink pr-9"
                                         placeholder="0.00"
                                     />
                                     <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted">
