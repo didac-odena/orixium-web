@@ -36,7 +36,7 @@
 
   --color-bg: #1a1d1c;          /* Fondo global de la aplicación (body, páginas) */
   --color-surface: #263b41;     /* Cards y paneles principales */
-  --color-surface-2: #0f172a;   /* Bloques secundarios (sidebars, widgets) */
+  --color-surface-2: #1d2425;   /* Bloques secundarios (sidebars, widgets) */
   --color-surface-3: #182024;   /* Hover suave, filas alternas, estados activos */
 
   --color-ink: #e2e8f0;         /* Texto principal: títulos y contenido clave */

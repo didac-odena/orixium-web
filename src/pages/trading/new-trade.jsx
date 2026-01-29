@@ -101,7 +101,9 @@ export default function NewTradePage() {
   const [subgroupValue, setSubgroupValue] = useState("");
   const [subgroupOptions, setSubgroupOptions] = useState([]);
   const [accountId, setAccountId] = useState("ibkr");
-  const [assetSearch, setAssetSearch] = useState("");
+  const [globalAssetsByMarket, setGlobalAssetsByMarket] = useState({});
+  const [globalSearchValue, setGlobalSearchValue] = useState("");
+
   const quoteOptions = QUOTE_OPTIONS;
 
   const {
@@ -169,8 +171,24 @@ export default function NewTradePage() {
     setAccountId(nextValue);
   };
 
-  const handleAssetSearchChange = (event) => {
-    setAssetSearch(event.target.value);
+  const handleGlobalAssetSelect = (asset) => {
+    if (!asset) return;
+
+    handleMarketTypeChange(asset.market);
+
+    setGlobalSearchValue(asset.value);
+    setBaseAsset(asset.symbol);
+
+    const nextQuote = asset.currency
+      ? String(asset.currency).toLowerCase()
+      : DEFAULT_QUOTE_CURRENCY;
+
+    const safeQuote = SUPPORTED_QUOTE_CURRENCIES.includes(nextQuote)
+      ? nextQuote
+      : DEFAULT_QUOTE_CURRENCY;
+
+    setQuoteAsset(safeQuote);
+    setSubgroupValue(asset.group || "");
   };
 
   useEffect(() => {
@@ -326,6 +344,47 @@ export default function NewTradePage() {
     loadBaseOptions();
   }, [marketType, quoteAsset]);
 
+  useEffect(() => {
+    const loadGlobalAssets = async () => {
+      const quoteLower = String(DEFAULT_QUOTE_CURRENCY).toLowerCase();
+
+      let cryptoItems = getCryptoMarketSnapshots(quoteLower);
+      if (!cryptoItems.length) {
+        cryptoItems = await refreshCryptoMarketSnapshots(quoteLower);
+      }
+
+      let equityItems = getEquityMarketSnapshots();
+      if (!equityItems.length) {
+        equityItems = await refreshEquityMarketSnapshots();
+      }
+
+      let ratesItems = getRatesMarketSnapshots();
+      if (!ratesItems.length) {
+        ratesItems = await refreshRatesMarketSnapshots();
+      }
+
+      let forexItems = getForexMarketSnapshots();
+      if (!forexItems.length) {
+        forexItems = await refreshForexMarketSnapshots();
+      }
+
+      let commoditiesItems = getCommoditiesMarketSnapshots();
+      if (!commoditiesItems.length) {
+        commoditiesItems = await refreshCommoditiesMarketSnapshots();
+      }
+
+      setGlobalAssetsByMarket({
+        crypto: cryptoItems,
+        equity: equityItems,
+        rates: ratesItems,
+        forex: forexItems,
+        commodities: commoditiesItems,
+      });
+    };
+
+    loadGlobalAssets();
+  }, []);
+
   const parsedAmount = parseAmountValue(amount) ?? 0;
   const safePrice = Number(pairPrice);
   const convertedAmount =
@@ -336,15 +395,6 @@ export default function NewTradePage() {
         : 0;
 
   const convertedLabel = formatAmount(convertedAmount) || "0";
-
-  const searchText = assetSearch.trim().toLowerCase();
-  const filteredBaseOptions = searchText
-    ? baseOptions.filter((option) => {
-        const labelText = String(option.label || "").toLowerCase();
-        const valueText = String(option.value || "").toLowerCase();
-        return labelText.includes(searchText) || valueText.includes(searchText);
-      })
-    : baseOptions;
 
   const baseAmountText = amountMode === "base" ? amount || "--" : convertedLabel || "--";
   const quoteAmountText = amountMode === "base" ? convertedLabel || "--" : amount || "--";
@@ -369,7 +419,7 @@ export default function NewTradePage() {
         <PageHeader title="New Trade" subtitle="Manual order trade" />
 
         {/* Top bar */}
-        <div className="flex flex-wrap items-end justify-between gap-1 border border-border bg-surface-3 rounded px-1 py-2">
+        <div className="flex flex-wrap items-end justify-between gap-1 border border-border bg-surface-2 rounded px-1 py-2">
           <div className="flex flex-wrap items-end gap-4">
             {/* Account select */}
             <div className="min-w-35">
@@ -432,24 +482,22 @@ export default function NewTradePage() {
           </div>
 
           <div className="flex flex-wrap items-end gap-3">
-            {/* Search input */}
-            <div className="min-w-50 space-y-1">
-              <label className="text-xs text-muted">Search</label>
-              <input
-                type="text"
-                value={assetSearch}
-                onChange={handleAssetSearchChange}
-                placeholder="Search asset..."
-                className="w-full rounded border border-border bg-bg px-2 py-1 text-xs text-ink"
+            {/* Global search */}
+            <div className="min-w-55 space-y-1">
+              <label className="text-xs text-muted">Global search</label>
+              <GlobalAssetSearch
+                itemsByMarket={globalAssetsByMarket}
+                value={globalSearchValue}
+                onSelect={handleGlobalAssetSelect}
+                placeholder="Search any asset..."
               />
             </div>
-
             {/* Base asset */}
             <div className="min-w-20">
               <SelectField
                 label="Base asset"
                 value={baseAsset}
-                options={filteredBaseOptions}
+                options={baseOptions}
                 onChange={handleBaseAssetChange}
                 placeholder="Select base"
               />
@@ -469,7 +517,7 @@ export default function NewTradePage() {
         </div>
 
         {/*//Form*/}
-        <div className="flex flex-col border border-border bg-surface-3 rounded w-full max-w-[20%] py-1 px-2">
+        <div className="flex flex-col border border-border bg-surface-2 rounded w-full max-w-[20%] py-1 px-2">
           <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-1">
             <ToggleField
               label="Side"
