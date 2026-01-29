@@ -25,6 +25,7 @@ const MARKET_SEGMENTS = [
     { value: "commodities", label: "Commodities" },
 ];
 
+const DEFAULT_BASE_ASSET = "BTC";
 const MAX_AMOUNT_DECIMALS = 8;
 
 const buildBaseOptions = (items) => {
@@ -78,19 +79,34 @@ export default function NewTradePage() {
     const [baseAsset, setBaseAsset] = useState("BTC");
     const [quoteAsset, setQuoteAsset] = useState(DEFAULT_QUOTE_CURRENCY);
     const [baseOptions, setBaseOptions] = useState([]);
-    const [baseAmount, setBaseAmount] = useState("");
-    const [quoteAmount, setQuoteAmount] = useState("");
-    const [lastEditedAmount, setLastEditedAmount] = useState("");
+    const [amountMode, setAmountMode] = useState("base");
     const quoteOptions = QUOTE_OPTIONS;
+
+    const {
+        register,
+        handleSubmit,
+        watch,
+        setValue,
+        formState: { errors },
+    } = useForm({
+        defaultValues: {
+            side: "BUY",
+            orderType: "MARKET",
+            limitPrice: "",
+            amount: "",
+        },
+        mode: "onChange",
+    });
+
+    const side = watch("side");
+    const orderType = watch("orderType");
+    const amount = watch("amount");
 
     const handleMarketTypeChange = (nextMarket) => {
         setMarketType(nextMarket);
         setBaseAsset("");
         setQuoteAsset(DEFAULT_QUOTE_CURRENCY);
         setBaseOptions([]);
-        setBaseAmount("");
-        setQuoteAmount("");
-        setLastEditedAmount("");
         setPairPrice(null);
         setPriceStatus("idle");
         setPriceError("");
@@ -100,35 +116,6 @@ export default function NewTradePage() {
     };
     const handleQuoteAssetChange = (nextValue) => {
         setQuoteAsset(nextValue);
-    };
-    const handleBaseAmountChange = (event) => {
-        const nextValue = event.target.value;
-        setBaseAmount(nextValue);
-        setLastEditedAmount("base");
-
-        const price = Number(pairPrice);
-        const baseNumber = parseAmountValue(nextValue);
-        if (!Number.isFinite(price) || baseNumber == null) {
-            setQuoteAmount("");
-            return;
-        }
-
-        const nextQuote = baseNumber * price;
-        setQuoteAmount(formatAmount(nextQuote));
-    };
-    const handleQuoteAmountChange = (event) => {
-        const nextValue = event.target.value;
-        setQuoteAmount(nextValue);
-        setLastEditedAmount("quote");
-
-        const price = Number(pairPrice);
-        const quoteNumber = parseAmountValue(nextValue);
-        if (!Number.isFinite(price) || quoteNumber == null || price === 0) {
-            setBaseAmount("");
-            return;
-        }
-        const nextBase = quoteNumber / price;
-        setBaseAmount(formatAmount(nextBase));
     };
 
     const handleSideChange = (nextSide) => {
@@ -148,6 +135,10 @@ export default function NewTradePage() {
 
     const handleSubmitForm = (values) => {
         console.log("NEW_TRADE_FORM_SUBMIT", values);
+    };
+
+    const handleAmountModeChange = (nextMode) => {
+        setAmountMode(nextMode);
     };
 
     useEffect(() => {
@@ -208,7 +199,12 @@ export default function NewTradePage() {
                 if (marketType === "crypto") {
                     nextPrice = match?.current_price ?? null;
                 }
-                if (marketType === "equity" || marketType === "rates" || marketType === "forex" || marketType === "commodities") {
+                if (
+                    marketType === "equity" ||
+                    marketType === "rates" ||
+                    marketType === "forex" ||
+                    marketType === "commodities"
+                ) {
                     nextPrice = match?.last ?? null;
                 }
                 setPairPrice(nextPrice);
@@ -225,7 +221,13 @@ export default function NewTradePage() {
 
     useEffect(() => {
         const loadBaseOptions = async () => {
-            if (marketType !== "crypto" && marketType !== "equity" && marketType !== "rates" && marketType !== "forex" && marketType !== "commodities") {
+            if (
+                marketType !== "crypto" &&
+                marketType !== "equity" &&
+                marketType !== "rates" &&
+                marketType !== "forex" &&
+                marketType !== "commodities"
+            ) {
                 setBaseOptions([]);
                 return;
             }
@@ -278,39 +280,21 @@ export default function NewTradePage() {
         loadBaseOptions();
     }, [marketType, quoteAsset]);
 
-    useEffect(() => {
-        if (!Number.isFinite(Number(pairPrice))) return;
+    const parsedAmount = parseAmountValue(amount) ?? 0;
+    const safePrice = Number(pairPrice);
+    const convertedAmount =
+        amountMode === "base"
+            ? parsedAmount * (Number.isFinite(safePrice) ? safePrice : 0)
+            : Number.isFinite(safePrice) && safePrice !== 0
+                ? parsedAmount / safePrice
+                : 0;
 
-        if (lastEditedAmount === "base") {
-            const baseNumber = parseAmountValue(baseAmount);
-            if (baseNumber == null) return;
-            setQuoteAmount(formatAmount(baseNumber * Number(pairPrice)));
-        }
+    const convertedLabel = formatAmount(convertedAmount) || "0";
 
-        if (lastEditedAmount === "quote") {
-            const quoteNumber = parseAmountValue(quoteAmount);
-            if (quoteNumber == null || Number(pairPrice) === 0) return;
-            setBaseAmount(formatAmount(quoteNumber / Number(pairPrice)));
-        }
-    }, [pairPrice, lastEditedAmount, baseAmount, quoteAmount]);
-
-    const {
-        register,
-        handleSubmit,
-        watch,
-        setValue,
-        formState: { errors },
-    } = useForm({
-        defaultValues: {
-            side: "BUY",
-            orderType: "MARKET",
-            limitPrice: "",
-        },
-        mode: "onChange",
-    });
-
-    const side = watch("side");
-    const orderType = watch("orderType");
+    const baseLabel = String(baseAsset || DEFAULT_BASE_ASSET).toUpperCase();
+    const quoteLabel = String(
+        quoteAsset || DEFAULT_QUOTE_CURRENCY,
+    ).toUpperCase();
 
     let lastPriceLabel = "";
     if (priceStatus === "loading") {
@@ -320,13 +304,11 @@ export default function NewTradePage() {
         lastPriceLabel = priceError;
     }
     if (priceStatus === "ready" && pairPrice != null) {
-        const currency = String(
-            quoteAsset || DEFAULT_QUOTE_CURRENCY,
-        ).toUpperCase();
         lastPriceLabel = `Last price: ${PRICE_FORMATTER.format(
             Number(pairPrice),
-        )} ${currency}`;
+        )} ${quoteLabel}`;
     }
+    const lastPriceText = lastPriceLabel || "Last price: --";
 
     return (
         <PageLayout>
@@ -376,68 +358,102 @@ export default function NewTradePage() {
                             register={register}
                             error={errors.side ? "Side is required." : ""}
                         />
-                        <div className="grid grid-cols-2 gap-2 items-end">
-                            <div className="grid grid-cols-3 gap-1 items-end">
-                                <div className="col-span-2 space-y-1">
-                                    <label className="text-xs">
-                                        Base amount
-                                    </label>
-                                    <input
-                                        value={baseAmount}
-                                        onChange={handleBaseAmountChange}
-                                        placeholder="0.00"
-                                        type="number"
-                                        inputMode="decimal"
-                                        className="w-full rounded border border-border bg-bg py-1 text-xs text-right text-ink"
-                                    />
-                                </div>
 
-                                <div className="col-span-1 space-y-1">
-                                    <label className="text-xs">
-                                        Base asset
-                                    </label>
-                                    <SearchableSelect
-                                        value={baseAsset}
-                                        options={baseOptions}
-                                        onChange={handleBaseAssetChange}
-                                        placeholder="Select"
-                                        align="right"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-3 gap-2 items-end">
-                                <div className="col-span-2 space-y-1">
-                                    <label className="text-xs">
-                                        Quote amount
-                                    </label>
-                                    <input
-                                        value={quoteAmount}
-                                        onChange={handleQuoteAmountChange}
-                                        placeholder="0.00"
-                                        inputMode="decimal"
-                                        type="number"
-                                        className="w-full rounded border border-border bg-bg py-1 text-xs text-right text-ink"
-                                    />
-                                </div>
-
-                                <div className="col-span-1 space-y-1">
-                                    <label className="text-xs">
-                                        Quote asset
-                                    </label>
-                                    <SearchableSelect
-                                        value={quoteAsset}
-                                        options={quoteOptions}
-                                        onChange={handleQuoteAssetChange}
-                                        placeholder="Select"
-                                        align="right"
-                                    />
-                                </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted">
+                                Amount in
+                            </span>
+                            <div className="flex rounded border border-border overflow-hidden">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        handleAmountModeChange("base")
+                                    }
+                                    className={`px-2 py-1 text-2xs uppercase ${
+                                        amountMode === "base"
+                                            ? "bg-surface text-ink border border-white"
+                                            : "text-muted border bg-bg hover:text-accent"
+                                    }`}
+                                >
+                                    {baseLabel || "BASE"}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        handleAmountModeChange("quote")
+                                    }
+                                    className={`px-2 py-1 text-xs uppercase ${
+                                        amountMode === "quote"
+                                            ? "bg-surface text-ink"
+                                            : "text-muted hover:text-ink"
+                                    }`}
+                                >
+                                    {quoteLabel || "QUOTE"}
+                                </button>
                             </div>
                         </div>
 
-                        <div className="flex justify-start text-xs text-muted">
-                            {lastPriceLabel || null}
+                        <div className="flex flex-col gap-2">
+                            <label className="text-xs text-muted">
+                                {amountMode === "base"
+                                    ? "Base amount"
+                                    : "Quote amount"}
+                            </label>
+
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    step="any"
+                                    {...register("amount", { required: true })}
+                                    className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-ink pr-12"
+                                    placeholder="0.00"
+                                />
+                                <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted">
+                                    {amountMode === "base"
+                                        ? baseLabel
+                                        : quoteLabel}
+                                </span>
+                            </div>
+
+                            {errors.amount ? (
+                                <p className="text-danger text-xs">
+                                    Amount is required.
+                                </p>
+                            ) : null}
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-muted">
+                            <span>
+                                {amountMode === "base"
+                                    ? `${convertedLabel} ${quoteLabel}`
+                                    : `${convertedLabel} ${baseLabel}`}
+                            </span>
+                            <span>{lastPriceText}</span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                            <div className="space-y-1">
+                                <label className="text-xs text-muted">
+                                    Base asset
+                                </label>
+                                <SearchableSelect
+                                    value={baseAsset}
+                                    options={baseOptions}
+                                    onChange={handleBaseAssetChange}
+                                    placeholder="Select base"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs text-muted">
+                                    Quote asset
+                                </label>
+                                <SearchableSelect
+                                    value={quoteAsset}
+                                    options={quoteOptions}
+                                    onChange={handleQuoteAssetChange}
+                                    placeholder="Select quote"
+                                    align="right"
+                                />
+                            </div>
                         </div>
 
                         <ToggleField
