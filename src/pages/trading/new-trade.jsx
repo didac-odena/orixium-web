@@ -15,7 +15,7 @@ import {
   refreshCommoditiesMarketSnapshots,
 } from "../../services";
 import { PageLayout } from "../../components/layout";
-import { PageHeader, SelectField, ToggleField, SearchableSelect } from "../../components/ui";
+import { PageHeader, SelectField, ToggleField, GlobalAssetSearch } from "../../components/ui";
 import { formatGroupLabel } from "../market-explorer/market-explorer-utils.js";
 
 const MARKET_SEGMENTS = [
