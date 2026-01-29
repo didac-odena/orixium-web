@@ -1,7 +1,7 @@
 export function normalizeSnapshot(item, defaultGroup) {
   const snapshot = item?.snapshot || {};
   const symbol = String(item?.symbol || "");
-  const group = String(item?.group || defaultGroup || "");
+  const group = String(item?.group || item?.sector || defaultGroup || "");
   return {
     id: `${group}:${symbol}`,
     symbol,

@@ -117,9 +117,7 @@ export default function MarketExplorerPage() {
   const isCryptoSegment = segment === "crypto";
   const groupFilterKey = isCryptoSegment
     ? ""
-    : segment === "equity"
-      ? "sector"
-      : "group";
+    : "group";
   const groupFilterOptions = buildGroupFilterOptions(
     snapshots,
     groupFilterKey,
@@ -166,7 +164,6 @@ export default function MarketExplorerPage() {
         item.id?.toLowerCase().includes(term) ||
         item.symbol?.toLowerCase().includes(term) ||
         item.name?.toLowerCase().includes(term) ||
-        item.sector?.toLowerCase().includes(term) ||
         item.group?.toLowerCase().includes(term)
       );
     },

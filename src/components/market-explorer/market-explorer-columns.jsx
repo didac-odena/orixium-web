@@ -137,7 +137,7 @@ export function buildNonCryptoColumns({ formatEquityPrice, percentFormatter, dat
           <div>
             <div className="font-semibold">{asset.name}</div>
             <div className="text-xs text-muted">
-              {asset.symbol?.toUpperCase()} · {asset.sector || "Equity"}
+              {asset.symbol?.toUpperCase()} · {asset.group || "Equity"}
             </div>
           </div>
         );

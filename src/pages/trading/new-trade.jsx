@@ -16,6 +16,7 @@ import {
 } from "../../services";
 import { PageLayout } from "../../components/layout";
 import { PageHeader, SearchableSelect, ToggleField } from "../../components/ui";
+import { formatGroupLabel } from "../market-explorer/market-explorer-utils.js";
 
 const MARKET_SEGMENTS = [
     { value: "crypto", label: "Crypto" },
@@ -31,7 +32,6 @@ const MAX_AMOUNT_DECIMALS = 8;
 const buildBaseOptions = (items) => {
     const used = new Set();
     const options = [];
-
     items.forEach((item) => {
         const symbol = String(item?.symbol || "").toUpperCase();
         if (!symbol || used.has(symbol)) return;
@@ -52,6 +52,20 @@ const QUOTE_OPTIONS = buildQuoteOptions();
 const PRICE_FORMATTER = new Intl.NumberFormat("en-US", {
     maximumFractionDigits: 8,
 });
+
+const buildGroupFilterOptions = (items) => {
+    const seen = new Set();
+    const options = [];
+    items.forEach((asset) => {
+        const groupValue = asset?.group;
+        if (!groupValue) return;
+        const key = String(groupValue);
+        if (seen.has(key)) return;
+        seen.add(key);
+        options.push({ value: key, label: formatGroupLabel(key) });
+    });
+    return options;
+};
 
 const parseAmountValue = (value) => {
     const parsed = Number(value);
@@ -80,6 +94,9 @@ export default function NewTradePage() {
     const [quoteAsset, setQuoteAsset] = useState(DEFAULT_QUOTE_CURRENCY);
     const [baseOptions, setBaseOptions] = useState([]);
     const [amountMode, setAmountMode] = useState("base");
+    const [subgroupValue, setSubgroupValue] = useState("");
+    const [subgroupOptions, setSubgroupOptions] = useState([]);
+
     const quoteOptions = QUOTE_OPTIONS;
 
     const {
@@ -110,6 +127,8 @@ export default function NewTradePage() {
         setPairPrice(null);
         setPriceStatus("idle");
         setPriceError("");
+        setSubgroupOptions([]);
+        setSubgroupValue("");
     };
     const handleBaseAssetChange = (nextValue) => {
         setBaseAsset(nextValue);
@@ -252,7 +271,6 @@ export default function NewTradePage() {
                     items = await refreshCryptoMarketSnapshots(quoteLower);
                 }
             }
-
             if (marketType === "equity") {
                 items = getEquityMarketSnapshots();
                 if (!items.length) {
@@ -275,6 +293,19 @@ export default function NewTradePage() {
                 items = getCommoditiesMarketSnapshots();
                 if (!items.length) {
                     items = await refreshCommoditiesMarketSnapshots();
+                }
+            }
+
+            const nextSubgroupOptions = buildGroupFilterOptions(items);
+            setSubgroupOptions(nextSubgroupOptions);
+            if (!nextSubgroupOptions.length) {
+                setSubgroupValue("");
+            } else {
+                const isValid = nextSubgroupOptions.some((option) => {
+                    return option.value === subgroupValue;
+                });
+                if (!isValid) {
+                    setSubgroupValue(nextSubgroupOptions[0].value);
                 }
             }
 

@@ -29,7 +29,7 @@ export default function MarketExplorerEquityMobileList({
                             <div>
                                 <div className="font-semibold">{asset.name}</div>
                                 <div className="text-xs text-muted">
-                                    {asset.symbol?.toUpperCase()} · {asset.sector || "Equity"}
+                                    {asset.symbol?.toUpperCase()} · {asset.group || "Equity"}
                                 </div>
                             </div>
                             <div className="text-right">
