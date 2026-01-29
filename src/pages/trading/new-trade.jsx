@@ -7,6 +7,12 @@ import {
     refreshCryptoMarketSnapshots,
     getEquityMarketSnapshots,
     refreshEquityMarketSnapshots,
+    getRatesMarketSnapshots,
+    refreshRatesMarketSnapshots,
+    getForexMarketSnapshots,
+    refreshForexMarketSnapshots,
+    getCommoditiesMarketSnapshots,
+    refreshCommoditiesMarketSnapshots,
 } from "../../services";
 import { PageLayout } from "../../components/layout";
 import { PageHeader, SearchableSelect, ToggleField } from "../../components/ui";
@@ -174,6 +180,24 @@ export default function NewTradePage() {
                         items = await refreshEquityMarketSnapshots();
                     }
                 }
+                if (marketType === "rates") {
+                    items = getRatesMarketSnapshots();
+                    if (!items.length) {
+                        items = await refreshRatesMarketSnapshots();
+                    }
+                }
+                if (marketType === "forex") {
+                    items = getForexMarketSnapshots();
+                    if (!items.length) {
+                        items = await refreshForexMarketSnapshots();
+                    }
+                }
+                if (marketType === "commodities") {
+                    items = getCommoditiesMarketSnapshots();
+                    if (!items.length) {
+                        items = await refreshCommoditiesMarketSnapshots();
+                    }
+                }
                 const match = items.find((item) => {
                     return (
                         item.symbol?.toUpperCase() ===
@@ -184,7 +208,7 @@ export default function NewTradePage() {
                 if (marketType === "crypto") {
                     nextPrice = match?.current_price ?? null;
                 }
-                if (marketType === "equity") {
+                if (marketType === "equity" || marketType === "rates" || marketType === "forex" || marketType === "commodities") {
                     nextPrice = match?.last ?? null;
                 }
                 setPairPrice(nextPrice);
@@ -201,7 +225,7 @@ export default function NewTradePage() {
 
     useEffect(() => {
         const loadBaseOptions = async () => {
-            if (marketType !== "crypto" && marketType !== "equity") {
+            if (marketType !== "crypto" && marketType !== "equity" && marketType !== "rates" && marketType !== "forex" && marketType !== "commodities") {
                 setBaseOptions([]);
                 return;
             }
@@ -222,6 +246,24 @@ export default function NewTradePage() {
                 items = getEquityMarketSnapshots();
                 if (!items.length) {
                     items = await refreshEquityMarketSnapshots();
+                }
+            }
+            if (marketType === "rates") {
+                items = getRatesMarketSnapshots();
+                if (!items.length) {
+                    items = await refreshRatesMarketSnapshots();
+                }
+            }
+            if (marketType === "forex") {
+                items = getForexMarketSnapshots();
+                if (!items.length) {
+                    items = await refreshForexMarketSnapshots();
+                }
+            }
+            if (marketType === "commodities") {
+                items = getCommoditiesMarketSnapshots();
+                if (!items.length) {
+                    items = await refreshCommoditiesMarketSnapshots();
                 }
             }
 
