@@ -12,11 +12,6 @@ const getAssetCurrency = (item) => {
   return String(item?.currency || item?.quote_currency || "").toUpperCase();
 };
 
-const buildOptionLabel = (symbol, name) => {
-  const nameText = name ? `${name} — ` : "";
-  return `${nameText}${symbol}`;
-};
-
 const buildGlobalSearchOptions = (itemsByMarket) => {
   const options = [];
   const used = new Set();
@@ -31,7 +26,7 @@ const buildGlobalSearchOptions = (itemsByMarket) => {
       used.add(key);
 
       const name = getAssetName(item);
-      const label = `${buildOptionLabel(symbol, name)} [${market.toUpperCase()}] `;
+      const label = `${name ? `${name} ` : ""}${symbol} ${market}`.trim();
       options.push({
         value: `${market}:${symbol}`,
         label,
@@ -60,9 +55,18 @@ export default function GlobalAssetSearch({
 
   const filteredOptions = searchText
     ? options.filter((option) => {
-        const labelText = option.label.toLowerCase();
-        const valueText = option.value.toLowerCase();
-        return labelText.includes(searchText) || valueText.includes(searchText);
+        const haystack = [
+          option.symbol,
+          option.name,
+          option.market,
+          option.currency,
+          option.group,
+          option.value,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(searchText);
       })
     : [];
 
@@ -75,22 +79,22 @@ export default function GlobalAssetSearch({
 
   const handleSelect = (option) => {
     onSelect(option);
-    setQuery(option.label);
+    setQuery(option.symbol);
     setShowResults(false);
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full min-w-[24rem]">
       <input
         type="search"
         value={query}
         onChange={handleQueryChange}
         placeholder={placeholder}
-        className="h-9 w-full rounded-md border border-border bg-bg px-3 text-sm text-ink placeholder:text-muted"
+        className="absolute h-10 w-full top-1/2 -translate-y-1/2 rounded-md border border-border bg-bg px-3 text-sm text-ink placeholder:text-muted"
       />
 
       {showResults && searchText ? (
-        <div className="absolute z-20 w-full rounded border border-border bg-bg shadow hover:text-accent2 ">
+        <div className="absolute left-0 right-0 z-20 mt-1 w-full rounded border border-border bg-bg shadow">
           <div className="max-h-60 overflow-y-auto overflow-x-hidden">
             {visibleOptions.length ? (
               visibleOptions.map((option) => {
@@ -100,10 +104,10 @@ export default function GlobalAssetSearch({
                     key={option.value}
                     type="button"
                     onClick={handleClick}
-                    className="w-full px-2 py-2 text-left text-xs text-ink hover:bg-surface"
+                    className="w-full px-3 py-2 text-left text-xs text-ink hover:bg-surface"
                   >
-                    {option.name} -{" "}
-                    <span className="text-2xs text-muted uppercase tracking-wide">
+                    <span className="text-xs text-ink">{option.name || option.symbol} - </span>
+                    <span className="text-xs text-muted uppercase tracking-wide">
                       {option.symbol} [{option.market}]
                     </span>
                   </button>

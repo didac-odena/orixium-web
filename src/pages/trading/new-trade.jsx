@@ -17,6 +17,7 @@ import {
 import { PageLayout } from "../../components/layout";
 import { PageHeader, SelectField, ToggleField, GlobalAssetSearch } from "../../components/ui";
 import { formatGroupLabel } from "../market-explorer/market-explorer-utils.js";
+import { PlusIcon, MinusIcon } from "@heroicons/react/24/outline";
 
 const MARKET_SEGMENTS = [
   { value: "crypto", label: "Crypto" },
@@ -103,8 +104,7 @@ export default function NewTradePage() {
   const [accountId, setAccountId] = useState("ibkr");
   const [globalAssetsByMarket, setGlobalAssetsByMarket] = useState({});
   const [globalSearchValue, setGlobalSearchValue] = useState("");
-  const [showFilters, setShowFilters] = useState(true);
-
+  const [showFilters, setShowFilters] = useState(false);
 
   const quoteOptions = QUOTE_OPTIONS;
 
@@ -422,80 +422,91 @@ export default function NewTradePage() {
         <PageHeader title="New Trade" subtitle="Manual order trade" />
 
         {/* Top bar */}
-        <div className="flex flex-wrap items-end justify-between gap-1 border border-border bg-surface-2 rounded px-1 py-2">
-          <div className="flex flex-wrap items-end gap-4">
-            {/* Account select */}
-            <div className="min-w-35">
-              <SelectField
-                label="Account"
-                value={accountId}
-                options={ACCOUNT_OPTIONS}
-                onChange={handleAccountChange}
-                placeholder="Select account"
-              />
-            </div>
+        <div className="flex flex-wrap w-full justify-between border border-border bg-surface-2 rounded py-1 px-2">
+          {/* Account select */}
+          <div className="items-center -mt-2 min-w-52 shrink-0">
+            <SelectField
+              label="Account"
+              value={accountId}
+              options={ACCOUNT_OPTIONS}
+              onChange={handleAccountChange}
+              placeholder="Select account"
+            />
+          </div>
 
-            <div className="flex flex-wrap items-end gap-3">
-              {/* Global search */}
-              <div className="min-w-55 space-y-1">
-                <label className="text-xs text-muted">Global search</label>
-                <GlobalAssetSearch
-                  itemsByMarket={globalAssetsByMarket}
-                  value={globalSearchValue}
-                  onSelect={handleGlobalAssetSelect}
-                  placeholder="Search any asset..."
-                />
-              </div>
-            </div>
+          {/* Global search */}
+          <div className="flex gap-2">
+            <label className="flex text-xs whitespace-nowrap items-center text-muted">
+              Global search
+            </label>
+            <GlobalAssetSearch
+              itemsByMarket={globalAssetsByMarket}
+              value={globalSearchValue}
+              onSelect={handleGlobalAssetSelect}
+              placeholder="Search any asset..."
+            />
           </div>
         </div>
         {/*//Filters*/}
-        <div className="flex flex-col border border-border bg-surface-2 rounded w-full max-w-[20%] py-1 px-2">
-          <div className="space-y-1">
-            <label className="text-xs text-muted">Markets</label>
-            <div className="flex flex-wrap gap-1">
-              {MARKET_SEGMENTS.map((segment) => {
-                const isActive = marketType === segment.value;
-
-                const baseClass =
-                  "cursor-pointer rounded-full border px-2 py-1 text-xs uppercase tracking-wider transition-colors";
-                const activeClass = "border-ink bg-surface text-ink";
-                const inactiveClass =
-                  "border-border text-muted bg-bg hover:border-accent hover:text-accent";
-
-                const buttonClass = `${baseClass} ${isActive ? activeClass : inactiveClass}`;
-
-                const handleClick = () => {
-                  handleMarketTypeChange(segment.value);
-                };
-                return (
-                  <button
-                    key={segment.value}
-                    type="button"
-                    onClick={handleClick}
-                    className={buttonClass}
-                  >
-                    {segment.label}
-                  </button>
-                );
-              })}
-            </div>
+        <div className="flex flex-col border border-border bg-surface-2 rounded w-full ml-auto max-w-[20%] py-1 px-2">
+          <div className="flex justify-between">
+            <header className="text-ink text-sm ">Filters</header>
+            <button onClick={() => setShowFilters((prev) => !prev)} type="button">
+              {showFilters ? (
+                <MinusIcon className="h-4 w-4 hover:text-accent-2" />
+              ) : (
+                <PlusIcon className="h-4 w-4 hover:text-accent" />
+              )}
+            </button>
           </div>
-          {/* Subgroup select (opcional) */}
-          <div className="min-w-45">
-            <div className="min-w-45">
-              <SelectField
-                label="Subgroup"
-                value={subgroupValue}
-                options={subgroupOptions}
-                onChange={setSubgroupValue}
-                placeholder="Select subgroup"
-              />
+          {showFilters ? (
+            <div className="space-y-1">
+              <label className="text-xs text-muted">Markets</label>
+              <div className="flex flex-wrap gap-1">
+                {MARKET_SEGMENTS.map((segment) => {
+                  const isActive = marketType === segment.value;
+
+                  const baseClass =
+                    "cursor-pointer rounded-full border px-2 py-1 text-xs uppercase tracking-wider transition-colors";
+                  const activeClass = "border-ink bg-surface text-ink";
+                  const inactiveClass =
+                    "border-border text-muted bg-bg hover:border-accent hover:text-accent";
+
+                  const buttonClass = `${baseClass} ${isActive ? activeClass : inactiveClass}`;
+
+                  const handleClick = () => {
+                    handleMarketTypeChange(segment.value);
+                  };
+                  return (
+                    <button
+                      key={segment.value}
+                      type="button"
+                      onClick={handleClick}
+                      className={buttonClass}
+                    >
+                      {segment.label}
+                    </button>
+                  );
+                })}
+              </div>
+              {/* Subgroup select */}
+              <div className="min-w-45">
+                <div className="min-w-45">
+                  <SelectField
+                    label="Subgroup"
+                    value={subgroupValue}
+                    options={subgroupOptions}
+                    onChange={setSubgroupValue}
+                    placeholder="Select subgroup"
+                  />
+                </div>
+              </div>
             </div>
-          </div>
+          ) : null}
         </div>
+
         {/*//Form*/}
-        <div className="flex flex-col border border-border bg-surface-2 rounded w-full max-w-[20%] py-1 px-2">
+        <div className="flex flex-col border border-border bg-surface-2 rounded w-full max-w-[20%] ml-auto py-1 px-2">
           <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-1">
             <div className="flex gap-2">
               {/* Base asset */}
