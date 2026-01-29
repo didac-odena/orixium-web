@@ -220,6 +220,15 @@ export default function NewTradePage() {
     }, [marketType, baseAsset, quoteAsset]);
 
     useEffect(() => {
+        if (orderType !== "LIMIT") return;
+        if (pairPrice == null) return;
+
+        setValue("limitPrice", String(pairPrice), {
+            shouldValidate: true,
+        });
+    }, [orderType, pairPrice, setValue]);
+
+    useEffect(() => {
         const loadBaseOptions = async () => {
             if (
                 marketType !== "crypto" &&
@@ -286,11 +295,14 @@ export default function NewTradePage() {
         amountMode === "base"
             ? parsedAmount * (Number.isFinite(safePrice) ? safePrice : 0)
             : Number.isFinite(safePrice) && safePrice !== 0
-                ? parsedAmount / safePrice
-                : 0;
+              ? parsedAmount / safePrice
+              : 0;
 
     const convertedLabel = formatAmount(convertedAmount) || "0";
-
+    const baseAmountText =
+        amountMode === "base" ? amount || "--" : convertedLabel || "--";
+    const quoteAmountText =
+        amountMode === "base" ? convertedLabel || "--" : amount || "--";
     const baseLabel = String(baseAsset || DEFAULT_BASE_ASSET).toUpperCase();
     const quoteLabel = String(
         quoteAsset || DEFAULT_QUOTE_CURRENCY,
@@ -341,7 +353,7 @@ export default function NewTradePage() {
                 </div>
 
                 {/*//Form*/}
-                <div className="flex flex-col border border-border bg-surface-3 rounded w-full max-w-[31%] py-1 px-2">
+                <div className="flex flex-col border border-border bg-surface-3 rounded w-full max-w-[20%] py-1 px-2">
                     <form
                         onSubmit={handleSubmit(handleSubmitForm)}
                         className="space-y-1"
@@ -358,69 +370,73 @@ export default function NewTradePage() {
                             register={register}
                             error={errors.side ? "Side is required." : ""}
                         />
-
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted">
-                                Amount in
-                            </span>
-                            <div className="flex rounded border border-border overflow-hidden">
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        handleAmountModeChange("base")
-                                    }
-                                    className={`px-2 py-1 text-2xs uppercase ${
-                                        amountMode === "base"
-                                            ? "bg-surface text-ink border border-white"
-                                            : "text-muted border bg-bg hover:text-accent"
-                                    }`}
-                                >
-                                    {baseLabel || "BASE"}
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        handleAmountModeChange("quote")
-                                    }
-                                    className={`px-2 py-1 text-xs uppercase ${
-                                        amountMode === "quote"
-                                            ? "bg-surface text-ink"
-                                            : "text-muted hover:text-ink"
-                                    }`}
-                                >
-                                    {quoteLabel || "QUOTE"}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-col gap-2">
-                            <label className="text-xs text-muted">
-                                {amountMode === "base"
-                                    ? "Base amount"
-                                    : "Quote amount"}
-                            </label>
-
-                            <div className="relative">
-                                <input
-                                    type="number"
-                                    step="any"
-                                    {...register("amount", { required: true })}
-                                    className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-ink pr-12"
-                                    placeholder="0.00"
-                                />
-                                <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted">
+                        <div className="flex items-end gap-2">
+                            <div className="flex flex-col gap-2 flex-1">
+                                <label className="text-xs text-muted">
                                     {amountMode === "base"
-                                        ? baseLabel
-                                        : quoteLabel}
-                                </span>
+                                        ? "Base amount"
+                                        : "Quote amount"}
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="number"
+                                        step="any"
+                                        {...register("amount", {
+                                            required: true,
+                                        })}
+                                        className="w-full bg-surface border border-border rounded px-2 py-1 text-sm text-ink pr-9"
+                                        placeholder="0.00"
+                                    />
+                                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted">
+                                        {amountMode === "base"
+                                            ? baseLabel
+                                            : quoteLabel}
+                                    </span>
+                                </div>
+
+                                {errors.amount ? (
+                                    <p className="text-danger text-xs">
+                                        Amount is required.
+                                    </p>
+                                ) : null}
                             </div>
 
-                            {errors.amount ? (
-                                <p className="text-danger text-xs">
-                                    Amount is required.
-                                </p>
-                            ) : null}
+                            <div className="flex flex-col gap-1 items-end shrink-0">
+                                <label className="text-xs text-muted">
+                                    Amount in
+                                </label>
+
+                                <div className="flex rounded  border-border overflow-hidden">
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            handleAmountModeChange("base")
+                                        }
+                                        className={`px-2 py-1.5 text-xs cursor-pointer border rounded uppercase ${
+                                            amountMode === "base"
+                                                ? "border-ink bg-surface text-ink"
+                                                : "border-border bg-bg text-muted transition-colors hover:border-accent hover:text-accent"
+                                        }`}
+                                    >
+                                        {baseLabel || "BASE"}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            handleAmountModeChange("quote")
+                                        }
+                                        className={`px-2 py-1.5 text-xs cursor-pointer border rounded uppercase ${
+                                            amountMode === "quote"
+                                                ? "border-ink bg-surface text-ink"
+                                                : "border-border bg-bg text-muted transition-colors hover:border-accent hover:text-accent"
+                                        }`}
+                                    >
+                                        {quoteLabel || "QUOTE"}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+
                         <div className="flex items-center justify-between text-xs text-muted">
                             <span>
                                 {amountMode === "base"
@@ -500,6 +516,12 @@ export default function NewTradePage() {
                                 </div>
                             </div>
                         ) : null}
+
+                        <p className="text-xs text-muted text-center">
+                            {side === "BUY" ? "Buying" : "Selling"}{" "}
+                            {baseAmountText} {baseLabel} for {quoteAmountText}{" "}
+                            {quoteLabel}
+                        </p>
 
                         <div className="flex justify-center">
                             <button
