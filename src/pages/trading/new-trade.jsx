@@ -103,6 +103,8 @@ export default function NewTradePage() {
   const [accountId, setAccountId] = useState("ibkr");
   const [globalAssetsByMarket, setGlobalAssetsByMarket] = useState({});
   const [globalSearchValue, setGlobalSearchValue] = useState("");
+  const [showFilters, setShowFilters] = useState(true);
+
 
   const quoteOptions = QUOTE_OPTIONS;
 
@@ -127,6 +129,7 @@ export default function NewTradePage() {
   const amount = watch("amount");
 
   const handleMarketTypeChange = (nextMarket) => {
+    if (nextMarket === marketType) return;
     setMarketType(nextMarket);
     setBaseAsset("");
     setQuoteAsset(DEFAULT_QUOTE_CURRENCY);
@@ -432,93 +435,91 @@ export default function NewTradePage() {
               />
             </div>
 
-            {/*//Filters*/}
-            <div className="space-y-1">
-              <label className="text-xs text-muted">Markets</label>
-              <div className="flex flex-wrap gap-1">
-                {MARKET_SEGMENTS.map((segment) => {
-                  const isActive = marketType === segment.value;
-
-                  const baseClass =
-                    "cursor-pointer rounded-full border px-2 py-1 text-xs uppercase tracking-wider transition-colors";
-                  const activeClass = "border-ink bg-surface text-ink";
-                  const inactiveClass =
-                    "border-border text-muted bg-bg hover:border-accent hover:text-accent";
-
-                  const buttonClass = `${baseClass} ${isActive ? activeClass : inactiveClass}`;
-
-                  const handleClick = () => {
-                    handleMarketTypeChange(segment.value);
-                  };
-
-                  return (
-                    <button
-                      key={segment.value}
-                      type="button"
-                      onClick={handleClick}
-                      className={buttonClass}
-                    >
-                      {segment.label}
-                    </button>
-                  );
-                })}
+            <div className="flex flex-wrap items-end gap-3">
+              {/* Global search */}
+              <div className="min-w-55 space-y-1">
+                <label className="text-xs text-muted">Global search</label>
+                <GlobalAssetSearch
+                  itemsByMarket={globalAssetsByMarket}
+                  value={globalSearchValue}
+                  onSelect={handleGlobalAssetSelect}
+                  placeholder="Search any asset..."
+                />
               </div>
             </div>
+          </div>
+        </div>
+        {/*//Filters*/}
+        <div className="flex flex-col border border-border bg-surface-2 rounded w-full max-w-[20%] py-1 px-2">
+          <div className="space-y-1">
+            <label className="text-xs text-muted">Markets</label>
+            <div className="flex flex-wrap gap-1">
+              {MARKET_SEGMENTS.map((segment) => {
+                const isActive = marketType === segment.value;
 
-            {/* Subgroup select (opcional) */}
-            <div className="min-w-45">
-              {subgroupOptions.length ? (
-                <div className="min-w-45">
-                  <SelectField
-                    label="Subgroup"
-                    value={subgroupValue}
-                    options={subgroupOptions}
-                    onChange={setSubgroupValue}
-                    placeholder="Select subgroup"
-                  />
-                </div>
-              ) : null}
+                const baseClass =
+                  "cursor-pointer rounded-full border px-2 py-1 text-xs uppercase tracking-wider transition-colors";
+                const activeClass = "border-ink bg-surface text-ink";
+                const inactiveClass =
+                  "border-border text-muted bg-bg hover:border-accent hover:text-accent";
+
+                const buttonClass = `${baseClass} ${isActive ? activeClass : inactiveClass}`;
+
+                const handleClick = () => {
+                  handleMarketTypeChange(segment.value);
+                };
+                return (
+                  <button
+                    key={segment.value}
+                    type="button"
+                    onClick={handleClick}
+                    className={buttonClass}
+                  >
+                    {segment.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
-
-          <div className="flex flex-wrap items-end gap-3">
-            {/* Global search */}
-            <div className="min-w-55 space-y-1">
-              <label className="text-xs text-muted">Global search</label>
-              <GlobalAssetSearch
-                itemsByMarket={globalAssetsByMarket}
-                value={globalSearchValue}
-                onSelect={handleGlobalAssetSelect}
-                placeholder="Search any asset..."
-              />
-            </div>
-            {/* Base asset */}
-            <div className="min-w-20">
+          {/* Subgroup select (opcional) */}
+          <div className="min-w-45">
+            <div className="min-w-45">
               <SelectField
-                label="Base asset"
-                value={baseAsset}
-                options={baseOptions}
-                onChange={handleBaseAssetChange}
-                placeholder="Select base"
-              />
-            </div>
-
-            {/* Quote asset */}
-            <div className="min-w-20">
-              <SelectField
-                label="Quote asset"
-                value={quoteAsset}
-                options={quoteOptions}
-                onChange={handleQuoteAssetChange}
-                placeholder="Select quote"
+                label="Subgroup"
+                value={subgroupValue}
+                options={subgroupOptions}
+                onChange={setSubgroupValue}
+                placeholder="Select subgroup"
               />
             </div>
           </div>
         </div>
-
         {/*//Form*/}
         <div className="flex flex-col border border-border bg-surface-2 rounded w-full max-w-[20%] py-1 px-2">
           <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-1">
+            <div className="flex gap-2">
+              {/* Base asset */}
+              <div className="flex-1 min-w-20">
+                <SelectField
+                  label="Base asset"
+                  value={baseAsset}
+                  options={baseOptions}
+                  onChange={handleBaseAssetChange}
+                  placeholder="Select base"
+                />
+              </div>
+              {/* Quote asset */}
+              <div className="flex-1 min-w-20">
+                <SelectField
+                  label="Quote asset"
+                  value={quoteAsset}
+                  options={quoteOptions}
+                  onChange={handleQuoteAssetChange}
+                  placeholder="Select quote"
+                />
+              </div>
+            </div>
+
             <ToggleField
               label="Side"
               name="side"
