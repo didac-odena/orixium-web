@@ -30,6 +30,7 @@ const ACCOUNT_OPTIONS = [
   { value: "ibkr-test", label: "IBKR-test1" },
   { value: "binance-test", label: "Binance-test2" },
 ];
+const DEFAULT_ACCOUNT_ID = ACCOUNT_OPTIONS[0]?.value || "";
 
 const DEFAULT_BASE_ASSET = "BTC";
 const MAX_AMOUNT_DECIMALS = 8;
@@ -101,7 +102,7 @@ export default function NewTradePage() {
   const [amountMode, setAmountMode] = useState("base");
   const [subgroupValue, setSubgroupValue] = useState("");
   const [subgroupOptions, setSubgroupOptions] = useState([]);
-  const [accountId, setAccountId] = useState("ibkr");
+  const [accountId, setAccountId] = useState(DEFAULT_ACCOUNT_ID);
   const [globalAssetsByMarket, setGlobalAssetsByMarket] = useState({});
   const [globalSearchValue, setGlobalSearchValue] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -116,7 +117,7 @@ export default function NewTradePage() {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      accountId: "IBKR-test1",
+      accountId: DEFAULT_ACCOUNT_ID,
       side: "BUY",
       orderType: "MARKET",
       limitPrice: "",
@@ -173,6 +174,7 @@ export default function NewTradePage() {
 
   const handleAccountChange = (nextValue) => {
     setAccountId(nextValue);
+    setValue("accountId", nextValue, { shouldValidate: true });
   };
 
   const handleGlobalAssetSelect = (asset) => {
@@ -432,8 +434,9 @@ export default function NewTradePage() {
               options={ACCOUNT_OPTIONS}
               onChange={handleAccountChange}
               placeholder="Select account"
-              
             />
+            <input type="hidden" {...register("accountId", { required: true })} />
+            {errors.accountId ? <p className="text-danger text-xs">Account is required.</p> : null}
           </div>
 
           {/* Global search */}
