@@ -18,6 +18,7 @@ import { PageLayout } from "../../components/layout";
 import { PageHeader, SelectField, ToggleField, GlobalAssetSearch } from "../../components/ui";
 import { formatGroupLabel } from "../market-explorer/market-explorer-utils.js";
 import { PlusIcon, MinusIcon } from "@heroicons/react/24/outline";
+import { createNumberFormatter } from "../../utils/formatters.js";
 
 const MARKET_SEGMENTS = [
   { value: "crypto", label: "Crypto" },
@@ -34,6 +35,9 @@ const DEFAULT_ACCOUNT_ID = ACCOUNT_OPTIONS[0]?.value || "";
 
 const DEFAULT_BASE_ASSET = "BTC";
 const MAX_AMOUNT_DECIMALS = 8;
+const AMOUNT_FORMATTER = createNumberFormatter({
+  maximumFractionDigits: MAX_AMOUNT_DECIMALS,
+});
 
 const buildBaseOptions = (items) => {
   const used = new Set();
@@ -55,9 +59,7 @@ const buildQuoteOptions = () => {
 };
 
 const QUOTE_OPTIONS = buildQuoteOptions();
-const PRICE_FORMATTER = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 8,
-});
+const PRICE_FORMATTER = createNumberFormatter({ maximumFractionDigits: 8 });
 
 const buildGroupFilterOptions = (items) => {
   const seen = new Set();
@@ -88,7 +90,11 @@ const formatAmount = (value, decimals = MAX_AMOUNT_DECIMALS) => {
   if (!Number.isFinite(value)) return "";
   const rounded = roundUpAmount(value, decimals);
   if (rounded == null) return "";
-  return rounded.toFixed(decimals).replace(/\.?0+$/, "");
+  const formatter =
+    decimals === MAX_AMOUNT_DECIMALS
+      ? AMOUNT_FORMATTER
+      : createNumberFormatter({ maximumFractionDigits: decimals });
+  return formatter.format(rounded);
 };
 
 export default function NewTradePage() {
@@ -186,8 +192,7 @@ export default function NewTradePage() {
       return;
     }
 
-    const nextInputValue =
-      nextMode === "base" ? baseValue : baseValue * safePriceValue;
+    const nextInputValue = nextMode === "base" ? baseValue : baseValue * safePriceValue;
 
     setAmountInput(formatAmount(nextInputValue));
   };
@@ -554,6 +559,7 @@ export default function NewTradePage() {
               <div className="flex-1 min-w-20">
                 <SelectField
                   label="Base asset"
+                  isSearchable={true}
                   value={baseAsset}
                   options={baseOptions}
                   onChange={handleBaseAssetChange}
@@ -564,6 +570,7 @@ export default function NewTradePage() {
               {/* Quote asset */}
               <div className="flex-1 min-w-20">
                 <SelectField
+                  isSearchable={true}
                   label="Quote asset"
                   value={quoteAsset}
                   options={quoteOptions}
