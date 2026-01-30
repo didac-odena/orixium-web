@@ -27,8 +27,8 @@ const MARKET_SEGMENTS = [
   { value: "commodities", label: "Commodities" },
 ];
 const ACCOUNT_OPTIONS = [
-  { value: "ibkr-test", label: "IBKR-test1" },
-  { value: "binance-test", label: "Binance-test2" },
+  { value: "ibkr-test", label: "IBKR-test" },
+  { value: "binance-test", label: "Binance-test" },
 ];
 const DEFAULT_ACCOUNT_ID = ACCOUNT_OPTIONS[0]?.value || "";
 
@@ -106,6 +106,7 @@ export default function NewTradePage() {
   const [globalAssetsByMarket, setGlobalAssetsByMarket] = useState({});
   const [globalSearchValue, setGlobalSearchValue] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [amountInput, setAmountInput] = useState("");
 
   const quoteOptions = QUOTE_OPTIONS;
 
@@ -121,14 +122,16 @@ export default function NewTradePage() {
       side: "BUY",
       orderType: "MARKET",
       limitPrice: "",
-      amount: "",
+      baseAsset: DEFAULT_BASE_ASSET,
+      baseAmount: "",
+      quoteAsset: DEFAULT_QUOTE_CURRENCY,
     },
     mode: "onChange",
   });
 
   const side = watch("side");
   const orderType = watch("orderType");
-  const amount = watch("amount");
+  const baseAmount = watch("baseAmount");
 
   const handleMarketTypeChange = (nextMarket) => {
     if (nextMarket === marketType) return;
@@ -141,12 +144,20 @@ export default function NewTradePage() {
     setPriceError("");
     setSubgroupOptions([]);
     setSubgroupValue("");
+    setValue("baseAsset", "", { shouldValidate: true });
+    setValue("quoteAsset", DEFAULT_QUOTE_CURRENCY, { shouldValidate: true });
+  };
+  const handleAccountChange = (nextValue) => {
+    setAccountId(nextValue);
+    setValue("accountId", nextValue, { shouldValidate: true });
   };
   const handleBaseAssetChange = (nextValue) => {
     setBaseAsset(nextValue);
+    setValue("baseAsset", nextValue, { shouldValidate: true });
   };
   const handleQuoteAssetChange = (nextValue) => {
     setQuoteAsset(nextValue);
+    setValue("quoteAsset", nextValue, { shouldValidate: true });
   };
 
   const handleSideChange = (nextSide) => {
@@ -164,17 +175,46 @@ export default function NewTradePage() {
     }
   };
 
-  const handleSubmitForm = (values) => {
-    console.log("NEW_TRADE_FORM_SUBMIT", values);
-  };
-
   const handleAmountModeChange = (nextMode) => {
     setAmountMode(nextMode);
+    const baseValue = parseAmountValue(baseAmount);
+    if (!Number.isFinite(baseValue)) return;
+
+    const safePriceValue = Number(pairPrice);
+    if (!Number.isFinite(safePriceValue) || safePriceValue === 0) {
+      setAmountInput(formatAmount(baseValue));
+      return;
+    }
+
+    const nextInputValue =
+      nextMode === "base" ? baseValue : baseValue * safePriceValue;
+
+    setAmountInput(formatAmount(nextInputValue));
   };
 
-  const handleAccountChange = (nextValue) => {
-    setAccountId(nextValue);
-    setValue("accountId", nextValue, { shouldValidate: true });
+  const handleAmountInputChange = (event) => {
+    const nextValue = event.target.value;
+    setAmountInput(nextValue);
+
+    const parsed = parseAmountValue(nextValue);
+    if (!Number.isFinite(parsed)) {
+      setValue("baseAmount", "", { shouldValidate: true });
+      return;
+    }
+
+    const safePriceValue = Number(pairPrice);
+    const baseAmountValue =
+      amountMode === "base"
+        ? parsed
+        : Number.isFinite(safePriceValue) && safePriceValue !== 0
+          ? parsed / safePriceValue
+          : 0;
+
+    setValue("baseAmount", String(baseAmountValue), { shouldValidate: true });
+  };
+
+  const handleSubmitForm = (values) => {
+    console.log("NEW_TRADE_FORM_SUBMIT", values);
   };
 
   const handleGlobalAssetSelect = (asset) => {
@@ -184,6 +224,7 @@ export default function NewTradePage() {
 
     setGlobalSearchValue(asset.value);
     setBaseAsset(asset.symbol);
+    setValue("baseAsset", asset.symbol, { shouldValidate: true });
 
     const nextQuote = asset.currency
       ? String(asset.currency).toLowerCase()
@@ -194,6 +235,7 @@ export default function NewTradePage() {
       : DEFAULT_QUOTE_CURRENCY;
 
     setQuoteAsset(safeQuote);
+    setValue("quoteAsset", safeQuote, { shouldValidate: true });
     setSubgroupValue(asset.group || "");
   };
 
@@ -344,6 +386,7 @@ export default function NewTradePage() {
 
       if (!baseAsset && nextBaseOptions.length) {
         setBaseAsset(nextBaseOptions[0].value);
+        setValue("baseAsset", nextBaseOptions[0].value, { shouldValidate: true });
       }
     };
 
@@ -391,19 +434,12 @@ export default function NewTradePage() {
     loadGlobalAssets();
   }, []);
 
-  const parsedAmount = parseAmountValue(amount) ?? 0;
+  const baseAmountValue = parseAmountValue(baseAmount) ?? 0;
   const safePrice = Number(pairPrice);
-  const convertedAmount =
-    amountMode === "base"
-      ? parsedAmount * (Number.isFinite(safePrice) ? safePrice : 0)
-      : Number.isFinite(safePrice) && safePrice !== 0
-        ? parsedAmount / safePrice
-        : 0;
+  const quoteAmountValue = Number.isFinite(safePrice) ? baseAmountValue * safePrice : 0;
 
-  const convertedLabel = formatAmount(convertedAmount) || "0";
-
-  const baseAmountText = amountMode === "base" ? amount || "--" : convertedLabel || "--";
-  const quoteAmountText = amountMode === "base" ? convertedLabel || "--" : amount || "--";
+  const baseAmountText = formatAmount(baseAmountValue) || "--";
+  const quoteAmountText = formatAmount(quoteAmountValue) || "--";
   const baseLabel = String(baseAsset || DEFAULT_BASE_ASSET).toUpperCase();
   const quoteLabel = String(quoteAsset || DEFAULT_QUOTE_CURRENCY).toUpperCase();
 
@@ -523,6 +559,7 @@ export default function NewTradePage() {
                   onChange={handleBaseAssetChange}
                   placeholder="Select base"
                 />
+                <input type="hidden" {...register("baseAsset", { required: true })} />
               </div>
               {/* Quote asset */}
               <div className="flex-1 min-w-20">
@@ -533,9 +570,11 @@ export default function NewTradePage() {
                   onChange={handleQuoteAssetChange}
                   placeholder="Select quote"
                 />
+                <input type="hidden" {...register("quoteAsset", { required: true })} />
               </div>
             </div>
 
+            {/* Side */}
             <ToggleField
               label="Side"
               name="side"
@@ -548,6 +587,8 @@ export default function NewTradePage() {
               register={register}
               error={errors.side ? "Side is required." : ""}
             />
+
+            {/* Quote/base */}
             <div className="flex items-end gap-2">
               <div className="flex flex-col gap-1 flex-1">
                 <label className="text-xs text-muted">
@@ -557,9 +598,8 @@ export default function NewTradePage() {
                   <input
                     type="number"
                     step="any"
-                    {...register("amount", {
-                      required: true,
-                    })}
+                    value={amountInput}
+                    onChange={handleAmountInputChange}
                     className="w-full bg-bg border border-ink rounded px-2 py-1 text-sm text-ink pr-9"
                     placeholder="0.00"
                   />
@@ -568,7 +608,9 @@ export default function NewTradePage() {
                   </span>
                 </div>
 
-                {errors.amount ? <p className="text-danger text-xs">Amount is required.</p> : null}
+                {errors.baseAmount ? (
+                  <p className="text-danger text-xs">Amount is required.</p>
+                ) : null}
               </div>
 
               <div className="flex flex-col gap-1 items-end shrink-0">
@@ -604,8 +646,8 @@ export default function NewTradePage() {
             <div className="flex items-center justify-between text-xs text-muted">
               <span>
                 {amountMode === "base"
-                  ? `${convertedLabel} ${quoteLabel}`
-                  : `${convertedLabel} ${baseLabel}`}
+                  ? `${quoteAmountText} ${quoteLabel}`
+                  : `${baseAmountText} ${baseLabel}`}
               </span>
               <span>{lastPriceText}</span>
             </div>
