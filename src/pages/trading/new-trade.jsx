@@ -18,7 +18,7 @@ import { PageLayout } from "../../components/layout";
 import { PageHeader, SelectField, ToggleField, GlobalAssetSearch } from "../../components/ui";
 import { formatGroupLabel } from "../market-explorer/market-explorer-utils.js";
 import { PlusIcon, MinusIcon } from "@heroicons/react/24/outline";
-import { createNumberFormatter } from "../../utils/formatters.js";
+import { createMoneyFormatter, createNumberFormatter } from "../../utils/formatters.js";
 
 const MARKET_SEGMENTS = [
   { value: "crypto", label: "Crypto" },
@@ -35,9 +35,10 @@ const DEFAULT_ACCOUNT_ID = ACCOUNT_OPTIONS[0]?.value || "";
 
 const DEFAULT_BASE_ASSET = "BTC";
 const MAX_AMOUNT_DECIMALS = 8;
-const AMOUNT_FORMATTER = createNumberFormatter({
+const CRYPTO_AMOUNT_FORMATTER = createNumberFormatter({
   maximumFractionDigits: MAX_AMOUNT_DECIMALS,
 });
+const FIAT_AMOUNT_FORMATTER = createMoneyFormatter();
 
 const buildBaseOptions = (items) => {
   const used = new Set();
@@ -59,7 +60,6 @@ const buildQuoteOptions = () => {
 };
 
 const QUOTE_OPTIONS = buildQuoteOptions();
-const PRICE_FORMATTER = createNumberFormatter({ maximumFractionDigits: 8 });
 
 const buildGroupFilterOptions = (items) => {
   const seen = new Set();
@@ -86,14 +86,14 @@ const roundUpAmount = (value, decimals = MAX_AMOUNT_DECIMALS) => {
   return Math.ceil(value * factor) / factor;
 };
 
-const formatAmount = (value, decimals = MAX_AMOUNT_DECIMALS) => {
+const formatAmount = (
+  value,
+  decimals = MAX_AMOUNT_DECIMALS,
+  formatter = CRYPTO_AMOUNT_FORMATTER,
+) => {
   if (!Number.isFinite(value)) return "";
   const rounded = roundUpAmount(value, decimals);
   if (rounded == null) return "";
-  const formatter =
-    decimals === MAX_AMOUNT_DECIMALS
-      ? AMOUNT_FORMATTER
-      : createNumberFormatter({ maximumFractionDigits: decimals });
   return formatter.format(rounded);
 };
 
@@ -439,12 +439,20 @@ export default function NewTradePage() {
     loadGlobalAssets();
   }, []);
 
+  const isCryptoMarket = marketType === "crypto";
+  const amountDecimals = isCryptoMarket ? MAX_AMOUNT_DECIMALS : 2;
+  const amountFormatter = isCryptoMarket
+    ? CRYPTO_AMOUNT_FORMATTER
+    : FIAT_AMOUNT_FORMATTER;
+
   const baseAmountValue = parseAmountValue(baseAmount) ?? 0;
   const safePrice = Number(pairPrice);
   const quoteAmountValue = Number.isFinite(safePrice) ? baseAmountValue * safePrice : 0;
 
-  const baseAmountText = formatAmount(baseAmountValue) || "--";
-  const quoteAmountText = formatAmount(quoteAmountValue) || "--";
+  const baseAmountText =
+    formatAmount(baseAmountValue, amountDecimals, amountFormatter) || "--";
+  const quoteAmountText =
+    formatAmount(quoteAmountValue, amountDecimals, amountFormatter) || "--";
   const baseLabel = String(baseAsset || DEFAULT_BASE_ASSET).toUpperCase();
   const quoteLabel = String(quoteAsset || DEFAULT_QUOTE_CURRENCY).toUpperCase();
 
@@ -456,7 +464,7 @@ export default function NewTradePage() {
     lastPriceLabel = priceError;
   }
   if (priceStatus === "ready" && pairPrice != null) {
-    lastPriceLabel = `Last price: ${PRICE_FORMATTER.format(Number(pairPrice))} ${quoteLabel}`;
+    lastPriceLabel = `Last price: ${amountFormatter.format(Number(pairPrice))} ${quoteLabel}`;
   }
   const lastPriceText = lastPriceLabel || "Last price: --";
 
