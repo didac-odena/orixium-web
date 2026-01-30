@@ -116,6 +116,7 @@ export default function NewTradePage() {
     formState: { errors },
   } = useForm({
     defaultValues: {
+      accountId: "IBKR-test1",
       side: "BUY",
       orderType: "MARKET",
       limitPrice: "",
@@ -422,7 +423,7 @@ export default function NewTradePage() {
         <PageHeader title="New Trade" subtitle="Manual order trade" />
 
         {/* Top bar */}
-        <div className="flex flex-wrap w-full justify-between border border-border bg-surface-2 rounded py-1 px-2">
+        <div className="flex flex-wrap w-full justify-between border border-border gap-2 bg-surface-2 rounded py-1 px-2">
           {/* Account select */}
           <div className="items-center -mt-2 min-w-52 shrink-0">
             <SelectField
@@ -431,11 +432,12 @@ export default function NewTradePage() {
               options={ACCOUNT_OPTIONS}
               onChange={handleAccountChange}
               placeholder="Select account"
+              
             />
           </div>
 
           {/* Global search */}
-          <div className="flex gap-2">
+          <div className="flex flex-1 justify-end gap-2">
             <label className="flex text-xs whitespace-nowrap items-center text-muted">
               Global search
             </label>

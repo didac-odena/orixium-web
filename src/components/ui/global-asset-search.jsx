@@ -84,17 +84,17 @@ export default function GlobalAssetSearch({
   };
 
   return (
-    <div className="relative w-full min-w-[24rem]">
+    <div className="relative w-full max-w-[24rem]">
       <input
         type="search"
         value={query}
         onChange={handleQueryChange}
         placeholder={placeholder}
-        className="absolute h-10 w-full top-1/2 -translate-y-1/2 rounded-md border border-border bg-bg px-3 text-sm text-ink placeholder:text-muted"
+        className="h-10 w-full rounded-md border border-border bg-bg px-3 text-sm text-ink placeholder:text-muted"
       />
 
       {showResults && searchText ? (
-        <div className="absolute left-0 right-0 z-20 mt-1 w-full rounded border border-border bg-bg shadow">
+        <div className="absolute left-0 right-0 top-full z-20 mt-1 w-full rounded border border-border bg-bg shadow">
           <div className="max-h-60 overflow-y-auto overflow-x-hidden">
             {visibleOptions.length ? (
               visibleOptions.map((option) => {
