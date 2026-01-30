@@ -1,12 +1,14 @@
+import { DEFAULT_CURRENCY_FORMAT_LOCALE } from "../../utils/formatters.js";
+
 export function createPriceFormatter(currency) {
   // >1 uses 2 decimals, <=1 uses up to 8 for small prices.
-  const shortFormatter = new Intl.NumberFormat("en-US", {
+  const shortFormatter = new Intl.NumberFormat(DEFAULT_CURRENCY_FORMAT_LOCALE, {
     style: "currency",
     currency: String(currency || "USD").toUpperCase(),
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-  const longFormatter = new Intl.NumberFormat("en-US", {
+  const longFormatter = new Intl.NumberFormat(DEFAULT_CURRENCY_FORMAT_LOCALE, {
     style: "currency",
     currency: String(currency || "USD").toUpperCase(),
     minimumFractionDigits: 2,
@@ -28,13 +30,13 @@ export function createRowPriceFormatter() {
   function getFormatters(currency) {
     const key = String(currency || "USD").toUpperCase();
     if (cache.has(key)) return cache.get(key);
-    const shortFormatter = new Intl.NumberFormat("en-US", {
+    const shortFormatter = new Intl.NumberFormat(DEFAULT_CURRENCY_FORMAT_LOCALE, {
       style: "currency",
       currency: key,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
-    const longFormatter = new Intl.NumberFormat("en-US", {
+    const longFormatter = new Intl.NumberFormat(DEFAULT_CURRENCY_FORMAT_LOCALE, {
       style: "currency",
       currency: key,
       minimumFractionDigits: 2,

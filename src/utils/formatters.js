@@ -1,15 +1,15 @@
-export const DEFAULT_LOCALE = "en-US";
+export const DEFAULT_CURRENCY_FORMAT_LOCALE = "en-US";
 
 export function createPercentFormatter() {
   // Fixed 2-decimal percent display for UI stats.
-  return new Intl.NumberFormat(DEFAULT_LOCALE, {
+  return new Intl.NumberFormat(DEFAULT_CURRENCY_FORMAT_LOCALE, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
 }
 
 export function createMoneyFormatter() {
-  return new Intl.NumberFormat(DEFAULT_LOCALE, {
+  return new Intl.NumberFormat(DEFAULT_CURRENCY_FORMAT_LOCALE, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -17,7 +17,7 @@ export function createMoneyFormatter() {
 
 export function createCompactCurrencyFormatter(currency) {
   // Compact currency (K/M/B) for market cap/volume.
-  return new Intl.NumberFormat(DEFAULT_LOCALE, {
+  return new Intl.NumberFormat(DEFAULT_CURRENCY_FORMAT_LOCALE, {
     style: "currency",
     currency: String(currency || "USD").toUpperCase(),
     notation: "compact",
@@ -29,7 +29,7 @@ export function createNumberFormatter({
   minimumFractionDigits = 0,
   maximumFractionDigits = 8,
 } = {}) {
-  return new Intl.NumberFormat(DEFAULT_LOCALE, {
+  return new Intl.NumberFormat(DEFAULT_CURRENCY_FORMAT_LOCALE, {
     minimumFractionDigits,
     maximumFractionDigits,
   });
