@@ -1,4 +1,4 @@
-import { TablePagination, TableToolbar } from "../ui";
+import { GlobalAssetSearch, TablePagination, TableToolbar } from "../ui";
 
 export default function MarketExplorerToolbar({
     segments,
@@ -8,8 +8,9 @@ export default function MarketExplorerToolbar({
     onGroupFilterChange,
     groupFilterOptions,
     showGroupFilters,
-    searchQuery,
-    onSearchChange,
+    searchItemsByMarket,
+    onSearchSelect,
+    onSearchQueryChange,
     searchPlaceholder,
     currentPage,
     totalPages,
@@ -38,8 +39,16 @@ export default function MarketExplorerToolbar({
         onPageChange(1);
     };
 
-    const handleSearchChange = (event) => {
-        onSearchChange(event.target.value);
+    const handleSearchChange = (nextValue) => {
+        if (onSearchQueryChange) {
+            onSearchQueryChange(nextValue);
+        }
+    };
+
+    const handleSearchSelect = (option) => {
+        if (onSearchSelect) {
+            onSearchSelect(option);
+        }
     };
 
     const handleCurrencyChange = (event) => {
@@ -124,12 +133,11 @@ export default function MarketExplorerToolbar({
                     <label className="text-xs uppercase tracking-wide text-muted">
                         Search
                     </label>
-                    <input
-                        type="search"
-                        value={searchQuery}
-                        onChange={handleSearchChange}
+                    <GlobalAssetSearch
+                        itemsByMarket={searchItemsByMarket}
+                        onSelect={handleSearchSelect}
+                        onQueryChange={handleSearchChange}
                         placeholder={searchPlaceholder}
-                        className="h-9 w-56 rounded-md border border-border bg-bg px-3 text-sm text-ink placeholder:text-muted"
                     />
                 </>
             }

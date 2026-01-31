@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import {
   DEFAULT_QUOTE_CURRENCY,
   SUPPORTED_QUOTE_CURRENCIES,
+  createManualTrade,
   getCryptoMarketSnapshots,
   refreshCryptoMarketSnapshots,
   getEquityMarketSnapshots,
@@ -15,7 +16,13 @@ import {
   refreshCommoditiesMarketSnapshots,
 } from "../../services";
 import { PageLayout } from "../../components/layout";
-import { PageHeader, SelectField, ToggleField, GlobalAssetSearch } from "../../components/ui";
+import {
+  PageHeader,
+  SelectField,
+  ToggleField,
+  GlobalAssetSearch,
+  TradingViewAdvancedChart,
+} from "../../components/ui";
 import { formatGroupLabel } from "../market-explorer/market-explorer-utils.js";
 import { PlusIcon, MinusIcon } from "@heroicons/react/24/outline";
 import {
@@ -64,6 +71,65 @@ const buildQuoteOptions = () => {
 
 const QUOTE_OPTIONS = buildQuoteOptions();
 
+const TRADING_VIEW_EXCHANGE_FALLBACKS = {
+  equity: "NYSE",
+  rates: "CBOT",
+  forex: "FX",
+  commodities: "ARCA",
+  crypto: "CRYPTO",
+};
+
+const normalizeTradingViewPair = (value) => {
+  return String(value || "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
+};
+
+const resolveTradingViewExchange = (asset, market) => {
+  const fallback = TRADING_VIEW_EXCHANGE_FALLBACKS[market] || "";
+  const primaryExchange = String(asset?.primaryExchange || "").toUpperCase();
+  if (primaryExchange && primaryExchange !== "SMART") {
+    return primaryExchange;
+  }
+  const exchange = String(asset?.exchange || "").toUpperCase();
+  if (exchange && exchange !== "SMART") {
+    return exchange;
+  }
+  return fallback;
+};
+
+const resolveTradingViewSymbol = ({ marketType, baseAsset, quoteAsset, asset }) => {
+  const normalizedMarket = String(marketType || "").toLowerCase();
+  const baseValue = String(baseAsset || "").toUpperCase();
+  if (!baseValue) return "";
+
+  const quoteValue = String(quoteAsset || DEFAULT_QUOTE_CURRENCY).toUpperCase();
+
+  if (normalizedMarket === "crypto") {
+    return `CRYPTO:${baseValue}${quoteValue}`;
+  }
+
+  if (normalizedMarket === "forex") {
+    const rawPair = baseValue.includes("/") ? baseValue : `${baseValue}${quoteValue}`;
+    const normalizedPair = normalizeTradingViewPair(rawPair);
+    return normalizedPair ? `FX:${normalizedPair}` : "";
+  }
+
+  const exchange = resolveTradingViewExchange(asset, normalizedMarket);
+  return exchange ? `${exchange}:${baseValue}` : baseValue;
+};
+
+const findMarketAssetBySymbol = (assetsByMarket, marketType, baseAsset) => {
+  const items = assetsByMarket?.[marketType] || [];
+  const targetSymbol = String(baseAsset || "").toUpperCase();
+  if (!targetSymbol) return null;
+  for (const item of items) {
+    const itemSymbol = String(item?.symbol || "").toUpperCase();
+    if (itemSymbol === targetSymbol) return item;
+  }
+  return null;
+};
+
 const buildGroupFilterOptions = (items) => {
   const seen = new Set();
   const options = [];
@@ -76,6 +142,36 @@ const buildGroupFilterOptions = (items) => {
     options.push({ value: key, label: formatGroupLabel(key) });
   });
   return options;
+};
+
+const buildMarketInfo = (asset, market) => {
+  if (!asset) return null;
+
+  if (market === "crypto") {
+    return {
+      conid: null,
+      currency: String(asset?.quote_currency || "").toUpperCase() || null,
+      exchange: "COINGECKO",
+      primaryExchange: null,
+      localSymbol: String(asset?.symbol || "").toUpperCase() || null,
+      tradingClass: null,
+      name: String(asset?.name || ""),
+      group: null,
+    };
+  }
+
+  const snapshot = asset?.snapshot || {};
+
+  return {
+    conid: snapshot.conid ?? null,
+    currency: snapshot.currency ?? null,
+    exchange: snapshot.exchange ?? null,
+    primaryExchange: snapshot.primaryExchange ?? null,
+    localSymbol: snapshot.localSymbol ?? null,
+    tradingClass: snapshot.tradingClass ?? null,
+    name: String(asset?.name || ""),
+    group: asset?.group ?? null,
+  };
 };
 
 const parseAmountValue = (value) => {
@@ -108,12 +204,12 @@ export default function NewTradePage() {
   const [baseAsset, setBaseAsset] = useState("BTC");
   const [quoteAsset, setQuoteAsset] = useState(DEFAULT_QUOTE_CURRENCY);
   const [baseOptions, setBaseOptions] = useState([]);
+  const [marketItems, setMarketItems] = useState([]);
   const [amountMode, setAmountMode] = useState("base");
   const [subgroupValue, setSubgroupValue] = useState("");
   const [subgroupOptions, setSubgroupOptions] = useState([]);
   const [accountId, setAccountId] = useState(DEFAULT_ACCOUNT_ID);
   const [globalAssetsByMarket, setGlobalAssetsByMarket] = useState({});
-  const [globalSearchValue, setGlobalSearchValue] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [amountInput, setAmountInput] = useState("");
   const [takeProfitLevels, setTakeProfitLevels] = useState([]);
@@ -232,14 +328,33 @@ export default function NewTradePage() {
   };
 
   const handleSubmitForm = (values) => {
+    const entryPriceValue = Number(entryPrice);
+    if (!Number.isFinite(entryPriceValue) || entryPriceValue <= 0) {
+      setError(
+        orderType === "LIMIT" ? "limitPrice" : "baseAmount",
+        {
+          type: "manual",
+          message: "Price is not available yet.",
+        },
+        { shouldFocus: true }
+      );
+      return;
+    }
+
+    const symbol = `${baseLabel}/${quoteLabel}`.toUpperCase();
+    const marketInfo = buildMarketInfo(selectedMarketItem, marketType);
     const payload = {
       ...values,
       marketType,
-      entryPrice,
+      symbol,
+      marketInfo,
+      entryPrice: entryPriceValue,
       baseLabel,
       quoteLabel,
       baseAmount: baseAmountValue,
-      quoteAmount: quoteAmountValue,
+      quoteAmount: Number.isFinite(entryPriceValue)
+        ? baseAmountValue * entryPriceValue
+        : quoteAmountValue,
     };
     setConfirmPayload(payload);
     setIsConfirmOpen(true);
@@ -250,7 +365,6 @@ export default function NewTradePage() {
 
     handleMarketTypeChange(asset.market);
 
-    setGlobalSearchValue(asset.value);
     setBaseAsset(asset.symbol);
     setValue("baseAsset", asset.symbol, { shouldValidate: true });
 
@@ -277,6 +391,7 @@ export default function NewTradePage() {
   };
   const handleConfirmSubmit = () => {
     if (!confirmPayload) return;
+    createManualTrade(confirmPayload);
     console.log("NEW_TRADE_CONFIRM", confirmPayload);
     setIsConfirmOpen(false);
     setConfirmPayload(null);
@@ -416,6 +531,8 @@ export default function NewTradePage() {
         }
       }
 
+      setMarketItems(items);
+
       const nextSubgroupOptions = buildGroupFilterOptions(items);
       setSubgroupOptions(nextSubgroupOptions);
       if (!nextSubgroupOptions.length) {
@@ -485,6 +602,13 @@ export default function NewTradePage() {
   const isCryptoMarket = marketType === "crypto";
   const amountDecimals = isCryptoMarket ? MAX_AMOUNT_DECIMALS : 2;
   const amountFormatter = isCryptoMarket ? CRYPTO_AMOUNT_FORMATTER : FIAT_AMOUNT_FORMATTER;
+  const selectedMarketAsset = findMarketAssetBySymbol(globalAssetsByMarket, marketType, baseAsset);
+  const tradingViewSymbol = resolveTradingViewSymbol({
+    marketType,
+    baseAsset,
+    quoteAsset,
+    asset: selectedMarketAsset,
+  });
 
   const baseAmountValue = parseAmountValue(baseAmount) ?? 0;
   const safePrice = Number(pairPrice);
@@ -494,10 +618,10 @@ export default function NewTradePage() {
   const quoteAmountText = formatAmount(quoteAmountValue, amountDecimals, amountFormatter) || "--";
   const baseLabel = String(baseAsset || DEFAULT_BASE_ASSET).toUpperCase();
   const quoteLabel = String(quoteAsset || DEFAULT_QUOTE_CURRENCY).toUpperCase();
-  const entryPrice =
-    orderType === "LIMIT"
-      ? Number(limitPrice)
-      : Number(pairPrice);
+  const selectedMarketItem = marketItems.find((item) => {
+    return item.symbol?.toUpperCase() === String(baseAsset || "").toUpperCase();
+  });
+  const entryPrice = orderType === "LIMIT" ? Number(limitPrice) : Number(pairPrice);
 
   let lastPriceLabel = "";
   if (priceStatus === "loading") {
@@ -532,267 +656,289 @@ export default function NewTradePage() {
           </div>
 
           {/* Global search */}
-          <div className="flex flex-1 justify-end gap-2">
+          <div className="flex flex-1 items-center justify-end gap-2">
             <label className="flex text-xs whitespace-nowrap items-center text-muted">
               Global search
             </label>
             <GlobalAssetSearch
               itemsByMarket={globalAssetsByMarket}
-              value={globalSearchValue}
               onSelect={handleGlobalAssetSelect}
               placeholder="Search any asset..."
             />
           </div>
         </div>
-        {/*//Filters*/}
-        <div className="flex flex-col border border-border bg-surface-2 rounded w-full ml-auto max-w-100 min-w-74  py-1 px-2">
-          <div className="flex justify-between">
-            <header className="text-ink text-sm ">Filters</header>
-            <button onClick={() => setShowFilters((prev) => !prev)} type="button">
+
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-start">
+        {/*//TW-CHART*/}
+          <div className="flex-1 w-full min-w-0">
+            <div className="flex flex-col border border-border bg-bg rounded p-0.5">
+              <TradingViewAdvancedChart symbol={tradingViewSymbol} className="h-[65vh] w-full" />
+            </div>
+          </div>
+
+          {/*//FORM*/}
+          <div className="flex flex-col gap-1 w-100 lg:shrink-0">
+            {/*//Filters*/}
+            <div className="flex flex-col border border-border bg-surface-2 rounded w-full py-1 px-2">
+              <div className="flex justify-between">
+                <header className="text-ink text-sm ">Filters</header>
+                <button onClick={() => setShowFilters((prev) => !prev)} type="button">
+                  {showFilters ? (
+                    <MinusIcon className="h-4 w-4 hover:text-accent-2" />
+                  ) : (
+                    <PlusIcon className="h-4 w-4 hover:text-accent" />
+                  )}
+                </button>
+              </div>
               {showFilters ? (
-                <MinusIcon className="h-4 w-4 hover:text-accent-2" />
-              ) : (
-                <PlusIcon className="h-4 w-4 hover:text-accent" />
-              )}
-            </button>
-          </div>
-          {showFilters ? (
-            <div className="space-y-1">
-              <label className="text-xs text-muted">Markets</label>
-              <div className="flex flex-wrap gap-1">
-                {MARKET_SEGMENTS.map((segment) => {
-                  const isActive = marketType === segment.value;
+                <div className="space-y-1">
+                  <label className="text-xs text-muted">Markets</label>
+                  <div className="flex flex-wrap gap-1">
+                    {MARKET_SEGMENTS.map((segment) => {
+                      const isActive = marketType === segment.value;
 
-                  const baseClass =
-                    "cursor-pointer rounded-full border px-2 py-1 text-xs uppercase tracking-wider transition-colors";
-                  const activeClass = "border-ink bg-surface text-ink";
-                  const inactiveClass =
-                    "border-border text-muted bg-bg hover:border-accent hover:text-accent";
+                      const baseClass =
+                        "cursor-pointer rounded-full border px-2 py-1 text-xs uppercase tracking-wider transition-colors";
+                      const activeClass = "border-ink bg-surface text-ink";
+                      const inactiveClass =
+                        "border-border text-muted bg-bg hover:border-accent hover:text-accent";
 
-                  const buttonClass = `${baseClass} ${isActive ? activeClass : inactiveClass}`;
+                      const buttonClass = `${baseClass} ${isActive ? activeClass : inactiveClass}`;
 
-                  const handleClick = () => {
-                    handleMarketTypeChange(segment.value);
-                  };
-                  return (
-                    <button
-                      key={segment.value}
-                      type="button"
-                      onClick={handleClick}
-                      className={buttonClass}
-                    >
-                      {segment.label}
-                    </button>
-                  );
-                })}
-              </div>
-              {/* Subgroup select */}
-              <div className="min-w-45">
-                <div className="min-w-45">
-                  <SelectField
-                    label="Subgroup"
-                    value={subgroupValue}
-                    options={subgroupOptions}
-                    onChange={setSubgroupValue}
-                    placeholder="Select subgroup"
-                  />
-                </div>
-              </div>
-            </div>
-          ) : null}
-        </div>
-
-        <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-1">
-        {/*//Form*/}
-        <div className="flex flex-col border border-border bg-surface-2 rounded w-full max-w-100 min-w-74 ml-auto py-1 px-2">
-          <div className="space-y-1">
-            <div className="flex gap-2">
-              {/* Base asset */}
-              <div className="flex-1 min-w-20">
-                <SelectField
-                  label="Base asset"
-                  isSearchable={true}
-                  value={baseAsset}
-                  options={baseOptions}
-                  onChange={handleBaseAssetChange}
-                  placeholder="Select base"
-                />
-                <input type="hidden" {...register("baseAsset", { required: true })} />
-              </div>
-              {/* Quote asset */}
-              <div className="flex-1 min-w-20">
-                <SelectField
-                  isSearchable={true}
-                  label="Quote asset"
-                  value={quoteAsset}
-                  options={quoteOptions}
-                  onChange={handleQuoteAssetChange}
-                  placeholder="Select quote"
-                />
-                <input type="hidden" {...register("quoteAsset", { required: true })} />
-              </div>
-            </div>
-
-            {/* Side */}
-            <ToggleField
-              label="Side"
-              name="side"
-              value={side}
-              options={[
-                { value: "BUY", label: "Buy" },
-                { value: "SELL", label: "Sell" },
-              ]}
-              onChange={handleSideChange}
-              register={register}
-              error={errors.side ? "Side is required." : ""}
-            />
-
-            {/* Quote/base */}
-            <div className="flex items-end gap-2">
-              <div className="flex flex-col gap-1 flex-1">
-                <label className="text-xs text-muted">
-                  {amountMode === "base" ? "Base amount" : "Quote amount"}
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    step="any"
-                    value={amountInput}
-                    onChange={handleAmountInputChange}
-                    className="w-full bg-bg border border-ink rounded px-2 py-1 text-sm text-ink pr-9"
-                    placeholder="0.00"
-                  />
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted">
-                    {amountMode === "base" ? baseLabel : quoteLabel}
-                  </span>
-                </div>
-
-                {errors.baseAmount ? (
-                  <p className="text-danger text-xs">Amount is required.</p>
-                ) : null}
-              </div>
-
-              <div className="flex flex-col gap-1 items-end shrink-0">
-                <label className="text-xs text-muted">Amount in</label>
-
-                <div className="flex rounded  border-border overflow-hidden">
-                  <button
-                    type="button"
-                    onClick={() => handleAmountModeChange("base")}
-                    className={`px-2 py-1.5 text-xs cursor-pointer border rounded uppercase ${
-                      amountMode === "base"
-                        ? "border-ink bg-surface text-ink"
-                        : "border-border bg-bg text-muted transition-colors hover:border-accent hover:text-accent"
-                    }`}
-                  >
-                    {baseLabel || "BASE"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAmountModeChange("quote")}
-                    className={`px-2 py-1.5 text-xs cursor-pointer border rounded uppercase ${
-                      amountMode === "quote"
-                        ? "border-ink bg-surface text-ink"
-                        : "border-border bg-bg text-muted transition-colors hover:border-accent hover:text-accent"
-                    }`}
-                  >
-                    {quoteLabel || "QUOTE"}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between text-xs text-muted">
-              <span>
-                {amountMode === "base"
-                  ? `${quoteAmountText} ${quoteLabel}`
-                  : `${baseAmountText} ${baseLabel}`}
-              </span>
-              <span>{lastPriceText}</span>
-            </div>
-
-            <ToggleField
-              label="Order Type"
-              name="orderType"
-              value={orderType}
-              options={[
-                { value: "MARKET", label: "Market" },
-                { value: "LIMIT", label: "Limit" },
-              ]}
-              onChange={handleOrderTypeChange}
-              register={register}
-              error={errors.orderType ? "Order type is required." : ""}
-            />
-
-            {orderType === "LIMIT" ? (
-              <div className="space-y-1">
-                <label className="text-xs">Limit Price</label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    inputMode="decimal"
-                    placeholder="0.00"
-                    className="w-full rounded border border-border bg-bg px-2 py-1 pr-7 text-xs text-right text-ink"
-                    {...register("limitPrice", {
-                      required: true,
+                      const handleClick = () => {
+                        handleMarketTypeChange(segment.value);
+                      };
+                      return (
+                        <button
+                          key={segment.value}
+                          type="button"
+                          onClick={handleClick}
+                          className={buttonClass}
+                        >
+                          {segment.label}
+                        </button>
+                      );
                     })}
+                  </div>
+                  {/* Subgroup select */}
+                  <div className="min-w-45">
+                    <div className="min-w-45">
+                      <SelectField
+                        label="Subgroup"
+                        value={subgroupValue}
+                        options={subgroupOptions}
+                        onChange={setSubgroupValue}
+                        placeholder="Select subgroup"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-1">
+              {/*//setup*/}
+              <div className="flex flex-col border border-border bg-surface-2 rounded w-full py-1 px-2">
+                <div className="space-y-1">
+                  <div className="flex gap-2">
+                    {/* Base asset */}
+                    <div className="flex-1 min-w-20">
+                      <SelectField
+                        label="Base asset"
+                        isSearchable={true}
+                        value={baseAsset}
+                        options={baseOptions}
+                        onChange={handleBaseAssetChange}
+                        placeholder="Select base"
+                      />
+                      <input type="hidden" {...register("baseAsset", { required: true })} />
+                    </div>
+                    {/* Quote asset */}
+                    <div className="flex-1 min-w-20">
+                      <SelectField
+                        isSearchable={true}
+                        label="Quote asset"
+                        value={quoteAsset}
+                        options={quoteOptions}
+                        onChange={handleQuoteAssetChange}
+                        placeholder="Select quote"
+                      />
+                      <input type="hidden" {...register("quoteAsset", { required: true })} />
+                    </div>
+                  </div>
+
+                  {/* Side */}
+                  <ToggleField
+                    label="Side"
+                    name="side"
+                    value={side}
+                    options={[
+                      { value: "BUY", label: "Buy" },
+                      { value: "SELL", label: "Sell" },
+                    ]}
+                    onChange={handleSideChange}
+                    register={register}
+                    error={errors.side ? "Side is required." : ""}
                   />
-                  {errors.limitPrice ? (
-                    <p className="text-danger text-xs">Limit price is required.</p>
+
+                  {/* Quote/base */}
+                  <div className="flex items-end gap-2">
+                    <div className="flex flex-col gap-1 flex-1">
+                      <label className="text-xs text-muted">
+                        {amountMode === "base" ? "Base amount" : "Quote amount"}
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="any"
+                          value={amountInput}
+                          onChange={handleAmountInputChange}
+                          className="w-full bg-bg border border-ink rounded px-2 py-1 text-sm text-ink pr-9"
+                          placeholder="0.00"
+                        />
+                        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted">
+                          {amountMode === "base" ? baseLabel : quoteLabel}
+                        </span>
+                      </div>
+                      <input
+                        type="hidden"
+                        {...register("baseAmount", {
+                          required: "Amount is required.",
+                          validate: (value) =>
+                            Number(value) > 0 || "Amount must be greater than 0.",
+                        })}
+                      />
+
+                      {errors.baseAmount ? (
+                        <p className="text-danger text-xs">
+                          {errors.baseAmount.message || "Amount is required."}
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <div className="flex flex-col gap-1 items-end shrink-0">
+                      <label className="text-xs text-muted">Amount in</label>
+
+                      <div className="flex rounded  border-border overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => handleAmountModeChange("base")}
+                          className={`px-2 py-1.5 text-xs cursor-pointer border rounded uppercase ${
+                            amountMode === "base"
+                              ? "border-ink bg-surface text-ink"
+                              : "border-border bg-bg text-muted transition-colors hover:border-accent hover:text-accent"
+                          }`}
+                        >
+                          {baseLabel || "BASE"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleAmountModeChange("quote")}
+                          className={`px-2 py-1.5 text-xs cursor-pointer border rounded uppercase ${
+                            amountMode === "quote"
+                              ? "border-ink bg-surface text-ink"
+                              : "border-border bg-bg text-muted transition-colors hover:border-accent hover:text-accent"
+                          }`}
+                        >
+                          {quoteLabel || "QUOTE"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-muted">
+                    <span>
+                      {amountMode === "base"
+                        ? `${quoteAmountText} ${quoteLabel}`
+                        : `${baseAmountText} ${baseLabel}`}
+                    </span>
+                    <span>{lastPriceText}</span>
+                  </div>
+
+                  <ToggleField
+                    label="Order Type"
+                    name="orderType"
+                    value={orderType}
+                    options={[
+                      { value: "MARKET", label: "Market" },
+                      { value: "LIMIT", label: "Limit" },
+                    ]}
+                    onChange={handleOrderTypeChange}
+                    register={register}
+                    error={errors.orderType ? "Order type is required." : ""}
+                  />
+
+                  {orderType === "LIMIT" ? (
+                    <div className="space-y-1">
+                      <label className="text-xs">Limit Price</label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          placeholder="0.00"
+                          className="w-full rounded border border-border bg-bg px-2 py-1 pr-7 text-xs text-right text-ink"
+                          {...register("limitPrice", {
+                            required: true,
+                          })}
+                        />
+                        {errors.limitPrice ? (
+                          <p className="text-danger text-xs">Limit price is required.</p>
+                        ) : null}
+                        <span className="pointer-events-none absolute top-1/2 -translate-y-1/2 right-1 text-xs text-muted">
+                          {String(quoteAsset || DEFAULT_QUOTE_CURRENCY).toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
                   ) : null}
-                  <span className="pointer-events-none absolute top-1/2 -translate-y-1/2 right-1 text-xs text-muted">
-                    {String(quoteAsset || DEFAULT_QUOTE_CURRENCY).toUpperCase()}
-                  </span>
+                  {/*TP*/}
                 </div>
               </div>
-            ) : null}
-            {/*TP*/}
+              <div className="flex flex-col border border-border bg-surface-2 rounded w-full space-y-2 py-1 px-2">
+                <TakeProfitPanel
+                  entryPrice={entryPrice}
+                  side={side}
+                  baseAmount={baseAmountValue}
+                  baseLabel={baseLabel}
+                  quoteLabel={quoteLabel}
+                  onChange={handleTakeProfitChange}
+                  register={register}
+                  errors={errors}
+                  setError={setError}
+                  clearErrors={clearErrors}
+                />
+              </div>
+              <div className="flex flex-col border border-border bg-surface-2 rounded w-full space-y-2 py-1 px-2">
+                <StopLossPanel
+                  entryPrice={entryPrice}
+                  side={side}
+                  quoteLabel={quoteLabel}
+                  onChange={handleStopLossChange}
+                  register={register}
+                  errors={errors}
+                  setError={setError}
+                  clearErrors={clearErrors}
+                />
+              </div>
+
+              {/*Submit*/}
+              <div className="flex flex-col border border-border bg-surface-2 rounded w-full space-y-2 py-1 px-2">
+                <p className="text-xs text-muted text-center">
+                  {side === "BUY" ? "Buying" : "Selling"} {baseAmountText} {baseLabel} for{" "}
+                  {quoteAmountText} {quoteLabel}
+                </p>
+
+                <div className="flex justify-center">
+                  <button
+                    type="submit"
+                    className="flex-1 px-2 py-1 rounded cursor-pointer border border-border bg-bg uppercase tracking-wide transition-colors hover:border-accent hover:text-accent text-xs"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
-        <div className="flex flex-col border border-border bg-surface-2 rounded w-full space-y-2 max-w-100 min-w-74 py-1 px-2 ml-auto">
-          <TakeProfitPanel
-            entryPrice={entryPrice}
-            side={side}
-            baseAmount={baseAmountValue}
-            baseLabel={baseLabel}
-            quoteLabel={quoteLabel}
-            onChange={handleTakeProfitChange}
-            register={register}
-            errors={errors}
-            setError={setError}
-            clearErrors={clearErrors}
-          />
-        </div>
-        <div className="flex flex-col border border-border bg-surface-2 rounded w-full space-y-2 max-w-100 min-w-74 py-1 px-2 ml-auto">
-          <StopLossPanel
-            entryPrice={entryPrice}
-            side={side}
-            quoteLabel={quoteLabel}
-            onChange={handleStopLossChange}
-            register={register}
-            errors={errors}
-            setError={setError}
-            clearErrors={clearErrors}
-          />
-        </div>
-
-        {/*Submit*/}
-        <div className="flex flex-col border border-border bg-surface-2 rounded w-full space-y-2 ml-auto max-w-100 min-w-74 py-1 px-2">
-          <p className="text-xs text-muted text-center">
-            {side === "BUY" ? "Buying" : "Selling"} {baseAmountText} {baseLabel} for{" "}
-            {quoteAmountText} {quoteLabel}
-          </p>
-
-          <div className="flex justify-center">
-            <button
-              type="submit"
-              className="flex-1 px-2 py-1 rounded cursor-pointer border border-border bg-bg uppercase tracking-wide transition-colors hover:border-accent hover:text-accent text-xs"
-            >
-              Submit
-            </button>
-          </div>
-        </div>
-        </form>
       </section>
       <TradeConfirmModal
         isOpen={isConfirmOpen}

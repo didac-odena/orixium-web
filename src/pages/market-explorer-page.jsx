@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PageLayout } from "../components/layout";
 import {
   MarketExplorerMobileList,
@@ -12,6 +12,16 @@ import { DataTable, TablePagination, PageHeader } from "../components/ui";
 import {
   DEFAULT_QUOTE_CURRENCY,
   SUPPORTED_QUOTE_CURRENCIES,
+  getCryptoMarketSnapshots,
+  refreshCryptoMarketSnapshots,
+  getEquityMarketSnapshots,
+  refreshEquityMarketSnapshots,
+  getRatesMarketSnapshots,
+  refreshRatesMarketSnapshots,
+  getForexMarketSnapshots,
+  refreshForexMarketSnapshots,
+  getCommoditiesMarketSnapshots,
+  refreshCommoditiesMarketSnapshots,
 } from "../services/index.js";
 import {
   createCompactCurrencyFormatter,
@@ -108,6 +118,8 @@ export default function MarketExplorerPage() {
     refreshNow,
   } = useMarketExplorer({ market: segment, currency });
 
+  const [globalAssetsByMarket, setGlobalAssetsByMarket] = useState({});
+
   const formatPrice = createPriceFormatter(currency);
   const formatEquityPrice = createRowPriceFormatter();
   const percentFormatter = createPercentFormatter();
@@ -144,7 +156,6 @@ export default function MarketExplorerPage() {
 
   // Client-side filtering, plus page/global sorting and pagination.
   const {
-    query,
     setQuery,
     setPage,
     totalPages,
@@ -225,6 +236,67 @@ export default function MarketExplorerPage() {
     setGroupFilter("all");
   };
 
+  const handleGlobalSearchSelect = (option) => {
+    if (!option) return;
+    if (option.market) {
+      handleSegmentChange(option.market);
+    }
+    if (option.group) {
+      setGroupFilter(option.group);
+      setPage(1);
+    }
+    if (option.symbol) {
+      setQuery(option.symbol);
+    }
+  };
+
+  const handleGlobalSearchQueryChange = (nextValue) => {
+    if (!nextValue) {
+      setQuery("");
+    }
+  };
+
+  useEffect(() => {
+    const loadGlobalAssets = async () => {
+      const quoteLower = String(DEFAULT_QUOTE_CURRENCY).toLowerCase();
+
+      let cryptoItems = getCryptoMarketSnapshots(quoteLower);
+      if (!cryptoItems.length) {
+        cryptoItems = await refreshCryptoMarketSnapshots(quoteLower);
+      }
+
+      let equityItems = getEquityMarketSnapshots();
+      if (!equityItems.length) {
+        equityItems = await refreshEquityMarketSnapshots();
+      }
+
+      let ratesItems = getRatesMarketSnapshots();
+      if (!ratesItems.length) {
+        ratesItems = await refreshRatesMarketSnapshots();
+      }
+
+      let forexItems = getForexMarketSnapshots();
+      if (!forexItems.length) {
+        forexItems = await refreshForexMarketSnapshots();
+      }
+
+      let commoditiesItems = getCommoditiesMarketSnapshots();
+      if (!commoditiesItems.length) {
+        commoditiesItems = await refreshCommoditiesMarketSnapshots();
+      }
+
+      setGlobalAssetsByMarket({
+        crypto: cryptoItems,
+        equity: equityItems,
+        rates: ratesItems,
+        forex: forexItems,
+        commodities: commoditiesItems,
+      });
+    };
+
+    loadGlobalAssets();
+  }, []);
+
   return (
     <PageLayout>
       <section className="space-y-2">
@@ -242,8 +314,9 @@ export default function MarketExplorerPage() {
           onGroupFilterChange={setGroupFilter}
           groupFilterOptions={groupFilterOptions}
           showGroupFilters={showGroupFilters}
-          searchQuery={query}
-          onSearchChange={setQuery}
+          searchItemsByMarket={globalAssetsByMarket}
+          onSearchSelect={handleGlobalSearchSelect}
+          onSearchQueryChange={handleGlobalSearchQueryChange}
           searchPlaceholder={searchPlaceholder}
           currentPage={currentPage}
           totalPages={totalPages}

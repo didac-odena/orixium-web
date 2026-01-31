@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getOpenTrades } from "../../services/index.js";
+import { GlobalAssetSearch } from "../ui";
 import {
     createDateTimeFormatter,
     createMoneyFormatter,
@@ -10,10 +11,27 @@ import {
     ArrowTrendingUpIcon,
 } from "@heroicons/react/24/outline";
 
+const normalizeSymbol = (value) => {
+    return String(value || "").toUpperCase().trim();
+};
+
+const buildTradeSymbolOptions = (trades) => {
+    const seen = new Set();
+    const options = [];
+    trades.forEach((trade) => {
+        const symbol = normalizeSymbol(trade.symbol);
+        if (!symbol || seen.has(symbol)) return;
+        seen.add(symbol);
+        options.push({ value: symbol, label: symbol, symbol });
+    });
+    return options.sort((a, b) => a.symbol.localeCompare(b.symbol));
+};
+
 export default function OpenedTradesList() {
     const [trades, setTrades] = useState([]);
     const [status, setStatus] = useState("loading");
     const [error, setError] = useState("");
+    const [symbolQuery, setSymbolQuery] = useState("");
 
     const moneyFormatter = createMoneyFormatter();
     const percentFormatter = createPercentFormatter();
@@ -33,6 +51,15 @@ export default function OpenedTradesList() {
             100 *
             direction
         );
+    };
+
+    const handleSymbolSearchChange = (nextValue) => {
+        setSymbolQuery(nextValue);
+    };
+
+    const handleSymbolSearchSelect = (option) => {
+        if (!option) return;
+        setSymbolQuery(option.symbol);
     };
 
     useEffect(() => {
@@ -64,16 +91,43 @@ export default function OpenedTradesList() {
         };
     }, []);
 
+    const normalizedQuery = normalizeSymbol(symbolQuery);
+    const filteredTrades = normalizedQuery
+        ? trades.filter((trade) => {
+              return normalizeSymbol(trade.symbol).includes(normalizedQuery);
+          })
+        : trades;
+    const hasTrades = trades.length > 0;
+    const hasFilteredTrades = filteredTrades.length > 0;
+    const searchOptions = buildTradeSymbolOptions(trades);
+
     return (
         <>
             {status === "loading" ? <p>Loading...</p> : null}
             {status === "error" ? <p className="text-danger">{error}</p> : null}
 
             {status === "ready" ? (
-                trades.length ? (
+                hasTrades ? (
                     <div className="space-y-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <label className="text-xs uppercase tracking-wide text-muted">
+                                Search symbol
+                            </label>
+                            <GlobalAssetSearch
+                                options={searchOptions}
+                                onSelect={handleSymbolSearchSelect}
+                                onQueryChange={handleSymbolSearchChange}
+                                placeholder="Search symbol..."
+                            />
+                        </div>
+
+                        {!hasFilteredTrades ? (
+                            <p className="text-muted">
+                                No trades match this symbol.
+                            </p>
+                        ) : null}
                         <div className="space-y-2 md:hidden">
-                            {trades.map((trade) => {
+                            {filteredTrades.map((trade) => {
                                 const pnl = calcTradePnl(trade);
                                 const pnlPercent = calcTradePnlPercent(trade);
                                 const isPositive = pnl >= 0;
@@ -195,7 +249,7 @@ export default function OpenedTradesList() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {trades.map((trade) => {
+                                    {filteredTrades.map((trade) => {
                                         const pnl = calcTradePnl(trade);
                                         const pnlPercent =
                                             calcTradePnlPercent(trade);

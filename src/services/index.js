@@ -1,5 +1,5 @@
 export { getUser, login, logout } from "./auth/auth-service.js";
-export { getOpenTrades, getTradeHistory } from "./trades/trades-service.js";
+export { createManualTrade, getOpenTrades, getTradeHistory } from "./trades/trades-service.js";
 export {
   DEFAULT_QUOTE_CURRENCY,
   SUPPORTED_QUOTE_CURRENCIES,

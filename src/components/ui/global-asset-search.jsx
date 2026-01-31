@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+const MAX_RESULTS = 12;
+
 const getAssetSymbol = (item) => {
   return String(item?.symbol || "").toUpperCase();
 };
@@ -26,10 +28,12 @@ const buildGlobalSearchOptions = (itemsByMarket) => {
       used.add(key);
 
       const name = getAssetName(item);
-      const label = `${name ? `${name} ` : ""}${symbol} ${market}`.trim();
+      const label = name || symbol;
+      const secondaryLabel = name ? `${symbol} [${market}]` : `[${market}]`;
       options.push({
         value: `${market}:${symbol}`,
         label,
+        secondaryLabel,
         market,
         symbol,
         name,
@@ -42,45 +46,87 @@ const buildGlobalSearchOptions = (itemsByMarket) => {
   return options;
 };
 
+const buildSearchText = (option) => {
+  return [
+    option.symbol,
+    option.name,
+    option.market,
+    option.currency,
+    option.group,
+    option.value,
+    option.label,
+    option.secondaryLabel,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+};
+
 export default function GlobalAssetSearch({
   itemsByMarket,
+  options,
   onSelect,
+  onQueryChange,
   placeholder = "Search assets...",
 }) {
   const [query, setQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
 
-  const options = buildGlobalSearchOptions(itemsByMarket);
+  const resolvedOptions = Array.isArray(options)
+    ? options
+    : buildGlobalSearchOptions(itemsByMarket);
   const searchText = query.trim().toLowerCase();
 
   const filteredOptions = searchText
-    ? options.filter((option) => {
-        const haystack = [
-          option.symbol,
-          option.name,
-          option.market,
-          option.currency,
-          option.group,
-          option.value,
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-        return haystack.includes(searchText);
+    ? resolvedOptions.filter((option) => {
+        return buildSearchText(option).includes(searchText);
       })
     : [];
 
-  const visibleOptions = filteredOptions.slice(0, 12);
+  const visibleOptions = filteredOptions.slice(0, MAX_RESULTS);
 
   const handleQueryChange = (event) => {
-    setQuery(event.target.value);
+    const nextValue = event.target.value;
+    setQuery(nextValue);
     setShowResults(true);
+    if (onQueryChange) {
+      onQueryChange(nextValue);
+    }
   };
 
   const handleSelect = (option) => {
-    onSelect(option);
-    setQuery(option.symbol);
+    if (onSelect) {
+      onSelect(option);
+    }
+    const nextQuery = option.symbol || option.label || option.value;
+    setQuery(nextQuery);
     setShowResults(false);
+    if (onQueryChange) {
+      onQueryChange(nextQuery);
+    }
+  };
+
+  const renderOption = (option) => {
+    const optionKey = option.value || option.symbol || option.label;
+    const handleClick = () => handleSelect(option);
+    return (
+      <button
+        key={optionKey}
+        type="button"
+        onClick={handleClick}
+        className="w-full px-3 py-2 text-left text-xs text-ink hover:bg-surface"
+      >
+        <span className="text-xs text-ink">{option.label || option.symbol}</span>
+        {option.secondaryLabel ? (
+          <>
+            <span className="text-xs text-ink"> - </span>
+            <span className="text-xs text-muted uppercase tracking-wide">
+              {option.secondaryLabel}
+            </span>
+          </>
+        ) : null}
+      </button>
+    );
   };
 
   return (
@@ -97,22 +143,7 @@ export default function GlobalAssetSearch({
         <div className="absolute left-0 right-0 top-full z-20 mt-1 w-full rounded border border-border bg-bg shadow">
           <div className="max-h-60 overflow-y-auto overflow-x-hidden">
             {visibleOptions.length ? (
-              visibleOptions.map((option) => {
-                const handleClick = () => handleSelect(option);
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={handleClick}
-                    className="w-full px-3 py-2 text-left text-xs text-ink hover:bg-surface"
-                  >
-                    <span className="text-xs text-ink">{option.name || option.symbol} - </span>
-                    <span className="text-xs text-muted uppercase tracking-wide">
-                      {option.symbol} [{option.market}]
-                    </span>
-                  </button>
-                );
-              })
+              visibleOptions.map(renderOption)
             ) : (
               <div className="px-3 py-2 text-xs text-muted">No results</div>
             )}
