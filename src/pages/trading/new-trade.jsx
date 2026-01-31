@@ -31,7 +31,12 @@ import {
   createCryptoAmountFormatter,
   createNumberFormatter,
 } from "../../utils/formatters.js";
-import { StopLossPanel, TakeProfitPanel, TradeConfirmModal } from "../../components/trading";
+import {
+  StopLossPanel,
+  TakeProfitPanel,
+  TradeConfirmModal,
+  TradeSuccessModal,
+} from "../../components/trading";
 
 const MARKET_SEGMENTS = [
   { value: "crypto", label: "Crypto" },
@@ -216,6 +221,7 @@ export default function NewTradePage() {
   const [takeProfitLevels, setTakeProfitLevels] = useState([]);
   const [confirmPayload, setConfirmPayload] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
 
   const quoteOptions = QUOTE_OPTIONS;
 
@@ -396,11 +402,16 @@ export default function NewTradePage() {
     console.log("NEW_TRADE_CONFIRM", confirmPayload);
     setIsConfirmOpen(false);
     setConfirmPayload(null);
+    setIsSuccessOpen(true);
   };
 
   const handleCancelConfirm = () => {
     setIsConfirmOpen(false);
     setConfirmPayload(null);
+  };
+
+  const handleCloseSuccess = () => {
+    setIsSuccessOpen(false);
   };
 
   useEffect(() => {
@@ -916,6 +927,11 @@ export default function NewTradePage() {
         data={confirmPayload}
         onConfirm={handleConfirmSubmit}
         onCancel={handleCancelConfirm}
+      />
+      <TradeSuccessModal
+        isOpen={isSuccessOpen}
+        onClose={handleCloseSuccess}
+        message="Trade created successfully."
       />
     </PageLayout>
   );

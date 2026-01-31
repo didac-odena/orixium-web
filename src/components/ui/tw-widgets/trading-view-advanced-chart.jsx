@@ -4,9 +4,11 @@ import { useTheme } from "../../../contexts";
 const WIDGET_SCRIPT_SRC =
   "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
 
+const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
 const DEFAULT_WIDGET_OPTIONS = {
-  interval: "60",
-  timezone: "Etc/UTC",
+  interval: "240",
+  timezone: localTimezone,
   style: "1",
   locale: "en",
   withdateranges: true,
