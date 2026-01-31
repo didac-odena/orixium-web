@@ -23,7 +23,7 @@ import {
   createCryptoAmountFormatter,
   createNumberFormatter,
 } from "../../utils/formatters.js";
-import { TakeProfitPanel } from "../../components/trading";
+import { StopLossPanel, TakeProfitPanel } from "../../components/trading";
 
 const MARKET_SEGMENTS = [
   { value: "crypto", label: "Crypto" },
@@ -140,6 +140,7 @@ export default function NewTradePage() {
       takeProfitTargetInput: "",
       takeProfitSellAmountInput: "",
       takeProfits: [],
+      stopLossPrice: "",
     },
     mode: "onChange",
   });
@@ -257,6 +258,10 @@ export default function NewTradePage() {
   const handleTakeProfitChange = (levels) => {
     setTakeProfitLevels(levels);
     setValue("takeProfits", levels, { shouldValidate: true });
+  };
+  const handleStopLossChange = (nextStopLoss) => {
+    const nextValue = Number.isFinite(nextStopLoss) ? String(nextStopLoss) : "";
+    setValue("stopLossPrice", nextValue, { shouldValidate: true });
   };
 
   useEffect(() => {
@@ -728,6 +733,18 @@ export default function NewTradePage() {
             baseLabel={baseLabel}
             quoteLabel={quoteLabel}
             onChange={handleTakeProfitChange}
+            register={register}
+            errors={errors}
+            setError={setError}
+            clearErrors={clearErrors}
+          />
+        </div>
+        <div className="flex flex-col border border-border bg-surface-2 rounded w-full space-y-2 max-w-100 min-w-74 py-1 px-2 ml-auto">
+          <StopLossPanel
+            entryPrice={entryPrice}
+            side={side}
+            quoteLabel={quoteLabel}
+            onChange={handleStopLossChange}
             register={register}
             errors={errors}
             setError={setError}
