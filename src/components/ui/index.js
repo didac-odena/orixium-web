@@ -7,5 +7,6 @@ export { default as ThemeToggle } from "./theme/theme-toggle";
 export { default as ToggleField } from "./trade-forms/toggle-field";
 export { default as SearchableSelect } from "./searchable-select";
 export { default as SelectField } from "./select-field";
-export { default as GlobalAssetSearch } from "./global-asset-search"
+export { default as GlobalAssetSearch } from "./global-asset-search";
+
 

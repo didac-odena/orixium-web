@@ -18,7 +18,12 @@ import { PageLayout } from "../../components/layout";
 import { PageHeader, SelectField, ToggleField, GlobalAssetSearch } from "../../components/ui";
 import { formatGroupLabel } from "../market-explorer/market-explorer-utils.js";
 import { PlusIcon, MinusIcon } from "@heroicons/react/24/outline";
-import { createMoneyFormatter, createNumberFormatter } from "../../utils/formatters.js";
+import {
+  createFiatPriceFormatter,
+  createCryptoAmountFormatter,
+  createNumberFormatter,
+} from "../../utils/formatters.js";
+import { TakeProfitPanel } from "../../components/trading";
 
 const MARKET_SEGMENTS = [
   { value: "crypto", label: "Crypto" },
@@ -35,10 +40,8 @@ const DEFAULT_ACCOUNT_ID = ACCOUNT_OPTIONS[0]?.value || "";
 
 const DEFAULT_BASE_ASSET = "BTC";
 const MAX_AMOUNT_DECIMALS = 8;
-const CRYPTO_AMOUNT_FORMATTER = createNumberFormatter({
-  maximumFractionDigits: MAX_AMOUNT_DECIMALS,
-});
-const FIAT_AMOUNT_FORMATTER = createMoneyFormatter();
+const CRYPTO_AMOUNT_FORMATTER = createCryptoAmountFormatter();
+const FIAT_AMOUNT_FORMATTER = createFiatPriceFormatter();
 
 const buildBaseOptions = (items) => {
   const used = new Set();
@@ -89,7 +92,7 @@ const roundUpAmount = (value, decimals = MAX_AMOUNT_DECIMALS) => {
 const formatAmount = (
   value,
   decimals = MAX_AMOUNT_DECIMALS,
-  formatter = CRYPTO_AMOUNT_FORMATTER,
+  formatter = CRYPTO_AMOUNT_FORMATTER
 ) => {
   if (!Number.isFinite(value)) return "";
   const rounded = roundUpAmount(value, decimals);
@@ -113,6 +116,7 @@ export default function NewTradePage() {
   const [globalSearchValue, setGlobalSearchValue] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [amountInput, setAmountInput] = useState("");
+  const [takeProfitLevels, setTakeProfitLevels] = useState([]);
 
   const quoteOptions = QUOTE_OPTIONS;
 
@@ -121,6 +125,8 @@ export default function NewTradePage() {
     handleSubmit,
     watch,
     setValue,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -131,6 +137,9 @@ export default function NewTradePage() {
       baseAsset: DEFAULT_BASE_ASSET,
       baseAmount: "",
       quoteAsset: DEFAULT_QUOTE_CURRENCY,
+      takeProfitTargetInput: "",
+      takeProfitSellAmountInput: "",
+      takeProfits: [],
     },
     mode: "onChange",
   });
@@ -242,6 +251,11 @@ export default function NewTradePage() {
     setQuoteAsset(safeQuote);
     setValue("quoteAsset", safeQuote, { shouldValidate: true });
     setSubgroupValue(asset.group || "");
+  };
+
+  const handleTakeProfitChange = (levels) => {
+    setTakeProfitLevels(levels);
+    setValue("takeProfits", levels, { shouldValidate: true });
   };
 
   useEffect(() => {
@@ -441,18 +455,14 @@ export default function NewTradePage() {
 
   const isCryptoMarket = marketType === "crypto";
   const amountDecimals = isCryptoMarket ? MAX_AMOUNT_DECIMALS : 2;
-  const amountFormatter = isCryptoMarket
-    ? CRYPTO_AMOUNT_FORMATTER
-    : FIAT_AMOUNT_FORMATTER;
+  const amountFormatter = isCryptoMarket ? CRYPTO_AMOUNT_FORMATTER : FIAT_AMOUNT_FORMATTER;
 
   const baseAmountValue = parseAmountValue(baseAmount) ?? 0;
   const safePrice = Number(pairPrice);
   const quoteAmountValue = Number.isFinite(safePrice) ? baseAmountValue * safePrice : 0;
 
-  const baseAmountText =
-    formatAmount(baseAmountValue, amountDecimals, amountFormatter) || "--";
-  const quoteAmountText =
-    formatAmount(quoteAmountValue, amountDecimals, amountFormatter) || "--";
+  const baseAmountText = formatAmount(baseAmountValue, amountDecimals, amountFormatter) || "--";
+  const quoteAmountText = formatAmount(quoteAmountValue, amountDecimals, amountFormatter) || "--";
   const baseLabel = String(baseAsset || DEFAULT_BASE_ASSET).toUpperCase();
   const quoteLabel = String(quoteAsset || DEFAULT_QUOTE_CURRENCY).toUpperCase();
 
@@ -702,21 +712,38 @@ export default function NewTradePage() {
                 </div>
               </div>
             ) : null}
-
-            <p className="text-xs text-muted text-center">
-              {side === "BUY" ? "Buying" : "Selling"} {baseAmountText} {baseLabel} for{" "}
-              {quoteAmountText} {quoteLabel}
-            </p>
-
-            <div className="flex justify-center">
-              <button
-                type="submit"
-                className="flex-1 px-2 py-1 rounded cursor-pointer border border-border bg-bg uppercase tracking-wide transition-colors hover:border-accent hover:text-accent text-xs"
-              >
-                Submit
-              </button>
-            </div>
+            {/*TP*/}
           </form>
+        </div>
+        <div className="flex flex-col border border-border bg-surface-2 rounded w-full space-y-2 max-w-[20%] py-1 px-2 ml-auto">
+          <TakeProfitPanel
+            entryPrice={Number(pairPrice)}
+            baseAmount={baseAmountValue}
+            baseLabel={baseLabel}
+            quoteLabel={quoteLabel}
+            onChange={handleTakeProfitChange}
+            register={register}
+            errors={errors}
+            setError={setError}
+            clearErrors={clearErrors}
+          />
+        </div>
+
+        {/*Submit*/}
+        <div className="flex flex-col border border-border bg-surface-2 rounded w-full space-y-2 ml-auto max-w-[20%] py-1 px-2">
+          <p className="text-xs text-muted text-center">
+            {side === "BUY" ? "Buying" : "Selling"} {baseAmountText} {baseLabel} for{" "}
+            {quoteAmountText} {quoteLabel}
+          </p>
+
+          <div className="flex justify-center">
+            <button
+              type="submit"
+              className="flex-1 px-2 py-1 rounded cursor-pointer border border-border bg-bg uppercase tracking-wide transition-colors hover:border-accent hover:text-accent text-xs"
+            >
+              Submit
+            </button>
+          </div>
         </div>
       </section>
     </PageLayout>

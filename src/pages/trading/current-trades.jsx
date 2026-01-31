@@ -1,7 +1,7 @@
 import { PageLayout } from "../../components/layout";
 import { PageHeader } from "../../components/ui";
 
-import OpenedTradesList from "../../components/trading/opened-trades-list";
+import { OpenedTradesList } from "../../components/trading";
 
 export default function CurrentTradesPage() {
     return (

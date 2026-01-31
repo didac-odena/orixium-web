@@ -35,6 +35,17 @@ export function createNumberFormatter({
   });
 }
 
+export function createFiatPriceFormatter() {
+  return createNumberFormatter({
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+export function createCryptoAmountFormatter() {
+  return createNumberFormatter({ maximumFractionDigits: 8 });
+}
+
 export function createDateTimeFormatter() {
   // Short date + time for last-updated labels.
   return new Intl.DateTimeFormat("en-GB", {
