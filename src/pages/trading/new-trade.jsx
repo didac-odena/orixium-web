@@ -147,6 +147,7 @@ export default function NewTradePage() {
   const side = watch("side");
   const orderType = watch("orderType");
   const baseAmount = watch("baseAmount");
+  const limitPrice = watch("limitPrice");
 
   const handleMarketTypeChange = (nextMarket) => {
     if (nextMarket === marketType) return;
@@ -465,6 +466,10 @@ export default function NewTradePage() {
   const quoteAmountText = formatAmount(quoteAmountValue, amountDecimals, amountFormatter) || "--";
   const baseLabel = String(baseAsset || DEFAULT_BASE_ASSET).toUpperCase();
   const quoteLabel = String(quoteAsset || DEFAULT_QUOTE_CURRENCY).toUpperCase();
+  const entryPrice =
+    orderType === "LIMIT"
+      ? Number(limitPrice)
+      : Number(pairPrice);
 
   let lastPriceLabel = "";
   if (priceStatus === "loading") {
@@ -486,7 +491,7 @@ export default function NewTradePage() {
         {/* Top bar */}
         <div className="flex flex-wrap w-full justify-between border border-border gap-2 bg-surface-2 rounded py-1 px-2">
           {/* Account select */}
-          <div className="items-center -mt-2 min-w-52 shrink-0">
+          <div className="items-center -mt-2 shrink-0">
             <SelectField
               label="Account"
               value={accountId}
@@ -512,7 +517,7 @@ export default function NewTradePage() {
           </div>
         </div>
         {/*//Filters*/}
-        <div className="flex flex-col border border-border bg-surface-2 rounded w-full ml-auto max-w-[20%] py-1 px-2">
+        <div className="flex flex-col border border-border bg-surface-2 rounded w-full ml-auto max-w-100 min-w-74  py-1 px-2">
           <div className="flex justify-between">
             <header className="text-ink text-sm ">Filters</header>
             <button onClick={() => setShowFilters((prev) => !prev)} type="button">
@@ -570,7 +575,7 @@ export default function NewTradePage() {
         </div>
 
         {/*//Form*/}
-        <div className="flex flex-col border border-border bg-surface-2 rounded w-full max-w-[20%] ml-auto py-1 px-2">
+        <div className="flex flex-col border border-border bg-surface-2 rounded w-full max-w-100 min-w-74 ml-auto py-1 px-2">
           <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-1">
             <div className="flex gap-2">
               {/* Base asset */}
@@ -715,9 +720,10 @@ export default function NewTradePage() {
             {/*TP*/}
           </form>
         </div>
-        <div className="flex flex-col border border-border bg-surface-2 rounded w-full space-y-2 max-w-[20%] py-1 px-2 ml-auto">
+        <div className="flex flex-col border border-border bg-surface-2 rounded w-full space-y-2 max-w-100 min-w-74 py-1 px-2 ml-auto">
           <TakeProfitPanel
-            entryPrice={Number(pairPrice)}
+            entryPrice={entryPrice}
+            side={side}
             baseAmount={baseAmountValue}
             baseLabel={baseLabel}
             quoteLabel={quoteLabel}
@@ -730,7 +736,7 @@ export default function NewTradePage() {
         </div>
 
         {/*Submit*/}
-        <div className="flex flex-col border border-border bg-surface-2 rounded w-full space-y-2 ml-auto max-w-[20%] py-1 px-2">
+        <div className="flex flex-col border border-border bg-surface-2 rounded w-full space-y-2 ml-auto max-w-100 min-w-74 py-1 px-2">
           <p className="text-xs text-muted text-center">
             {side === "BUY" ? "Buying" : "Selling"} {baseAmountText} {baseLabel} for{" "}
             {quoteAmountText} {quoteLabel}

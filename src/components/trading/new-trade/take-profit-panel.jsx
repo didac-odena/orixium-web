@@ -8,12 +8,17 @@ import { TrashIcon } from "@heroicons/react/24/outline";
 
 const priceFormatter = createFiatPriceFormatter();
 const amountFormatter = createCryptoAmountFormatter();
-const percentFormatter = createNumberFormatter({ maximumFractionDigits: 2 });
+const percentValueFormatter = createNumberFormatter({ maximumFractionDigits: 2 });
 
-const formatPercent = (value) => {
+const formatSignedPercent = (value) => {
   if (!Number.isFinite(value)) return "--";
   const sign = value > 0 ? "+" : "";
-  return `${sign}${percentFormatter.format(value)}%`;
+  return `${sign}${percentValueFormatter.format(value)}%`;
+};
+
+const formatAvailablePercentLabel = (value) => {
+  if (!Number.isFinite(value)) return "--";
+  return `${percentValueFormatter.format(value)}% available`;
 };
 
 const getDeviationPercent = (targetPrice, entryPrice) => {
@@ -26,39 +31,55 @@ const getSellPercent = (sellAmount, baseAmount) => {
   return (sellAmount / baseAmount) * 100;
 };
 
-const parseNumber = (rawInput) => {
+const parseNumberValue = (rawInput) => {
   const value = Number(String(rawInput).replace("%", ""));
   return Number.isFinite(value) ? value : null;
 };
 
-const parseTargetPrice = (rawInput, entryPrice) => {
+const normalizePercentValue = (rawInput) => {
+  const cleaned = String(rawInput).replace(/[^0-9.%]/g, "");
+  const [numberPart] = cleaned.split("%");
+  const normalized = numberPart.includes(".")
+    ? numberPart.replace(/^(\d+)\.(\d{0,2}).*$/, "$1.$2")
+    : numberPart;
+  return `${normalized}%`;
+};
+
+const parseTargetValue = (rawInput, entryPrice) => {
   if (!rawInput || !Number.isFinite(entryPrice)) return null;
 
   const inputText = String(rawInput).trim();
   if (inputText.endsWith("%")) {
-    const percent = parseNumber(inputText);
+    const percent = parseNumberValue(inputText);
     if (percent == null) return null;
     return entryPrice * (1 + percent / 100);
   }
 
-  return parseNumber(inputText);
+  return parseNumberValue(inputText);
 };
 
-const parseSellAmount = (rawInput, baseAmount) => {
+const parseSellAmountValue = (rawInput, baseAmount) => {
   if (!rawInput || !Number.isFinite(baseAmount)) return null;
 
   const inputText = String(rawInput).trim();
   if (inputText.endsWith("%")) {
-    const percent = parseNumber(inputText);
+    const percent = parseNumberValue(inputText);
     if (percent == null) return null;
     return baseAmount * (percent / 100);
   }
 
-  return parseNumber(inputText);
+  return parseNumberValue(inputText);
+};
+
+const normalizePercentOrText = (rawInput) => {
+  return rawInput.trim().endsWith("%")
+    ? normalizePercentValue(rawInput)
+    : rawInput;
 };
 
 export default function TakeProfitPanel({
   entryPrice,
+  side,
   baseAmount,
   baseLabel,
   quoteLabel,
@@ -69,9 +90,21 @@ export default function TakeProfitPanel({
   clearErrors,
 }) {
   const [isEnabled, setIsEnabled] = useState(false);
-  const [targetInput, setTargetInput] = useState("");
-  const [amountInput, setAmountInput] = useState("");
+  const [targetInputValue, setTargetInputValue] = useState("");
+  const [sellAmountInputValue, setSellAmountInputValue] = useState("");
   const [takeProfitLevels, setTakeProfitLevels] = useState([]);
+
+  const totalSellAmountValue = takeProfitLevels.reduce((sum, level) => {
+    return sum + level.sellAmount;
+  }, 0);
+  const remainingAmount =
+    Number.isFinite(baseAmount) && baseAmount > 0
+      ? Math.max(baseAmount - totalSellAmountValue, 0)
+      : null;
+  const availablePercent =
+    Number.isFinite(remainingAmount) && baseAmount
+      ? (remainingAmount / baseAmount) * 100
+      : null;
 
   const setFieldError = (field, message) => {
     setError?.(field, { message });
@@ -93,32 +126,40 @@ export default function TakeProfitPanel({
   };
 
   const handleAddLevel = () => {
-    const targetPrice = parseTargetPrice(targetInput, entryPrice);
-    const sellAmount = parseSellAmount(amountInput, baseAmount);
+    const targetPrice = parseTargetValue(targetInputValue, entryPrice);
+    const sellAmount = parseSellAmountValue(sellAmountInputValue, baseAmount);
 
     if (!Number.isFinite(baseAmount) || baseAmount <= 0) {
       setFieldError("takeProfitSellAmountInput", "Set an order amount before adding TP.");
       return;
     }
 
-    if (!targetInput) {
+    if (!targetInputValue) {
       setFieldError("takeProfitTargetInput", "Target is required.");
       return;
     }
     clearFieldError("takeProfitTargetInput");
 
-    if (!amountInput) {
+    if (!sellAmountInputValue) {
       setFieldError("takeProfitSellAmountInput", "Sell amount is required.");
       return;
     }
     clearFieldError("takeProfitSellAmountInput");
 
     if (!Number.isFinite(targetPrice) || !Number.isFinite(sellAmount)) return;
+    if (Number.isFinite(entryPrice)) {
+      if (side === "BUY" && targetPrice <= entryPrice) {
+        setFieldError("takeProfitTargetInput", "Target must be above entry price.");
+        return;
+      }
+      if (side === "SELL" && targetPrice >= entryPrice) {
+        setFieldError("takeProfitTargetInput", "Target must be below entry price.");
+        return;
+      }
+      clearFieldError("takeProfitTargetInput");
+    }
 
-    const currentTotal = takeProfitLevels.reduce((sum, level) => {
-      return sum + level.sellAmount;
-    }, 0);
-    const nextTotal = currentTotal + sellAmount;
+    const nextTotal = totalSellAmountValue + sellAmount;
     if (nextTotal > baseAmount) {
       setFieldError("takeProfitSellAmountInput", "Total TP amount exceeds order amount.");
       return;
@@ -138,8 +179,16 @@ export default function TakeProfitPanel({
 
     setTakeProfitLevels(nextTakeProfitLevels);
     onChange(nextTakeProfitLevels);
-    setTargetInput("");
-    setAmountInput("");
+    setTargetInputValue("");
+    setSellAmountInputValue("");
+  };
+
+  const handleTargetInputChange = (event) => {
+    setTargetInputValue(normalizePercentOrText(event.target.value));
+  };
+
+  const handleAmountInputChange = (event) => {
+    setSellAmountInputValue(normalizePercentOrText(event.target.value));
   };
 
   const handleRemoveLevel = (levelId) => {
@@ -175,8 +224,8 @@ export default function TakeProfitPanel({
             <div className="space-y-1">
               <label className="text-xs text-muted">Target Price ({quoteLabel})</label>
               <input
-                value={targetInput}
-                onChange={(event) => setTargetInput(event.target.value)}
+                value={targetInputValue}
+                onChange={handleTargetInputChange}
                 placeholder="+% or price"
                 className="w-full rounded border border-border bg-bg px-2 py-1 text-xs text-ink"
               />
@@ -188,11 +237,14 @@ export default function TakeProfitPanel({
             <div className="space-y-1">
               <label className="text-xs text-muted">Sell base amount ({baseLabel})</label>
               <input
-                value={amountInput}
-                onChange={(event) => setAmountInput(event.target.value)}
+                value={sellAmountInputValue}
+                onChange={handleAmountInputChange}
                 placeholder="Amount or %"
                 className="w-full rounded border border-border bg-bg px-2 py-1 text-xs text-ink"
               />
+              <p className="text-xs text-muted">
+                {formatAvailablePercentLabel(availablePercent)}
+              </p>
               {errors?.takeProfitSellAmountInput?.message ? (
                 <p className="text-danger text-xs">{errors.takeProfitSellAmountInput.message}</p>
               ) : null}
@@ -222,16 +274,16 @@ export default function TakeProfitPanel({
                     key={level.levelId}
                     className="flex items-center justify-between rounded border border-ink bg-surface px-2 py-1 text-xs text-ink"
                   >
-                    <div className="flex flex-col">
-                      <span>TP{index + 1}</span>
+                    <div className="flex flex-wrap">
+                    <span className="text-accent mr-1">TP{index + 1} </span>
 
                       <span>
-                        Target Price: {priceFormatter.format(level.targetPrice)} {quoteLabel} (
-                        {formatPercent(deviationPercent)})
+                        - Target Price: {priceFormatter.format(level.targetPrice)} {quoteLabel} (
+                        {formatSignedPercent(deviationPercent)})
                       </span>
                       <span>
-                        Amount sell: {amountFormatter.format(level.sellAmount)} {baseLabel} (
-                        {formatPercent(sellPercent)})
+                        - Amount sell: {amountFormatter.format(level.sellAmount)} {baseLabel} (
+                        {formatSignedPercent(sellPercent)})
                       </span>
                     </div>
                     <button
