@@ -1,5 +1,10 @@
 export { getUser, login, logout } from "./auth/auth-service.js";
-export { createManualTrade, getOpenTrades, getTradeHistory } from "./trades/trades-service.js";
+export {
+  closeManualTrade,
+  createManualTrade,
+  getOpenTrades,
+  getTradeHistory,
+} from "./trades/trades-service.js";
 export {
   DEFAULT_QUOTE_CURRENCY,
   SUPPORTED_QUOTE_CURRENCIES,
@@ -32,3 +37,4 @@ export {
   getCommoditiesMarketMeta,
   refreshCommoditiesMarketSnapshots,
 } from "./market/commodities-market-service.js";
+export { loadGlobalMarketAssets } from "./market/global-market-assets.js";

@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { PageLayout } from "../components/layout";
 import { GlobalAssetSearch, PageHeader } from "../components/ui";
+import {
+  buildSymbolOptions,
+  filterBySymbol,
+  normalizeSymbol,
+} from "../utils/symbol-search.js";
 
 import { getTradeHistory } from "../services/index.js";
 import {
@@ -13,28 +18,10 @@ import {
   ArrowTrendingUpIcon,
 } from "@heroicons/react/24/outline";
 
-const normalizeSymbol = (value) => {
-  return String(value || "").toUpperCase().trim();
-};
-
-const buildTradeSymbolOptions = (trades) => {
-  const seen = new Set();
-  const options = [];
-  trades.forEach((trade) => {
-    const symbol = normalizeSymbol(trade.symbol);
-    if (!symbol || seen.has(symbol)) return;
-    seen.add(symbol);
-    options.push({ value: symbol, label: symbol, symbol });
-  });
-  return options.sort((a, b) => a.symbol.localeCompare(b.symbol));
-};
-
 export default function HistorialPage() {
   const [trades, setTrades] = useState([]);
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState("");
-  const [symbolQuery, setSymbolQuery] = useState("");
-
   const moneyFormatter = createMoneyFormatter();
   const percentFormatter = createPercentFormatter();
   const dateFormatter = createDateTimeFormatter();
@@ -66,6 +53,8 @@ export default function HistorialPage() {
     };
   }, []);
 
+  const [symbolQuery, setSymbolQuery] = useState("");
+
   const handleSymbolSearchChange = (nextValue) => {
     setSymbolQuery(nextValue);
   };
@@ -75,15 +64,11 @@ export default function HistorialPage() {
     setSymbolQuery(option.symbol);
   };
 
-  const normalizedQuery = normalizeSymbol(symbolQuery);
-  const filteredTrades = normalizedQuery
-    ? trades.filter((trade) => {
-        return normalizeSymbol(trade.symbol).includes(normalizedQuery);
-      })
-    : trades;
+  const searchOptions = buildSymbolOptions(trades);
+  const filteredTrades = filterBySymbol(trades, symbolQuery);
   const hasTrades = trades.length > 0;
   const hasFilteredTrades = filteredTrades.length > 0;
-  const searchOptions = buildTradeSymbolOptions(trades);
+  const hasSearchQuery = Boolean(normalizeSymbol(symbolQuery));
 
   return (
     <PageLayout>
@@ -108,7 +93,7 @@ export default function HistorialPage() {
                 />
               </div>
 
-              {!hasFilteredTrades ? (
+              {!hasFilteredTrades && hasSearchQuery ? (
                 <p className="text-muted">No trades match this symbol.</p>
               ) : null}
 

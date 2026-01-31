@@ -14,6 +14,7 @@ import {
   refreshForexMarketSnapshots,
   getCommoditiesMarketSnapshots,
   refreshCommoditiesMarketSnapshots,
+  loadGlobalMarketAssets,
 } from "../../services";
 import { PageLayout } from "../../components/layout";
 import {
@@ -560,40 +561,10 @@ export default function NewTradePage() {
 
   useEffect(() => {
     const loadGlobalAssets = async () => {
-      const quoteLower = String(DEFAULT_QUOTE_CURRENCY).toLowerCase();
-
-      let cryptoItems = getCryptoMarketSnapshots(quoteLower);
-      if (!cryptoItems.length) {
-        cryptoItems = await refreshCryptoMarketSnapshots(quoteLower);
-      }
-
-      let equityItems = getEquityMarketSnapshots();
-      if (!equityItems.length) {
-        equityItems = await refreshEquityMarketSnapshots();
-      }
-
-      let ratesItems = getRatesMarketSnapshots();
-      if (!ratesItems.length) {
-        ratesItems = await refreshRatesMarketSnapshots();
-      }
-
-      let forexItems = getForexMarketSnapshots();
-      if (!forexItems.length) {
-        forexItems = await refreshForexMarketSnapshots();
-      }
-
-      let commoditiesItems = getCommoditiesMarketSnapshots();
-      if (!commoditiesItems.length) {
-        commoditiesItems = await refreshCommoditiesMarketSnapshots();
-      }
-
-      setGlobalAssetsByMarket({
-        crypto: cryptoItems,
-        equity: equityItems,
-        rates: ratesItems,
-        forex: forexItems,
-        commodities: commoditiesItems,
+      const assetsByMarket = await loadGlobalMarketAssets({
+        quoteCurrency: DEFAULT_QUOTE_CURRENCY,
       });
+      setGlobalAssetsByMarket(assetsByMarket);
     };
 
     loadGlobalAssets();

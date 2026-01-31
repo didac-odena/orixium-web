@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { getOpenTrades } from "../../services/index.js";
+import { closeManualTrade, getOpenTrades } from "../../services/index.js";
+import {
+    buildSymbolOptions,
+    filterBySymbol,
+    normalizeSymbol,
+} from "../../utils/symbol-search.js";
 import { GlobalAssetSearch } from "../ui";
 import {
     createDateTimeFormatter,
@@ -11,28 +16,10 @@ import {
     ArrowTrendingUpIcon,
 } from "@heroicons/react/24/outline";
 
-const normalizeSymbol = (value) => {
-    return String(value || "").toUpperCase().trim();
-};
-
-const buildTradeSymbolOptions = (trades) => {
-    const seen = new Set();
-    const options = [];
-    trades.forEach((trade) => {
-        const symbol = normalizeSymbol(trade.symbol);
-        if (!symbol || seen.has(symbol)) return;
-        seen.add(symbol);
-        options.push({ value: symbol, label: symbol, symbol });
-    });
-    return options.sort((a, b) => a.symbol.localeCompare(b.symbol));
-};
-
 export default function OpenedTradesList() {
     const [trades, setTrades] = useState([]);
     const [status, setStatus] = useState("loading");
     const [error, setError] = useState("");
-    const [symbolQuery, setSymbolQuery] = useState("");
-
     const moneyFormatter = createMoneyFormatter();
     const percentFormatter = createPercentFormatter();
     const dateFormatter = createDateTimeFormatter();
@@ -53,13 +40,49 @@ export default function OpenedTradesList() {
         );
     };
 
-    const handleSymbolSearchChange = (nextValue) => {
-        setSymbolQuery(nextValue);
+    const getQuoteFromSymbol = (symbol) => {
+        const raw = String(symbol || "");
+        if (!raw) return "";
+        if (raw.includes("/")) return raw.split("/")[1] || "";
+        if (raw.includes("-")) return raw.split("-")[1] || "";
+        return "";
     };
 
-    const handleSymbolSearchSelect = (option) => {
-        if (!option) return;
-        setSymbolQuery(option.symbol);
+    const formatPnlLabel = (trade) => {
+        const pnl = calcTradePnl(trade);
+        const pnlPercent = calcTradePnlPercent(trade);
+        const quoteCurrency = getQuoteFromSymbol(trade.symbol).toUpperCase();
+        return `${moneyFormatter.format(pnl)} ${quoteCurrency} (${percentFormatter.format(
+            pnlPercent,
+        )}%)`;
+    };
+
+    const isManualTrade = (trade) => {
+        return String(trade?.id || "").startsWith("manual-trade-");
+    };
+
+    const handleCloseTrade = async (trade) => {
+        if (!isManualTrade(trade)) {
+            setError("Only manual trades can be closed in demo.");
+            return;
+        }
+
+        setStatus("loading");
+        closeManualTrade(trade.id, { exitPrice: trade.currentPrice });
+
+        try {
+            const openTrades = await getOpenTrades();
+            setTrades(openTrades);
+            setStatus("ready");
+            setError("");
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Failed to load trades.",
+            );
+            setStatus("error");
+        }
     };
 
     useEffect(() => {
@@ -91,15 +114,22 @@ export default function OpenedTradesList() {
         };
     }, []);
 
-    const normalizedQuery = normalizeSymbol(symbolQuery);
-    const filteredTrades = normalizedQuery
-        ? trades.filter((trade) => {
-              return normalizeSymbol(trade.symbol).includes(normalizedQuery);
-          })
-        : trades;
+    const [symbolQuery, setSymbolQuery] = useState("");
+
+    const handleSymbolSearchChange = (nextValue) => {
+        setSymbolQuery(nextValue);
+    };
+
+    const handleSymbolSearchSelect = (option) => {
+        if (!option) return;
+        setSymbolQuery(option.symbol);
+    };
+
+    const searchOptions = buildSymbolOptions(trades);
+    const filteredTrades = filterBySymbol(trades, symbolQuery);
     const hasTrades = trades.length > 0;
     const hasFilteredTrades = filteredTrades.length > 0;
-    const searchOptions = buildTradeSymbolOptions(trades);
+    const hasSearchQuery = Boolean(normalizeSymbol(symbolQuery));
 
     return (
         <>
@@ -121,7 +151,7 @@ export default function OpenedTradesList() {
                             />
                         </div>
 
-                        {!hasFilteredTrades ? (
+                        {!hasFilteredTrades && hasSearchQuery ? (
                             <p className="text-muted">
                                 No trades match this symbol.
                             </p>
@@ -140,6 +170,7 @@ export default function OpenedTradesList() {
                                 const Icon = isPositive
                                     ? ArrowTrendingUpIcon
                                     : ArrowTrendingDownIcon;
+                                const pnlLabel = formatPnlLabel(trade);
 
                                 return (
                                     <details
@@ -172,10 +203,7 @@ export default function OpenedTradesList() {
                                             <div
                                                 className={`text-sm ${accentClass}`}
                                             >
-                                                {percentFormatter.format(
-                                                    pnlPercent,
-                                                )}
-                                                %
+                                                {pnlLabel}
                                             </div>
                                         </summary>
                                         <div className="border-t border-border px-4 py-3 text-sm text-muted">
@@ -196,8 +224,17 @@ export default function OpenedTradesList() {
                                             <div>Qty: {trade.qty}</div>
                                             <div className={accentClass}>
                                                 P&amp;L:{" "}
-                                                {moneyFormatter.format(pnl)}
+                                                {pnlLabel}
                                             </div>
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    handleCloseTrade(trade)
+                                                }
+                                                className="mt-2 w-full rounded border border-border bg-bg px-2 py-1 text-xs uppercase tracking-wide text-muted hover:border-accent-2 hover:text-accent-2"
+                                            >
+                                                Close trade
+                                            </button>
                                         </div>
                                     </details>
                                 );
@@ -226,10 +263,7 @@ export default function OpenedTradesList() {
                                             },
                                             { key: "qty", label: "Qty" },
                                             { key: "pnl", label: "P&L" },
-                                            {
-                                                key: "pnlPercent",
-                                                label: "P&L %",
-                                            },
+                                            { key: "close", label: "" },
                                         ].map((column) => {
                                             return (
                                                 <th
@@ -263,6 +297,7 @@ export default function OpenedTradesList() {
                                         const Icon = isPositive
                                             ? ArrowTrendingUpIcon
                                             : ArrowTrendingDownIcon;
+                                        const pnlLabel = formatPnlLabel(trade);
                                         const cells = [
                                             {
                                                 key: "trend",
@@ -326,13 +361,25 @@ export default function OpenedTradesList() {
                                             {
                                                 key: "pnl",
                                                 className: `px-4 py-3 ${accentClass}`,
-                                                content:
-                                                    moneyFormatter.format(pnl),
+                                                content: pnlLabel,
                                             },
                                             {
-                                                key: "pnlPercent",
-                                                className: `px-4 py-3 ${accentClass}`,
-                                                content: `${percentFormatter.format(pnlPercent)}%`,
+                                                key: "close",
+                                                className:
+                                                    "px-4 py-3 text-right",
+                                                content: (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            handleCloseTrade(
+                                                                trade,
+                                                            )
+                                                        }
+                                                        className="rounded border border-border bg-bg px-2 py-1 text-xs uppercase tracking-wide text-muted hover:border-accent-2 hover:text-accent-2"
+                                                    >
+                                                        Close
+                                                    </button>
+                                                ),
                                             },
                                         ];
 
