@@ -35,7 +35,7 @@ import {
   StopLossPanel,
   TakeProfitPanel,
   TradeConfirmModal,
-  TradeSuccessModal,
+  AdvertiseModal,
 } from "../../components/trading";
 
 const MARKET_SEGMENTS = [
@@ -928,7 +928,7 @@ export default function NewTradePage() {
         onConfirm={handleConfirmSubmit}
         onCancel={handleCancelConfirm}
       />
-      <TradeSuccessModal
+      <AdvertiseModal
         isOpen={isSuccessOpen}
         onClose={handleCloseSuccess}
         message="Trade created successfully."

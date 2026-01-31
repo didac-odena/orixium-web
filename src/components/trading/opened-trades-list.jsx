@@ -6,6 +6,7 @@ import {
     normalizeSymbol,
 } from "../../utils/symbol-search.js";
 import { GlobalAssetSearch } from "../ui";
+import AdvertiseModal from "./new-trade/advertise-modal.jsx";
 import {
     createDateTimeFormatter,
     createMoneyFormatter,
@@ -61,14 +62,23 @@ export default function OpenedTradesList() {
         return String(trade?.id || "").startsWith("manual-trade-");
     };
 
-    const handleCloseTrade = async (trade) => {
+    const [pendingCloseTrade, setPendingCloseTrade] = useState(null);
+    const isConfirmOpen = Boolean(pendingCloseTrade);
+
+    const requestCloseTrade = (trade) => {
         if (!isManualTrade(trade)) {
             setError("Only manual trades can be closed in demo.");
             return;
         }
+        setPendingCloseTrade(trade);
+    };
 
+    const handleConfirmClose = async () => {
+        if (!pendingCloseTrade) return;
         setStatus("loading");
-        closeManualTrade(trade.id, { exitPrice: trade.currentPrice });
+        closeManualTrade(pendingCloseTrade.id, {
+            exitPrice: pendingCloseTrade.currentPrice,
+        });
 
         try {
             const openTrades = await getOpenTrades();
@@ -82,7 +92,13 @@ export default function OpenedTradesList() {
                     : "Failed to load trades.",
             );
             setStatus("error");
+        } finally {
+            setPendingCloseTrade(null);
         }
+    };
+
+    const handleCancelClose = () => {
+        setPendingCloseTrade(null);
     };
 
     useEffect(() => {
@@ -229,7 +245,7 @@ export default function OpenedTradesList() {
                                             <button
                                                 type="button"
                                                 onClick={() =>
-                                                    handleCloseTrade(trade)
+                                                    requestCloseTrade(trade)
                                                 }
                                                 className="mt-2 w-full rounded border border-border bg-bg px-2 py-1 text-xs uppercase tracking-wide text-muted hover:border-accent-2 hover:text-accent-2"
                                             >
@@ -371,7 +387,7 @@ export default function OpenedTradesList() {
                                                     <button
                                                         type="button"
                                                         onClick={() =>
-                                                            handleCloseTrade(
+                                                            requestCloseTrade(
                                                                 trade,
                                                             )
                                                         }
@@ -411,6 +427,19 @@ export default function OpenedTradesList() {
                     <p className="text-muted">No open trades yet.</p>
                 )
             ) : null}
+            <AdvertiseModal
+                isOpen={isConfirmOpen}
+                title="Close trade"
+                message={
+                    pendingCloseTrade
+                        ? `Close ${pendingCloseTrade.symbol} position?`
+                        : "Close this trade?"
+                }
+                onClose={handleCancelClose}
+                onConfirm={handleConfirmClose}
+                confirmLabel="Close"
+                cancelLabel="Cancel"
+            />
         </>
     );
 }
