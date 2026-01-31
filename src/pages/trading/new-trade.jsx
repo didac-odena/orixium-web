@@ -23,7 +23,7 @@ import {
   createCryptoAmountFormatter,
   createNumberFormatter,
 } from "../../utils/formatters.js";
-import { StopLossPanel, TakeProfitPanel } from "../../components/trading";
+import { StopLossPanel, TakeProfitPanel, TradeConfirmModal } from "../../components/trading";
 
 const MARKET_SEGMENTS = [
   { value: "crypto", label: "Crypto" },
@@ -117,6 +117,8 @@ export default function NewTradePage() {
   const [showFilters, setShowFilters] = useState(false);
   const [amountInput, setAmountInput] = useState("");
   const [takeProfitLevels, setTakeProfitLevels] = useState([]);
+  const [confirmPayload, setConfirmPayload] = useState(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const quoteOptions = QUOTE_OPTIONS;
 
@@ -230,7 +232,17 @@ export default function NewTradePage() {
   };
 
   const handleSubmitForm = (values) => {
-    console.log("NEW_TRADE_FORM_SUBMIT", values);
+    const payload = {
+      ...values,
+      marketType,
+      entryPrice,
+      baseLabel,
+      quoteLabel,
+      baseAmount: baseAmountValue,
+      quoteAmount: quoteAmountValue,
+    };
+    setConfirmPayload(payload);
+    setIsConfirmOpen(true);
   };
 
   const handleGlobalAssetSelect = (asset) => {
@@ -262,6 +274,17 @@ export default function NewTradePage() {
   const handleStopLossChange = (nextStopLoss) => {
     const nextValue = Number.isFinite(nextStopLoss) ? String(nextStopLoss) : "";
     setValue("stopLossPrice", nextValue, { shouldValidate: true });
+  };
+  const handleConfirmSubmit = () => {
+    if (!confirmPayload) return;
+    console.log("NEW_TRADE_CONFIRM", confirmPayload);
+    setIsConfirmOpen(false);
+    setConfirmPayload(null);
+  };
+
+  const handleCancelConfirm = () => {
+    setIsConfirmOpen(false);
+    setConfirmPayload(null);
   };
 
   useEffect(() => {
@@ -579,9 +602,10 @@ export default function NewTradePage() {
           ) : null}
         </div>
 
+        <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-1">
         {/*//Form*/}
         <div className="flex flex-col border border-border bg-surface-2 rounded w-full max-w-100 min-w-74 ml-auto py-1 px-2">
-          <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-1">
+          <div className="space-y-1">
             <div className="flex gap-2">
               {/* Base asset */}
               <div className="flex-1 min-w-20">
@@ -723,7 +747,7 @@ export default function NewTradePage() {
               </div>
             ) : null}
             {/*TP*/}
-          </form>
+          </div>
         </div>
         <div className="flex flex-col border border-border bg-surface-2 rounded w-full space-y-2 max-w-100 min-w-74 py-1 px-2 ml-auto">
           <TakeProfitPanel
@@ -768,7 +792,14 @@ export default function NewTradePage() {
             </button>
           </div>
         </div>
+        </form>
       </section>
+      <TradeConfirmModal
+        isOpen={isConfirmOpen}
+        data={confirmPayload}
+        onConfirm={handleConfirmSubmit}
+        onCancel={handleCancelConfirm}
+      />
     </PageLayout>
   );
 }
