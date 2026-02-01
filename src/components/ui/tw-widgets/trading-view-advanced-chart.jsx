@@ -14,7 +14,7 @@ const DEFAULT_WIDGET_OPTIONS = {
   withdateranges: true,
   hide_side_toolbar: false,
   allow_symbol_change: true,
-  save_image: false,
+  save_image: true,
   details: false,
   hotlist: false,
   calendar: false,

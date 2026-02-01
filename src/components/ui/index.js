@@ -9,4 +9,4 @@ export { default as SearchableSelect } from "./searchable-select";
 export { default as SelectField } from "./select-field";
 export { default as GlobalAssetSearch } from "./global-asset-search";
 export { default as TradingViewAdvancedChart } from "./tw-widgets/trading-view-advanced-chart";
-
+export { default as TradingViewTickerTape } from "./tw-widgets/trading-view-ticker-tape";

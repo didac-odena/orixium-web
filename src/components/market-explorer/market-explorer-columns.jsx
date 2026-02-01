@@ -9,8 +9,8 @@ export function buildCryptoColumns({
   return [
     {
       key: "rank",
-      label: "Market Cap Ranking",
-      className: "px-2 py-2 w-28 text-muted",
+      label: "Market Cap Rank",
+      className: "px-2 py-2 w-20 text-muted",
       renderCell: (asset) => {
         return asset.market_cap_rank || "--";
       },
@@ -126,7 +126,11 @@ export function buildCryptoColumns({
   ];
 }
 
-export function buildNonCryptoColumns({ formatEquityPrice, percentFormatter, dateFormatter }) {
+export function buildNonCryptoColumns({
+  formatEquityPrice,
+  percentFormatter,
+  dateFormatter,
+}) {
   return [
     {
       key: "asset",

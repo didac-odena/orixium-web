@@ -66,6 +66,12 @@ export default function HistorialPage() {
 
   const searchOptions = buildSymbolOptions(trades);
   const filteredTrades = filterBySymbol(trades, symbolQuery);
+  const getClosedAtValue = (trade) => {
+    return new Date(trade.closedAt || trade.createdAt || 0).getTime();
+  };
+  const sortedTrades = [...filteredTrades].sort((a, b) => {
+    return getClosedAtValue(b) - getClosedAtValue(a);
+  });
   const hasTrades = trades.length > 0;
   const hasFilteredTrades = filteredTrades.length > 0;
   const hasSearchQuery = Boolean(normalizeSymbol(symbolQuery));
@@ -99,7 +105,7 @@ export default function HistorialPage() {
 
               {/* Mobile: expandable cards for quick scanning. */}
               <div className="space-y-2 md:hidden">
-                {filteredTrades.map((trade) => {
+                {sortedTrades.map((trade) => {
                   const isPositive = trade.pnlUsd >= 0;
                   const accentClass = isPositive
                     ? "text-accent"
@@ -189,7 +195,7 @@ export default function HistorialPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredTrades.map((trade) => {
+                    {sortedTrades.map((trade) => {
                       const isPositive = trade.pnlUsd >= 0;
                       const accentClass = isPositive
                         ? "text-accent"

@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { closeManualTrade, getOpenTrades } from "../../services/index.js";
+import {
+    closeManualTrade,
+    getOpenTrades,
+    loadGlobalMarketAssets,
+} from "../../services/index.js";
 import {
     buildSymbolOptions,
     filterBySymbol,
@@ -21,6 +25,7 @@ export default function OpenedTradesList() {
     const [trades, setTrades] = useState([]);
     const [status, setStatus] = useState("loading");
     const [error, setError] = useState("");
+    const [isRefreshing, setIsRefreshing] = useState(false);
     const moneyFormatter = createMoneyFormatter();
     const percentFormatter = createPercentFormatter();
     const dateFormatter = createDateTimeFormatter();
@@ -60,6 +65,72 @@ export default function OpenedTradesList() {
 
     const isManualTrade = (trade) => {
         return String(trade?.id || "").startsWith("manual-trade-");
+    };
+
+    const getBaseSymbol = (symbol) => {
+        const raw = String(symbol || "");
+        if (!raw) return "";
+        if (raw.includes("/")) return raw.split("/")[0] || "";
+        if (raw.includes("-")) return raw.split("-")[0] || "";
+        return raw;
+    };
+
+    const normalizeSymbolKey = (value) => {
+        return String(value || "")
+            .toUpperCase()
+            .replace(/[^A-Z0-9]/g, "");
+    };
+
+    const buildPriceLookup = (marketData) => {
+        const priceMap = new Map();
+        const lists = Object.values(marketData || {});
+
+        lists.forEach((items) => {
+            items.forEach((item) => {
+                const rawPrice =
+                    item?.current_price ?? item?.last ?? item?.close ?? null;
+                const price = Number(rawPrice);
+                const symbolKey = normalizeSymbolKey(item?.symbol);
+                if (!symbolKey || !Number.isFinite(price)) return;
+                priceMap.set(symbolKey, price);
+            });
+        });
+
+        return priceMap;
+    };
+
+    const refreshCurrentPrices = async () => {
+        setIsRefreshing(true);
+        setError("");
+
+        try {
+            const marketData = await loadGlobalMarketAssets();
+            const priceMap = buildPriceLookup(marketData);
+
+            setTrades((prevTrades) => {
+                return prevTrades.map((trade) => {
+                    const baseSymbol = getBaseSymbol(trade.symbol);
+                    const baseKey = normalizeSymbolKey(baseSymbol);
+                    const fullKey = normalizeSymbolKey(trade.symbol);
+                    const nextPrice =
+                        priceMap.get(fullKey) ?? priceMap.get(baseKey);
+
+                    if (!Number.isFinite(nextPrice)) {
+                        return trade;
+                    }
+
+                    return { ...trade, currentPrice: nextPrice };
+                });
+            });
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Failed to refresh prices.",
+            );
+        } finally {
+            setIsRefreshing(false);
+        }
     };
 
     const [pendingCloseTrade, setPendingCloseTrade] = useState(null);
@@ -143,6 +214,12 @@ export default function OpenedTradesList() {
 
     const searchOptions = buildSymbolOptions(trades);
     const filteredTrades = filterBySymbol(trades, symbolQuery);
+    const getOpenedAtValue = (trade) => {
+        return new Date(trade.openedAt || trade.createdAt || 0).getTime();
+    };
+    const sortedTrades = [...filteredTrades].sort((a, b) => {
+        return getOpenedAtValue(b) - getOpenedAtValue(a);
+    });
     const hasTrades = trades.length > 0;
     const hasFilteredTrades = filteredTrades.length > 0;
     const hasSearchQuery = Boolean(normalizeSymbol(symbolQuery));
@@ -155,16 +232,47 @@ export default function OpenedTradesList() {
             {status === "ready" ? (
                 hasTrades ? (
                     <div className="space-y-3">
-                        <div className="flex flex-wrap items-center gap-2">
-                            <label className="text-xs uppercase tracking-wide text-muted">
-                                Search symbol
-                            </label>
+                        <div className="flex flex-wrap justify-between items-center gap-2">
                             <GlobalAssetSearch
                                 options={searchOptions}
                                 onSelect={handleSymbolSearchSelect}
                                 onQueryChange={handleSymbolSearchChange}
                                 placeholder="Search symbol..."
                             />
+
+                            <button
+                                type="button"
+                                onClick={refreshCurrentPrices}
+                                className={`group inline-flex h-9 items-center justify-center rounded-md border border-border px-2 text-sm text-ink hover:text-accent ${
+                                    isRefreshing ? "opacity-50" : ""
+                                }`}
+                                aria-disabled={isRefreshing}
+                                aria-label="Refresh prices"
+                                title="Refresh prices"
+                            >
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    className="h-4 w-4 text-muted transition-colors group-hover:text-accent"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M4 4v6h6M20 20v-6h-6"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="1.5"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                    <path
+                                        d="M20 10a8 8 0 0 0-14-4M4 14a8 8 0 0 0 14 4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="1.5"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
+                            </button>
                         </div>
 
                         {!hasFilteredTrades && hasSearchQuery ? (
@@ -173,7 +281,7 @@ export default function OpenedTradesList() {
                             </p>
                         ) : null}
                         <div className="space-y-2 md:hidden">
-                            {filteredTrades.map((trade) => {
+                            {sortedTrades.map((trade) => {
                                 const pnl = calcTradePnl(trade);
                                 const pnlPercent = calcTradePnlPercent(trade);
                                 const isPositive = pnl >= 0;
@@ -299,7 +407,7 @@ export default function OpenedTradesList() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredTrades.map((trade) => {
+                                    {sortedTrades.map((trade) => {
                                         const pnl = calcTradePnl(trade);
                                         const pnlPercent =
                                             calcTradePnlPercent(trade);
