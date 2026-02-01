@@ -107,10 +107,10 @@ export default function DashboardPage() {
   return (
     <PageLayout>
       <div className="space-y-2">
-        <PageHeader title="Dashboard" />
+        <PageHeader title="Dashboard" subtitle="Quick view account"/>
 
-        <div className="border border-border rounded p-0.5 bg bg-surface-2"
-        >          <TradingViewTickerTape />
+        <div>
+          <TradingViewTickerTape />
         </div>
 
         {status === "loading" ? <p>Loading...</p> : null}
@@ -118,12 +118,12 @@ export default function DashboardPage() {
 
         {status === "ready" ? (
           <div className="grid gap-2 lg:grid-cols-[1fr_1fr_1fr]">
-            <div className="border p-0.5 border-border bg-surface-2 rounded">
+            <div className="bg-surface-3 border border-border rounded">
               <TradingViewTimeline className="h-[55vh] w-full" />
             </div>
 
-            <div className="rounded border border-border bg bg-surface-2 p-4">
-              <div className="text-sm font-semibold text-ink">Top 5 Current Trades</div>
+            <div className="bg-surface-3 border border-border rounded p-4">
+              <div className="text font-semibold text-ink">Top 5 Current Trades</div>
               <div className="mt-3 space-y-1">
                 {topOpenTrades.length ? (
                   topOpenTrades.map(renderTopOpenTrade)
@@ -132,8 +132,8 @@ export default function DashboardPage() {
                 )}
               </div>
             </div>
-            <div className="rounded border border-border bg bg-surface-2 p-4">
-              <div className="text-sm font-semibold text-ink">Last Trades Closed</div>
+            <div className="bg-surface-3 border border-border rounded p-4">
+              <div className="text font-semibold text-ink">Last Trades Closed</div>
               <div className="mt-3 space-y-1">
                 {lastClosedTrades.length ? (
                   lastClosedTrades.map(renderLastClosedTrade)

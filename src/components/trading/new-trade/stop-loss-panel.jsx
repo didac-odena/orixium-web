@@ -134,14 +134,17 @@ export default function StopLossPanel({
   return (
     <div>
       <div className="flex items-center justify-between">
-        <span className="text-sm text-ink">Stop Loss <InfoTooltip message={"test"}/></span>
+        <span className="text-sm text-ink">
+          Stop Loss{" "}
+          <InfoTooltip message="Protective exit price. For Buy it must be below entry; for Sell it must be above." />
+        </span>
         <button
           type="button"
           onClick={handleToggle}
           className={`px-2 py-1 w-10 min-5 rounded-full text-xs uppercase tracking-wide border ${
             isEnabled
               ? "border-ink bg-surface text-ink"
-              : "border-border text-muted hover:border-accent hover:text-accent"
+              : "border-border text-muted bg-bg hover:border-accent hover:text-accent"
           }`}
         >
           {isEnabled ? "On" : "Off"}

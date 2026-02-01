@@ -626,8 +626,11 @@ export default function NewTradePage() {
         {/* Top bar */}
         <div className="flex flex-wrap w-full justify-between border border-border gap-2 bg-surface-2 rounded py-1 px-2">
           {/* Account select */}
-          <div className="flex flex-col gap-1 items-start -mt-2 shrink-0">
-            <label className="text-xs text-muted">Account</label>
+          <div className="flex flex-col gap-0 items-start shrink-0">
+            <label className="flex items-center gap-1 py-1 text-xs text-muted">
+              Account{" "}
+              <InfoTooltip message="Select the broker/exchange account used for this order." />
+            </label>
             <SelectField
               value={accountId}
               options={ACCOUNT_OPTIONS}
@@ -664,7 +667,10 @@ export default function NewTradePage() {
             {/*//Filters*/}
             <div className="flex flex-col border border-border bg-surface-2 rounded w-full py-1 px-2">
               <div className="flex justify-between">
-                <header className="text-ink text-sm ">Filters</header>
+                <header className="text-ink text-sm ">
+                  Filters{" "}
+                  <InfoTooltip message="Filter markets and subgroups to narrow the asset lists." />
+                </header>
                 <button onClick={() => setShowFilters((prev) => !prev)} type="button">
                   {showFilters ? (
                     <MinusIcon className="h-4 w-4 hover:text-accent-2" />
@@ -726,7 +732,7 @@ export default function NewTradePage() {
                     <div className="flex-1 min-w-20">
                       <label className="flex items-center gap-1 py-1 text-xs text-muted">
                         Base asset
-                        <InfoTooltip message="test" />
+                        <InfoTooltip message="Asset you are trading (base). Order amount is stored in base units." />
                       </label>
                       <SelectField
                         isSearchable={true}
@@ -741,7 +747,7 @@ export default function NewTradePage() {
                     <div className="flex-1 min-w-20">
                       <label className="flex items-center gap-1 py-1 text-xs text-muted">
                         Quote asset
-                        <InfoTooltip message="test" />
+                        <InfoTooltip message="Currency you pay/receive. Prices are shown in this currency." />
                       </label>
                       <SelectField
                         isSearchable={true}
@@ -843,7 +849,8 @@ export default function NewTradePage() {
                   </div>
 
                   <label className="flex items-center gap-1 py-1 text-xs text-muted">
-                    Order Type <InfoTooltip message={"test"} />
+                    Order Type{" "}
+                    <InfoTooltip message="Market executes immediately at the best price. Limit waits for your price or better." />
                   </label>
                   <ToggleField
                     name="orderType"
