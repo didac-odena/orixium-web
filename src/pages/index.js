@@ -4,7 +4,6 @@ export { default as LoginPage } from "./login-page";
 export { default as StrategyPage } from "./strategy-page";
 export { default as MarketExplorerPage } from "./market-explorer-page";
 export { default as HistorialPage } from "./historial-page";
-export { default as MembershipPage } from "./membership-page";
 export { default as SupportPage } from "./support-page";
 export { default as SettingsPage } from "./settings-page";
 export { CurrentTradesPage, NewTradePage } from "./trading";

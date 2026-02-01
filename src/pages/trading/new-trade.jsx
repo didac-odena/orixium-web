@@ -30,7 +30,6 @@ import { PlusIcon, MinusIcon } from "@heroicons/react/24/outline";
 import {
   createFiatPriceFormatter,
   createCryptoAmountFormatter,
-  createNumberFormatter,
 } from "../../utils/formatters.js";
 import {
   StopLossPanel,
@@ -219,7 +218,6 @@ export default function NewTradePage() {
   const [globalAssetsByMarket, setGlobalAssetsByMarket] = useState({});
   const [showFilters, setShowFilters] = useState(false);
   const [amountInput, setAmountInput] = useState("");
-  const [takeProfitLevels, setTakeProfitLevels] = useState([]);
   const [confirmPayload, setConfirmPayload] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
@@ -390,7 +388,6 @@ export default function NewTradePage() {
   };
 
   const handleTakeProfitChange = (levels) => {
-    setTakeProfitLevels(levels);
     setValue("takeProfits", levels, { shouldValidate: true });
   };
   const handleStopLossChange = (nextStopLoss) => {
@@ -478,7 +475,7 @@ export default function NewTradePage() {
         }
         setPairPrice(nextPrice);
         setPriceStatus("ready");
-      } catch (err) {
+      } catch {
         setPairPrice(null);
         setPriceStatus("error");
         setPriceError("Failed to load price for this pair.");

@@ -71,7 +71,6 @@ export default function NotificationsMenu({ isActive }) {
 
     useEffect(() => {
         if (!isActive) {
-            setNotifications([]);
             return;
         }
 

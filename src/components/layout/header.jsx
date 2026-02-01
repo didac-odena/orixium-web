@@ -6,8 +6,6 @@ import NotificationsMenu from "./notifications-menu";
 import { Bars3Icon, ChartPieIcon, PowerIcon } from "@heroicons/react/24/outline";
 
 const NAV_PUBLIC = [
-  { label: "Membership", to: "/membership" },
-  { label: "Support", to: "/support" },
 ];
 
 const NAV_APP = [
@@ -29,8 +27,8 @@ function NavItem({ to, label, children, onSelect }) {
     return (
       <HeaderDropdown
         label={label}
-        wrapperClassName="h-16 flex items-center"
-        buttonClassName="cursor-pointer h-16 flex items-center text-muted hover:text-accent transition-colors"
+        wrapperClassName="h-16 bg-bg z-15 flex items-center"
+        buttonClassName="cursor-pointer z-15 bg-bg h-15 p-2 flex items-center text-muted hover:text-accent transition-colors"
       >
         {children.map((child) => {
           return (
@@ -38,7 +36,7 @@ function NavItem({ to, label, children, onSelect }) {
               key={child.to}
               to={child.to}
               onClick={onSelect}
-              className="flex px-4 py-2 whitespace-nowrap text-ink hover:text-accent"
+              className="flex px-4 z-50 bg-bg py-2 whitespace-nowrap text-ink hover:text-accent"
             >
               {child.label}
             </Link>
@@ -52,7 +50,7 @@ function NavItem({ to, label, children, onSelect }) {
     <Link
       to={to}
       onClick={onSelect}
-      className="h-16 flex items-center text-muted hover:text-accent transition-colors"
+      className="h-16 flex items-center p-2 text-muted hover:text-accent transition-colors"
     >
       {label}
     </Link>
@@ -83,13 +81,13 @@ export default function Header() {
   }
 
   return (
-    <header className="w-full border-b border-border-strong">
+    <header className="w-full z-15 border-b bg-bg border-border-strong">
       <div className="px-3 sm:px-6">
-        <div className="relative flex h-16 items-center gap-2 sm:gap-4">
+        <div className="relative flex h-16 items-center  gap-2 sm:gap-4">
           {/* Left: logo + nav (desktop) */}
-          <div className="flex items-center gap-3 sm:gap-6">
+          <div className="flex items-center h-15 gap-3 sm:gap-6">
             <Link to="/" className="text-2xl font-semibold">
-              <span className="inline-flex items-center gap-2">
+              <span className="inline-flex p-2 items-center gap-2">
                 <img
                   src="/src/assets/brand/orixium-logo-mark-colored.svg"
                   alt="Orixium"

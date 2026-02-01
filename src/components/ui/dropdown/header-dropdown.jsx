@@ -18,7 +18,7 @@ export default function HeaderDropdown({
                 {label}
             </button>
             <div
-                className={`absolute ${alignClass} top-full z-50 mt-0 hidden rounded-md border border-border bg-bg py-1 text-sm shadow-sm group-hover:block group-focus-within:block ${menuClassName}`}
+                className={`absolute ${alignClass} top-full z-20 mt-0 hidden rounded-md border border-border bg-bg py-1 text-sm shadow-sm group-hover:block group-focus-within:block ${menuClassName}`}
             >
                 {children}
             </div>

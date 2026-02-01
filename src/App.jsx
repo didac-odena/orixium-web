@@ -7,7 +7,6 @@ import {
   StrategyPage,
   MarketExplorerPage,
   HistorialPage,
-  MembershipPage,
   SupportPage,
   SettingsPage,
   CurrentTradesPage,
@@ -20,9 +19,7 @@ function App() {
     <Routes>
       {/* Public routes */}
       <Route path="/login" element={<LoginPage />} />
-
       <Route path="/" element={<HomePage />} />
-      <Route path="/membership" element={<MembershipPage />} />
       <Route path="/support" element={<SupportPage />} />
       <Route path="/strategy" element={<StrategyPage />} />
 

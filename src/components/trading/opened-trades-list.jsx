@@ -283,7 +283,6 @@ export default function OpenedTradesList() {
                         <div className="space-y-2 md:hidden">
                             {sortedTrades.map((trade) => {
                                 const pnl = calcTradePnl(trade);
-                                const pnlPercent = calcTradePnlPercent(trade);
                                 const isPositive = pnl >= 0;
                                 const accentClass = isPositive
                                     ? "text-accent"
@@ -409,8 +408,6 @@ export default function OpenedTradesList() {
                                 <tbody>
                                     {sortedTrades.map((trade) => {
                                         const pnl = calcTradePnl(trade);
-                                        const pnlPercent =
-                                            calcTradePnlPercent(trade);
                                         const isPositive = pnl >= 0;
                                         const accentClass = isPositive
                                             ? "text-accent"
