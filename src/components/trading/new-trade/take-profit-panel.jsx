@@ -5,6 +5,7 @@ import {
   createNumberFormatter,
 } from "../../../utils/formatters.js";
 import { TrashIcon } from "@heroicons/react/24/outline";
+import InfoTooltip from "../../ui/info-tooltip.jsx";
 
 const priceFormatter = createFiatPriceFormatter();
 const amountFormatter = createCryptoAmountFormatter();
@@ -202,7 +203,7 @@ export default function TakeProfitPanel({
   return (
     <div>
       <div className="flex items-center justify-between">
-        <span className="text-sm text-ink">Take Profit</span>
+        <span className="text-sm text-ink">Take Profit <InfoTooltip message={"test"}/> </span>
         <button
           type="button"
           onClick={handleToggle}

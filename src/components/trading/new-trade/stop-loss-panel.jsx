@@ -4,6 +4,7 @@ import {
   createFiatPriceFormatter,
   createNumberFormatter,
 } from "../../../utils/formatters.js";
+import InfoTooltip from "../../ui/info-tooltip.jsx";
 
 const priceFormatter = createFiatPriceFormatter();
 const percentValueFormatter = createNumberFormatter({ maximumFractionDigits: 2 });
@@ -133,7 +134,7 @@ export default function StopLossPanel({
   return (
     <div>
       <div className="flex items-center justify-between">
-        <span className="text-sm text-ink">Stop Loss</span>
+        <span className="text-sm text-ink">Stop Loss <InfoTooltip message={"test"}/></span>
         <button
           type="button"
           onClick={handleToggle}

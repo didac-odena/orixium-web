@@ -23,6 +23,7 @@ import {
   ToggleField,
   GlobalAssetSearch,
   TradingViewAdvancedChart,
+  InfoTooltip,
 } from "../../components/ui";
 import { formatGroupLabel } from "../market-explorer/market-explorer-utils.js";
 import { PlusIcon, MinusIcon } from "@heroicons/react/24/outline";
@@ -625,9 +626,9 @@ export default function NewTradePage() {
         {/* Top bar */}
         <div className="flex flex-wrap w-full justify-between border border-border gap-2 bg-surface-2 rounded py-1 px-2">
           {/* Account select */}
-          <div className="items-center -mt-2 shrink-0">
+          <div className="flex flex-col gap-1 items-start -mt-2 shrink-0">
+            <label className="text-xs text-muted">Account</label>
             <SelectField
-              label="Account"
               value={accountId}
               options={ACCOUNT_OPTIONS}
               onChange={handleAccountChange}
@@ -651,7 +652,7 @@ export default function NewTradePage() {
         </div>
 
         <div className="flex flex-col gap-2 lg:flex-row lg:items-start">
-        {/*//TW-CHART*/}
+          {/*//TW-CHART*/}
           <div className="flex-1 w-full min-w-0">
             <div className="flex flex-col border border-border bg-bg rounded p-0.5">
               <TradingViewAdvancedChart symbol={tradingViewSymbol} className="h-[65vh] w-full" />
@@ -704,15 +705,13 @@ export default function NewTradePage() {
                   </div>
                   {/* Subgroup select */}
                   <div className="min-w-45">
-                    <div className="min-w-45">
-                      <SelectField
-                        label="Subgroup"
-                        value={subgroupValue}
-                        options={subgroupOptions}
-                        onChange={setSubgroupValue}
-                        placeholder="Select subgroup"
-                      />
-                    </div>
+                    <label className="text-xs text-muted">Subgroup</label>
+                    <SelectField
+                      value={subgroupValue}
+                      options={subgroupOptions}
+                      onChange={setSubgroupValue}
+                      placeholder="Select subgroup"
+                    />
                   </div>
                 </div>
               ) : null}
@@ -725,8 +724,11 @@ export default function NewTradePage() {
                   <div className="flex gap-2">
                     {/* Base asset */}
                     <div className="flex-1 min-w-20">
+                      <label className="flex items-center gap-1 py-1 text-xs text-muted">
+                        Base asset
+                        <InfoTooltip message="test" />
+                      </label>
                       <SelectField
-                        label="Base asset"
                         isSearchable={true}
                         value={baseAsset}
                         options={baseOptions}
@@ -737,9 +739,12 @@ export default function NewTradePage() {
                     </div>
                     {/* Quote asset */}
                     <div className="flex-1 min-w-20">
+                      <label className="flex items-center gap-1 py-1 text-xs text-muted">
+                        Quote asset
+                        <InfoTooltip message="test" />
+                      </label>
                       <SelectField
                         isSearchable={true}
-                        label="Quote asset"
                         value={quoteAsset}
                         options={quoteOptions}
                         onChange={handleQuoteAssetChange}
@@ -750,8 +755,8 @@ export default function NewTradePage() {
                   </div>
 
                   {/* Side */}
+                  <label className="text-xs text-muted">Side</label>
                   <ToggleField
-                    label="Side"
                     name="side"
                     value={side}
                     options={[
@@ -837,8 +842,10 @@ export default function NewTradePage() {
                     <span>{lastPriceText}</span>
                   </div>
 
+                  <label className="flex items-center gap-1 py-1 text-xs text-muted">
+                    Order Type <InfoTooltip message={"test"} />
+                  </label>
                   <ToggleField
-                    label="Order Type"
                     name="orderType"
                     value={orderType}
                     options={[

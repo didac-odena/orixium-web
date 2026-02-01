@@ -1,7 +1,6 @@
 import SearchableSelect from "./searchable-select";
 
 export default function SelectField({
-  label,
   value,
   options = [],
   onChange,
@@ -43,10 +42,5 @@ export default function SelectField({
     );
   }
 
-  return (
-    <div className="space-y-1">
-      <label className="text-xs text-muted">{label}</label>
-      {fieldControl}
-    </div>
-  );
+  return fieldControl;
 }

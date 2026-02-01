@@ -11,3 +11,4 @@ export { default as GlobalAssetSearch } from "./global-asset-search";
 export { default as TradingViewAdvancedChart } from "./tw-widgets/trading-view-advanced-chart";
 export { default as TradingViewTickerTape } from "./tw-widgets/trading-view-ticker-tape";
 export { default as TradingViewTimeline } from "./tw-widgets/trading-view-timeline";
+export { default as InfoTooltip } from "./info-tooltip";
