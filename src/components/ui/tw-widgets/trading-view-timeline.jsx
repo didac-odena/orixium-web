@@ -33,18 +33,36 @@ export default function TradingViewTimeline({
     overrides && typeof overrides === "object" ? JSON.stringify(overrides) : "";
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    let isActive = true;
+    let rafId = 0;
+    let script = null;
 
-    container.innerHTML = "";
+    const mountWidget = () => {
+      const container = containerRef.current;
+      if (!isActive || !container || !container.isConnected) return;
 
-    const widgetOptions = buildWidgetOptions(theme, overrides);
-    const script = document.createElement("script");
-    script.src = WIDGET_SCRIPT_SRC;
-    script.type = "text/javascript";
-    script.async = true;
-    script.innerHTML = JSON.stringify(widgetOptions);
-    container.appendChild(script);
+      container.innerHTML = "";
+
+      const widgetOptions = buildWidgetOptions(theme, overrides);
+      script = document.createElement("script");
+      script.src = WIDGET_SCRIPT_SRC;
+      script.type = "text/javascript";
+      script.async = true;
+      script.innerHTML = JSON.stringify(widgetOptions);
+      container.appendChild(script);
+    };
+
+    rafId = window.requestAnimationFrame(mountWidget);
+
+    return () => {
+      isActive = false;
+      if (rafId) {
+        window.cancelAnimationFrame(rafId);
+      }
+      if (script && script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
   }, [theme, overridesKey]);
 
   return (

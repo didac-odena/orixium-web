@@ -75,6 +75,18 @@ const buildQuoteOptions = () => {
   });
 };
 
+const buildQuoteOptionsFromItems = (items) => {
+  const used = new Set();
+  const options = [];
+  items.forEach((item) => {
+    const currency = String(item?.currency || "").toUpperCase();
+    if (!currency || used.has(currency)) return;
+    used.add(currency);
+    options.push({ value: currency.toLowerCase(), label: currency });
+  });
+  return options;
+};
+
 const QUOTE_OPTIONS = buildQuoteOptions();
 
 const TRADING_VIEW_EXCHANGE_FALLBACKS = {
@@ -222,7 +234,10 @@ export default function NewTradePage() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
 
-  const quoteOptions = QUOTE_OPTIONS;
+  const isCryptoMarket = marketType === "crypto";
+  const quoteOptions = isCryptoMarket
+    ? QUOTE_OPTIONS
+    : buildQuoteOptionsFromItems(marketItems);
 
   const {
     register,
@@ -253,6 +268,9 @@ export default function NewTradePage() {
   const orderType = watch("orderType");
   const baseAmount = watch("baseAmount");
   const limitPrice = watch("limitPrice");
+  const selectedMarketItem = marketItems.find((item) => {
+    return item.symbol?.toUpperCase() === String(baseAsset || "").toUpperCase();
+  });
 
   const handleMarketTypeChange = (nextMarket) => {
     if (nextMarket === marketType) return;
@@ -260,6 +278,7 @@ export default function NewTradePage() {
     setBaseAsset("");
     setQuoteAsset(DEFAULT_QUOTE_CURRENCY);
     setBaseOptions([]);
+    setMarketItems([]);
     setPairPrice(null);
     setPriceStatus("idle");
     setPriceError("");
@@ -350,7 +369,14 @@ export default function NewTradePage() {
     const symbol = `${baseLabel}/${quoteLabel}`.toUpperCase();
     const marketInfo = buildMarketInfo(selectedMarketItem, marketType);
     const payload = {
-      ...values,
+      accountId: values.accountId,
+      side: values.side,
+      orderType: values.orderType,
+      limitPrice: values.orderType === "LIMIT" ? values.limitPrice : "",
+      baseAsset: values.baseAsset,
+      quoteAsset: values.quoteAsset,
+      takeProfits: values.takeProfits,
+      stopLossPrice: values.stopLossPrice,
       marketType,
       symbol,
       marketInfo,
@@ -397,7 +423,6 @@ export default function NewTradePage() {
   const handleConfirmSubmit = () => {
     if (!confirmPayload) return;
     createManualTrade(confirmPayload);
-    console.log("NEW_TRADE_CONFIRM", confirmPayload);
     setIsConfirmOpen(false);
     setConfirmPayload(null);
     setIsSuccessOpen(true);
@@ -486,13 +511,25 @@ export default function NewTradePage() {
   }, [marketType, baseAsset, quoteAsset]);
 
   useEffect(() => {
+    if (marketType === "crypto") return;
+    if (!selectedMarketItem?.currency) return;
+
+    const nextQuote = String(selectedMarketItem.currency || DEFAULT_QUOTE_CURRENCY).toLowerCase();
+    if (nextQuote === quoteAsset) return;
+
+    setQuoteAsset(nextQuote);
+    setValue("quoteAsset", nextQuote, { shouldValidate: true });
+  }, [marketType, selectedMarketItem, quoteAsset, setValue]);
+
+  useEffect(() => {
     if (orderType !== "LIMIT") return;
     if (pairPrice == null) return;
+    if (limitPrice) return;
 
     setValue("limitPrice", String(pairPrice), {
       shouldValidate: true,
     });
-  }, [orderType, pairPrice, setValue]);
+  }, [orderType, pairPrice, limitPrice, setValue]);
 
   useEffect(() => {
     const loadBaseOptions = async () => {
@@ -555,18 +592,48 @@ export default function NewTradePage() {
           setSubgroupValue(nextSubgroupOptions[0].value);
         }
       }
-
-      const nextBaseOptions = buildBaseOptions(items);
-      setBaseOptions(nextBaseOptions);
-
-      if (!baseAsset && nextBaseOptions.length) {
-        setBaseAsset(nextBaseOptions[0].value);
-        setValue("baseAsset", nextBaseOptions[0].value, { shouldValidate: true });
-      }
     };
 
     loadBaseOptions();
   }, [marketType, quoteAsset]);
+
+  useEffect(() => {
+    if (!marketItems.length) {
+      setBaseOptions([]);
+      if (baseAsset) {
+        setBaseAsset("");
+        setValue("baseAsset", "", { shouldValidate: true });
+      }
+      return;
+    }
+
+    const filteredItems = subgroupValue
+      ? marketItems.filter((item) => {
+          return String(item?.group || "") === String(subgroupValue);
+        })
+      : marketItems;
+
+    const nextBaseOptions = buildBaseOptions(filteredItems);
+    setBaseOptions(nextBaseOptions);
+
+    if (!nextBaseOptions.length) {
+      if (baseAsset) {
+        setBaseAsset("");
+        setValue("baseAsset", "", { shouldValidate: true });
+      }
+      return;
+    }
+
+    const hasCurrent = nextBaseOptions.some((option) => {
+      return option.value === baseAsset;
+    });
+
+    if (!hasCurrent) {
+      const nextValue = nextBaseOptions[0].value;
+      setBaseAsset(nextValue);
+      setValue("baseAsset", nextValue, { shouldValidate: true });
+    }
+  }, [marketItems, subgroupValue, baseAsset, setValue]);
 
   useEffect(() => {
     const loadGlobalAssets = async () => {
@@ -579,7 +646,6 @@ export default function NewTradePage() {
     loadGlobalAssets();
   }, []);
 
-  const isCryptoMarket = marketType === "crypto";
   const amountDecimals = isCryptoMarket ? MAX_AMOUNT_DECIMALS : 2;
   const amountFormatter = isCryptoMarket ? CRYPTO_AMOUNT_FORMATTER : FIAT_AMOUNT_FORMATTER;
   const selectedMarketAsset = findMarketAssetBySymbol(globalAssetsByMarket, marketType, baseAsset);
@@ -598,10 +664,30 @@ export default function NewTradePage() {
   const quoteAmountText = formatAmount(quoteAmountValue, amountDecimals, amountFormatter) || "--";
   const baseLabel = String(baseAsset || DEFAULT_BASE_ASSET).toUpperCase();
   const quoteLabel = String(quoteAsset || DEFAULT_QUOTE_CURRENCY).toUpperCase();
-  const selectedMarketItem = marketItems.find((item) => {
-    return item.symbol?.toUpperCase() === String(baseAsset || "").toUpperCase();
-  });
   const entryPrice = orderType === "LIMIT" ? Number(limitPrice) : Number(pairPrice);
+
+  useEffect(() => {
+    const parsedBase = parseAmountValue(baseAmount);
+    if (!Number.isFinite(parsedBase)) {
+      if (amountInput) {
+        setAmountInput("");
+      }
+      return;
+    }
+
+    const priceValue = Number(pairPrice);
+    const nextValue =
+      amountMode === "base"
+        ? parsedBase
+        : Number.isFinite(priceValue) && priceValue !== 0
+          ? parsedBase * priceValue
+          : 0;
+
+    const formatted = formatAmount(nextValue, amountDecimals, amountFormatter);
+    if (formatted !== amountInput) {
+      setAmountInput(formatted);
+    }
+  }, [baseAmount, pairPrice, amountMode, amountDecimals, amountFormatter, amountInput]);
 
   let lastPriceLabel = "";
   if (priceStatus === "loading") {

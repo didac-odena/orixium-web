@@ -1,3 +1,4 @@
+import { formatDateValue } from "../../utils/formatters.js";
 import { getAccentClass } from "../../pages/market-explorer/market-explorer-utils.js";
 
 export function PercentCell({ value, formatter }) {
@@ -19,6 +20,5 @@ export function ChangeValueCell({
 }
 
 export function DateCell({ value, formatter }) {
-  if (!value) return "--";
-  return formatter.format(new Date(value));
+  return formatDateValue(value, formatter);
 }

@@ -38,10 +38,10 @@ const parseNumberValue = (rawInput) => {
 };
 
 const normalizePercentValue = (rawInput) => {
-  const cleaned = String(rawInput).replace(/[^0-9.%]/g, "");
+  const cleaned = String(rawInput).replace(/[^0-9.%+-]/g, "");
   const [numberPart] = cleaned.split("%");
   const normalized = numberPart.includes(".")
-    ? numberPart.replace(/^(\d+)\.(\d{0,2}).*$/, "$1.$2")
+    ? numberPart.replace(/^([+-]?\d+)\.(\d{0,2}).*$/, "$1.$2")
     : numberPart;
   return `${normalized}%`;
 };
@@ -120,7 +120,11 @@ export default function TakeProfitPanel({
       const nextState = !prevState;
       if (!nextState) {
         setTakeProfitLevels([]);
+        setTargetInputValue("");
+        setSellAmountInputValue("");
         onChange([]);
+        clearFieldError("takeProfitTargetInput");
+        clearFieldError("takeProfitSellAmountInput");
       }
       return nextState;
     });

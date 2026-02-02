@@ -1,3 +1,4 @@
+import { formatDateValue } from "../../utils/formatters.js";
 import { getAccentClass } from "../../pages/market-explorer/market-explorer-utils.js";
 
 export default function MarketExplorerMobileList({
@@ -105,9 +106,7 @@ export default function MarketExplorerMobileList({
               )}
               {renderValueRow(
                 "Last updated",
-                asset.last_updated
-                  ? dateFormatter.format(new Date(asset.last_updated))
-                  : "--",
+                formatDateValue(asset.last_updated, dateFormatter),
               )}
             </div>
           </details>

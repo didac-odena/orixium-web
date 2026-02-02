@@ -6,6 +6,7 @@ import {
   createDateTimeFormatter,
   createMoneyFormatter,
   createPercentFormatter,
+  formatDateValue,
 } from "../utils/formatters.js";
 
 export default function DashboardPage() {
@@ -17,6 +18,9 @@ export default function DashboardPage() {
   const moneyFormatter = createMoneyFormatter();
   const percentFormatter = createPercentFormatter();
   const dateFormatter = createDateTimeFormatter();
+  const formatTradeDate = (value) => {
+    return formatDateValue(value, dateFormatter);
+  };
 
   const calcOpenTradePnl = (trade) => {
     const direction = trade.side === "short" ? -1 : 1;
@@ -76,7 +80,7 @@ export default function DashboardPage() {
         <div>
           <div className="font-semibold text-ink">{trade.symbol}</div>
           <div className="text-xs text-muted">
-            Opened: {dateFormatter.format(new Date(trade.openedAt))}
+            Opened: {formatTradeDate(trade.openedAt || trade.createdAt)}
           </div>
         </div>
         <div className={`text-right text-sm ${accentClass}`}>{buildPnlLabel(pnlUsd, pnlPct)}</div>
@@ -94,7 +98,7 @@ export default function DashboardPage() {
         <div>
           <div className="font-semibold text-ink">{trade.symbol}</div>
           <div className="text-xs text-muted">
-            Closed: {dateFormatter.format(new Date(trade.closedAt))}
+            Closed: {formatTradeDate(trade.closedAt || trade.updatedAt || trade.createdAt)}
           </div>
         </div>
         <div className={`text-right text-sm ${accentClass}`}>

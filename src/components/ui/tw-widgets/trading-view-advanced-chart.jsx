@@ -46,28 +46,44 @@ export default function TradingViewAdvancedChart({
     ? JSON.stringify(widgetOverrides)
     : "";
 
-  const mountWidget = () => {
-    const container = containerRef.current;
-    if (!container) return;
+  useEffect(() => {
+    let isActive = true;
+    let rafId = 0;
+    let script = null;
 
-    container.innerHTML = "";
-    if (!normalizedSymbol) return;
+    const mountWidget = () => {
+      const container = containerRef.current;
+      if (!isActive || !container || !container.isConnected) return;
 
-    const widgetOptions = buildWidgetOptions(
-      normalizedSymbol,
-      theme,
-      widgetOverrides,
-    );
+      container.innerHTML = "";
+      if (!normalizedSymbol) return;
 
-    const script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src = WIDGET_SCRIPT_SRC;
-    script.async = true;
-    script.innerHTML = JSON.stringify(widgetOptions);
-    container.appendChild(script);
-  };
+      const widgetOptions = buildWidgetOptions(
+        normalizedSymbol,
+        theme,
+        widgetOverrides,
+      );
 
-  useEffect(mountWidget, [normalizedSymbol, theme, overridesKey]);
+      script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src = WIDGET_SCRIPT_SRC;
+      script.async = true;
+      script.innerHTML = JSON.stringify(widgetOptions);
+      container.appendChild(script);
+    };
+
+    rafId = window.requestAnimationFrame(mountWidget);
+
+    return () => {
+      isActive = false;
+      if (rafId) {
+        window.cancelAnimationFrame(rafId);
+      }
+      if (script && script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
+  }, [normalizedSymbol, theme, overridesKey, widgetOverrides]);
 
   return (
     <div className={`tradingview-widget-container ${containerClassName}`}>

@@ -5,19 +5,14 @@ import { HeaderDropdown, ThemeToggle } from "../ui";
 import NotificationsMenu from "./notifications-menu";
 import { Bars3Icon, ChartPieIcon, PowerIcon } from "@heroicons/react/24/outline";
 
-const NAV_PUBLIC = [
-];
+const NAV_PUBLIC = [];
 
 const NAV_APP = [
   { label: "Dashboard", to: "/dashboard" },
-  {
-    label: "Trading",
-    children: [
-      { label: "New Trade", to: "/new-trade" },
-      { label: "Current Trades", to: "/current-trades" },
-    ],
-  },
   { label: "Market Explorer", to: "/market-explorer" },
+  { label: "New Trade", to: "/new-trade" },
+  { label: "Current Trades", to: "/current-trades" },
+
   { label: "Historial", to: "/historial" },
   { label: "Support", to: "/support" },
 ];
@@ -102,7 +97,7 @@ export default function Header() {
               </span>
             </Link>
 
-            <nav className="hidden h-16 items-center gap-6 md:flex">
+            <nav className="hidden h-16 items-center gap-2 md:flex">
               {navItems.map((item) => {
                 return (
                   <NavItem
@@ -178,26 +173,14 @@ export default function Header() {
                   to="/portfolio"
                   className="cursor-pointer rounded-md p-1 text-ink hover:text-accent"
                   aria-label="Portfolio"
-                >
-                  {/* TODO
-                                    <ChartPieIcon
-                                        className="h-4 w-4"
-                                        aria-hidden="true"
-                                    /> */}
-                </Link>
+                ></Link>
+                <ThemeToggle />
                 <HeaderDropdown
                   label={userLabel}
                   align="right"
                   wrapperClassName="h-16 flex items-center"
                   buttonClassName="cursor-pointer h-16 flex items-center px-1 text-sm text-ink hover:text-accent"
                 >
-                  <div className="flex items-center justify-between px-4 py-2 text-ink">
-                    <span>Theme</span>
-                    <ThemeToggle />
-                  </div>
-                  <Link to="/settings" className="block px-4 py-2 text-ink hover:text-accent">
-                    Settings
-                  </Link>
                 </HeaderDropdown>
                 <button
                   type="button"

@@ -128,6 +128,123 @@ export default function HomePage() {
                   Utils/formatters: shared helpers for price/percent/date/compact formatting,
                   applied consistently across tables and cards.
                 </li>
+                <li>
+                  New Trade workflow: end-to-end form flow built with React Hook Form + reusable
+                  field components, keeping inputs, validation, and derived values in sync.
+                </li>
+                <li>
+                  Data-driven selects: options built from cached asset snapshots + subgroup
+                  filters, with refresh fallbacks and predictable defaults even without a backend.
+                </li>
+                <li>
+                  Global search shortcut: cross-market asset search aggregates local datasets and
+                  updates the form state in one step.
+                </li>
+                <li>
+                  Price + amount logic: local price lookup, base/quote conversion, and consistent
+                  formatting via shared formatters; limit price auto-fill when applicable.
+                </li>
+                <li>
+                  Risk controls: modular Take Profit / Stop Loss panels with % or value inputs,
+                  side-aware validation, and multi-level partial exits; integrated cleanly into the
+                  main form.
+                </li>
+                <li>
+                  Confirmation + persistence: summary modal before submit, then normalized payload
+                  stored in localStorage so it appears in Open Trades / History without server
+                  support.
+                </li>
+                <li>
+                  External context widget: embedded chart widget with theme sync and dynamic symbol
+                  mapping to provide context without leaving the form.
+                </li>
+                <li>
+                  Continuation of the RHF payload: items created in the New Trade form are
+                  normalized and persisted locally, then surfaced here while their status stays
+                  open to track lifecycle in a separate view.
+                </li>
+                <li>
+                  Safe close flow: close action is gated to locally created entries (manual IDs),
+                  confirmed in a modal, and persisted so the lifecycle state stays consistent
+                  after reloading.
+                </li>
+                <li>
+                  Scoped search: search options are built from the currently open dataset only,
+                  with normalized identifier matching to keep results relevant to this view.
+                </li>
+                <li>
+                  Manual refresh + recalculation: a one-click refresh pulls snapshot prices, maps
+                  them to existing items, and recalculates the displayed P&amp;L without polling.
+                </li>
+                <li>
+                  Derived metrics: performance values are computed client-side with direction-aware
+                  logic and formatted through shared money/percent/date helpers for consistency.
+                </li>
+                <li>
+                  Table layout logic: column definitions keep headers/cells aligned and the same
+                  dataset powers both the mobile cards and the desktop table.
+                </li>
+                <li>
+                  History view: the same RHF-generated objects are persisted and surfaced here
+                  once their status flips to closed, providing a read-only lifecycle log.
+                </li>
+                <li>
+                  Merged data source: history is loaded through a service that combines mock API
+                  results with locally closed entries, so the list stays consistent after reloads.
+                </li>
+                <li>
+                  Scoped search + ordering: search options are built from the history dataset only,
+                  with normalized identifier matching and newest-close ordering.
+                </li>
+                <li>
+                  Stored metrics: entry/exit values, performance (P&amp;L + %) and close reason
+                  come from the persisted payload and are formatted via shared helpers.
+                </li>
+                <li>
+                  Responsive display: mobile expandable cards and the desktop table share the same
+                  dataset and status handling, with consistent positive/negative indicators.
+                </li>
+                <li>
+                  Dashboard aggregation: pulls open + closed datasets in parallel (Promise.all)
+                  with explicit loading/error states before rendering any summaries.
+                </li>
+                <li>
+                  Summary logic: computes a top-5 list by derived performance (P&amp;L) and a
+                  latest-5 list by close date using client-side sort + slice.
+                </li>
+                <li>
+                  Consistent formatting: shared money/percent/date helpers plus a single label
+                  builder keep figures uniform across cards.
+                </li>
+                <li>
+                  Lifecycle-aware timestamps: open items use openedAt/createdAt and closed items
+                  use closedAt/updatedAt/createdAt for resilient date display.
+                </li>
+                <li>
+                  Visual context widgets: embeds two isolated third-party blocks (ticker tape +
+                  timeline) as non-blocking context.
+                </li>
+                <li>
+                  Readable render flow: small render helpers keep the view flat and maintainable
+                  while reusing the same state/formatters.
+                </li>
+                <li>
+                  Theme system: centralized ThemeProvider reads system preference, persists user
+                  choice in localStorage, and applies the dark class at the document root for
+                  global styling.
+                </li>
+                <li>
+                  Header theme toggle: a small UI control wired to context state switches themes
+                  consistently across the app.
+                </li>
+                <li>
+                  Notifications menu: header dropdown driven by local state with mock data samples,
+                  supporting item removal to simulate real-world inbox behavior.
+                </li>
+                <li>
+                  Dev-only notification feed: mock notifications are generated on an interval
+                  while active to exercise UI state updates and empty states.
+                </li>
               </ul>
             </div>
 

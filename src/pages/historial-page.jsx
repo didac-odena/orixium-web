@@ -12,6 +12,7 @@ import {
   createDateTimeFormatter,
   createMoneyFormatter,
   createPercentFormatter,
+  formatDateValue,
 } from "../utils/formatters.js";
 import {
   ArrowTrendingDownIcon,
@@ -25,6 +26,9 @@ export default function HistorialPage() {
   const moneyFormatter = createMoneyFormatter();
   const percentFormatter = createPercentFormatter();
   const dateFormatter = createDateTimeFormatter();
+  const formatTradeDate = (value) => {
+    return formatDateValue(value, dateFormatter);
+  };
 
   useEffect(() => {
     let isActive = true;
@@ -135,7 +139,9 @@ export default function HistorialPage() {
                           <div>
                             <div className="font-semibold">{trade.symbol}</div>
                             <div className="text-xs text-muted">
-                              {dateFormatter.format(new Date(trade.closedAt))}
+                              {formatTradeDate(
+                                trade.closedAt || trade.updatedAt || trade.createdAt,
+                              )}
                             </div>
                           </div>
                         </div>

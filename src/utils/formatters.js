@@ -53,3 +53,11 @@ export function createDateTimeFormatter() {
     timeStyle: "short",
   });
 }
+
+export function formatDateValue(value, formatter, fallback = "--") {
+  if (!formatter) return fallback;
+  if (value == null || value === "") return fallback;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return fallback;
+  return formatter.format(date);
+}
