@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/auth/auth-context";
 import { HeaderDropdown, ThemeToggle } from "../ui";
 import NotificationsMenu from "./notifications-menu";
-import { Bars3Icon, ChartPieIcon, PowerIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, PowerIcon } from "@heroicons/react/24/outline";
 
 const NAV_PUBLIC = [];
 
@@ -111,8 +111,8 @@ export default function Header() {
             </nav>
           </div>
 
-          {/* Center: menu button (mobile) */}
-          <div className="absolute left-1/2 -translate-x-1/2 md:hidden">
+          {/* Mobile menu button */}
+          <div className="ml-auto md:hidden">
             <div className="relative">
               <button
                 type="button"
@@ -124,48 +124,87 @@ export default function Header() {
                 <Bars3Icon className="h-4 w-4" aria-hidden="true" />
               </button>
               {isMenuOpen ? (
-                <div className="absolute left-1/2 top-full z-1000 mt-0 w-56 -translate-x-1/2 rounded-md border border-border bg-bg py-2 shadow-sm">
-                  {navItems.map((item) => {
-                    if (item.children && item.children.length) {
-                      return (
-                        <div key={item.label} className="px-4 py-2">
-                          <div className="text-xs uppercase text-muted">{item.label}</div>
-                          <div className="mt-1 space-y-1">
-                            {item.children.map((child) => {
-                              return (
-                                <Link
-                                  key={child.to}
-                                  to={child.to}
-                                  onClick={handleCloseMenu}
-                                  className="block text-sm text-ink hover:text-accent"
-                                >
-                                  {child.label}
-                                </Link>
-                              );
-                            })}
+                <div className="absolute right-0 top-full z-1000 mt-2 w-64 rounded-md border border-border bg-surface-2 py-2 shadow-sm">
+                  <div className="px-4 pb-2 text-xs uppercase text-muted">
+                    Navigation
+                  </div>
+                  <div className="space-y-1 px-2">
+                    {navItems.map((item) => {
+                      if (item.children && item.children.length) {
+                        return (
+                          <div key={item.label} className="px-2 py-2">
+                            <div className="text-xs uppercase text-muted">{item.label}</div>
+                            <div className="mt-1 space-y-1">
+                              {item.children.map((child) => {
+                                return (
+                                  <Link
+                                    key={child.to}
+                                    to={child.to}
+                                    onClick={handleCloseMenu}
+                                    className="block rounded px-2 py-1 text-sm text-ink hover:bg-surface"
+                                  >
+                                    {child.label}
+                                  </Link>
+                                );
+                              })}
+                            </div>
                           </div>
-                        </div>
-                      );
-                    }
+                        );
+                      }
 
-                    return (
-                      <Link
-                        key={item.to}
-                        to={item.to}
-                        onClick={handleCloseMenu}
-                        className="block px-4 py-2 text-sm text-ink hover:bg-slate-200"
+                      return (
+                        <Link
+                          key={item.to}
+                          to={item.to}
+                          onClick={handleCloseMenu}
+                          className="block rounded px-2 py-1 text-sm text-ink hover:bg-surface"
+                        >
+                          {item.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+
+                  <div className="my-2 border-t border-border" />
+
+                  {isAuthenticated ? (
+                    <div className="space-y-2 px-4 pb-2">
+                      <div className="text-xs uppercase text-muted">Account</div>
+                      <div className="flex items-center justify-between rounded border border-border bg-bg px-2 py-2">
+                        <span className="text-sm text-ink">Theme</span>
+                        <ThemeToggle />
+                      </div>
+                      <div className="flex items-center justify-between rounded border border-border bg-bg px-2 py-2">
+                        <span className="text-sm text-ink">Notifications</span>
+                        <NotificationsMenu isActive={isAuthenticated} isCompact={true} />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="flex w-full items-center justify-between rounded border border-border bg-bg px-2 py-2 text-sm text-ink hover:border-danger hover:text-danger"
                       >
-                        {item.label}
+                        Logout
+                        <PowerIcon className="h-4 w-4" aria-hidden="true" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="px-4 pb-2">
+                      <Link
+                        to="/login"
+                        onClick={handleCloseMenu}
+                        className="block rounded border border-border bg-bg px-3 py-2 text-center text-sm text-ink hover:border-accent hover:text-accent"
+                      >
+                        Login
                       </Link>
-                    );
-                  })}
+                    </div>
+                  )}
                 </div>
               ) : null}
             </div>
           </div>
 
           {/* Right: actions */}
-          <div className="ml-auto flex items-center gap-2 sm:gap-1">
+          <div className="ml-auto hidden items-center gap-2 sm:gap-1 md:flex">
             {isAuthenticated ? (
               <div className="flex items-center gap-1">
                 <NotificationsMenu isActive={isAuthenticated} />
@@ -180,8 +219,7 @@ export default function Header() {
                   align="right"
                   wrapperClassName="h-16 flex items-center"
                   buttonClassName="cursor-pointer h-16 flex items-center px-1 text-sm text-ink hover:text-accent"
-                >
-                </HeaderDropdown>
+                ></HeaderDropdown>
                 <button
                   type="button"
                   onClick={handleLogout}

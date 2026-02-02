@@ -707,9 +707,9 @@ export default function NewTradePage() {
         <PageHeader title="New Trade" subtitle="Manual order trade" />
 
         {/* Top bar */}
-        <div className="flex flex-wrap w-full justify-between border border-border gap-2 bg-surface-2 rounded py-1 px-2">
+        <div className="flex w-full flex-col gap-2 rounded border border-border bg-surface-2 px-2 py-1 sm:flex-row sm:items-end sm:justify-between">
           {/* Account select */}
-          <div className="flex flex-col gap-0 items-start shrink-0">
+          <div className="flex w-full flex-col gap-0 items-start sm:w-auto">
             <label className="flex items-center gap-1 py-1 text-xs text-muted">
               Account{" "}
               <InfoTooltip message="Select the broker/exchange account used for this order." />
@@ -725,8 +725,8 @@ export default function NewTradePage() {
           </div>
 
           {/* Global search */}
-          <div className="flex flex-1 items-center justify-end gap-2">
-            <label className="flex text-xs whitespace-nowrap items-center text-muted">
+          <div className="flex w-full flex-col gap-1 sm:flex-1 sm:flex-row sm:items-center sm:justify-end sm:gap-2">
+            <label className="text-xs text-muted sm:whitespace-nowrap">
               Global search
             </label>
             <GlobalAssetSearch
@@ -738,19 +738,22 @@ export default function NewTradePage() {
         </div>
 
         <div className="flex flex-col gap-2 lg:flex-row lg:items-start">
-          {/*//TW-CHART*/}
-          <div className="flex-1 w-full min-w-0">
-            <div className="flex flex-col border border-border bg-bg rounded p-0.5">
-              <TradingViewAdvancedChart symbol={tradingViewSymbol} className="h-[65vh] w-full" />
+            {/*//TW-CHART*/}
+            <div className="flex-1 w-full min-w-0">
+              <div className="flex flex-col border border-border bg-bg rounded p-0.5">
+                <TradingViewAdvancedChart
+                  symbol={tradingViewSymbol}
+                  className="h-[40vh] w-full sm:h-[55vh] lg:h-[65vh]"
+                />
+              </div>
             </div>
-          </div>
 
-          {/*//FORM*/}
-          <div className="flex flex-col gap-1 w-100 lg:shrink-0">
-            {/*//Filters*/}
-            <div className="flex flex-col border border-border bg-surface-2 rounded w-full py-1 px-2">
-              <div className="flex justify-between">
-                <header className="text-ink text-sm ">
+            {/*//FORM*/}
+            <div className="flex w-full min-w-0 flex-col gap-1 lg:w-[24rem] lg:shrink-0">
+              {/*//Filters*/}
+              <div className="flex flex-col border border-border bg-surface-2 rounded w-full py-1 px-2">
+                <div className="flex justify-between">
+                  <header className="text-ink text-sm ">
                   Filters{" "}
                   <InfoTooltip message="Filter markets and subgroups to narrow the asset lists." />
                 </header>
@@ -791,12 +794,12 @@ export default function NewTradePage() {
                         </button>
                       );
                     })}
-                  </div>
-                  {/* Subgroup select */}
-                  <div className="min-w-45">
-                    <label className="text-xs text-muted">Subgroup</label>
-                    <SelectField
-                      value={subgroupValue}
+                    </div>
+                    {/* Subgroup select */}
+                    <div className="w-full sm:min-w-[11rem]">
+                      <label className="text-xs text-muted">Subgroup</label>
+                      <SelectField
+                        value={subgroupValue}
                       options={subgroupOptions}
                       onChange={setSubgroupValue}
                       placeholder="Select subgroup"
@@ -806,17 +809,17 @@ export default function NewTradePage() {
               ) : null}
             </div>
 
-            <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-1">
-              {/*//setup*/}
-              <div className="flex flex-col border border-border bg-surface-2 rounded w-full py-1 px-2">
-                <div className="space-y-1">
-                  <div className="flex gap-2">
-                    {/* Base asset */}
-                    <div className="flex-1 min-w-20">
-                      <label className="flex items-center gap-1 py-1 text-xs text-muted">
-                        Base asset
-                        <InfoTooltip message="Asset you are trading (base). Order amount is stored in base units." />
-                      </label>
+              <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-1">
+                {/*//setup*/}
+                <div className="flex flex-col border border-border bg-surface-2 rounded w-full py-1 px-2">
+                  <div className="space-y-1">
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      {/* Base asset */}
+                      <div className="flex-1 min-w-0">
+                        <label className="flex items-center gap-1 py-1 text-xs text-muted">
+                          Base asset
+                          <InfoTooltip message="Asset you are trading (base). Order amount is stored in base units." />
+                        </label>
                       <SelectField
                         isSearchable={true}
                         value={baseAsset}
@@ -825,13 +828,13 @@ export default function NewTradePage() {
                         placeholder="Select base"
                       />
                       <input type="hidden" {...register("baseAsset", { required: true })} />
-                    </div>
-                    {/* Quote asset */}
-                    <div className="flex-1 min-w-20">
-                      <label className="flex items-center gap-1 py-1 text-xs text-muted">
-                        Quote asset
-                        <InfoTooltip message="Currency you pay/receive. Prices are shown in this currency." />
-                      </label>
+                      </div>
+                      {/* Quote asset */}
+                      <div className="flex-1 min-w-0">
+                        <label className="flex items-center gap-1 py-1 text-xs text-muted">
+                          Quote asset
+                          <InfoTooltip message="Currency you pay/receive. Prices are shown in this currency." />
+                        </label>
                       <SelectField
                         isSearchable={true}
                         value={quoteAsset}
@@ -857,12 +860,12 @@ export default function NewTradePage() {
                     error={errors.side ? "Side is required." : ""}
                   />
 
-                  {/* Quote/base */}
-                  <div className="flex items-end gap-2">
-                    <div className="flex flex-col gap-1 flex-1">
-                      <label className="text-xs text-muted">
-                        {amountMode === "base" ? "Base amount" : "Quote amount"}
-                      </label>
+                    {/* Quote/base */}
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+                      <div className="flex flex-col gap-1 flex-1">
+                        <label className="text-xs text-muted">
+                          {amountMode === "base" ? "Base amount" : "Quote amount"}
+                        </label>
                       <div className="relative">
                         <input
                           type="number"
@@ -892,7 +895,7 @@ export default function NewTradePage() {
                       ) : null}
                     </div>
 
-                    <div className="flex flex-col gap-1 items-end shrink-0">
+                    <div className="flex flex-col gap-1 items-start sm:items-end shrink-0">
                       <label className="text-xs text-muted">Amount in</label>
 
                       <div className="flex rounded  border-border overflow-hidden">

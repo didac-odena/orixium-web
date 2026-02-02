@@ -21,7 +21,7 @@ async function start() {
           </AuthProvider>
         </ThemeProvider>
       </BrowserRouter>
-    </React.StrictMode>,
+    </React.StrictMode>
   );
 }
 

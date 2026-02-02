@@ -3,12 +3,12 @@ import { EnvelopeIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { HeaderDropdown } from "../ui";
 import { NOTIFICATION_SAMPLES } from "../../mocks/fixtures/notification-samples";
 
-export default function NotificationsMenu({ isActive }) {
+export default function NotificationsMenu({ isActive, isCompact = false }) {
     const [notifications, setNotifications] = useState([]);
     const hasNotifications = notifications.length > 0;
     const iconClassName = hasNotifications ? "text-danger" : "text-ink";
 
-    const menuClassName = "w-full min-w-72";
+    const menuClassName = isCompact ? "w-56" : "w-full min-w-72";
 
     const renderEmptyState = () => {
         return (
@@ -93,8 +93,12 @@ export default function NotificationsMenu({ isActive }) {
                 />
             }
             align="right"
-            wrapperClassName="h-16 flex items-center"
-            buttonClassName="cursor-pointer h-16 flex items-center px-1"
+            wrapperClassName={isCompact ? "flex items-center" : "h-16 flex items-center"}
+            buttonClassName={
+                isCompact
+                    ? "cursor-pointer flex items-center"
+                    : "cursor-pointer h-16 flex items-center px-1"
+            }
             menuClassName={menuClassName}
         >
             <div className="max-h-72 overflow-y-auto">
