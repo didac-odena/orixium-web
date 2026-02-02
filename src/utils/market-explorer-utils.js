@@ -1,4 +1,4 @@
-import { DEFAULT_CURRENCY_FORMAT_LOCALE } from "../../utils/formatters.js";
+import { DEFAULT_CURRENCY_FORMAT_LOCALE } from "./formatters.js";
 
 export function createPriceFormatter(currency) {
   // >1 uses 2 decimals, <=1 uses up to 8 for small prices.
@@ -55,6 +55,16 @@ export function createRowPriceFormatter() {
       ? shortFormatter.format(value)
       : longFormatter.format(value);
   };
+}
+
+export function createCompactCurrencyFormatter(currency) {
+  // Compact currency (K/M/B) for market cap/volume.
+  return new Intl.NumberFormat(DEFAULT_CURRENCY_FORMAT_LOCALE, {
+    style: "currency",
+    currency: String(currency || "USD").toUpperCase(),
+    notation: "compact",
+    maximumFractionDigits: 2,
+  });
 }
 
 export function getAccentClass(value) {
@@ -143,4 +153,3 @@ export function compareAssets(a, b, key, dir) {
   }
   return direction * (aValue - bValue);
 }
-

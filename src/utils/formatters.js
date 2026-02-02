@@ -15,16 +15,6 @@ export function createMoneyFormatter() {
   });
 }
 
-export function createCompactCurrencyFormatter(currency) {
-  // Compact currency (K/M/B) for market cap/volume.
-  return new Intl.NumberFormat(DEFAULT_CURRENCY_FORMAT_LOCALE, {
-    style: "currency",
-    currency: String(currency || "USD").toUpperCase(),
-    notation: "compact",
-    maximumFractionDigits: 2,
-  });
-}
-
 export function createNumberFormatter({
   minimumFractionDigits = 0,
   maximumFractionDigits = 8,

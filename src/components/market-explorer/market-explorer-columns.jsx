@@ -1,4 +1,19 @@
-import { ChangeValueCell, DateCell, PercentCell } from "./market-explorer-cells";
+import { formatDateValue } from "../../utils/formatters.js";
+import { getAccentClass } from "../../utils/market-explorer-utils.js";
+
+function PercentCell({ value, formatter }) {
+  const accentClass = getAccentClass(value);
+  return (
+    <span className={accentClass}>
+      {value != null ? `${formatter.format(value)}%` : "--"}
+    </span>
+  );
+}
+
+function ChangeValueCell({ value, accentValue, formatValue, currency }) {
+  const accentClass = getAccentClass(accentValue);
+  return <span className={accentClass}>{formatValue(value, currency)}</span>;
+}
 
 export function buildCryptoColumns({
   formatPrice,
@@ -11,9 +26,7 @@ export function buildCryptoColumns({
       key: "rank",
       label: "Market Cap Rank",
       className: "px-2 py-2 w-20 text-muted",
-      renderCell: (asset) => {
-        return asset.market_cap_rank || "--";
-      },
+      renderCell: (asset) => asset.market_cap_rank || "--",
     },
     {
       key: "asset",
@@ -42,9 +55,7 @@ export function buildCryptoColumns({
       key: "price",
       label: "Price",
       className: "px-4 py-2",
-      renderCell: (asset) => {
-        return formatPrice(asset.current_price);
-      },
+      renderCell: (asset) => formatPrice(asset.current_price),
     },
     {
       key: "change",
@@ -74,25 +85,20 @@ export function buildCryptoColumns({
       key: "high",
       label: "High 24h",
       className: "px-4 py-2",
-      renderCell: (asset) => {
-        return formatPrice(asset.high_24h);
-      },
+      renderCell: (asset) => formatPrice(asset.high_24h),
     },
     {
       key: "low",
       label: "Low 24h",
       className: "px-4 py-2",
-      renderCell: (asset) => {
-        return formatPrice(asset.low_24h);
-      },
+      renderCell: (asset) => formatPrice(asset.low_24h),
     },
     {
       key: "marketCap",
       label: "Market cap",
       className: "px-4 py-2",
-      renderCell: (asset) => {
-        return asset.market_cap != null ? compactFormatter.format(asset.market_cap) : "--";
-      },
+      renderCell: (asset) =>
+        asset.market_cap != null ? compactFormatter.format(asset.market_cap) : "--",
     },
     {
       key: "marketCapChange",
@@ -111,17 +117,14 @@ export function buildCryptoColumns({
       key: "volume",
       label: "24h volume",
       className: "px-4 py-2",
-      renderCell: (asset) => {
-        return asset.total_volume != null ? compactFormatter.format(asset.total_volume) : "--";
-      },
+      renderCell: (asset) =>
+        asset.total_volume != null ? compactFormatter.format(asset.total_volume) : "--",
     },
     {
       key: "updated",
       label: "Last updated",
       className: "px-4 py-2 text-muted whitespace-nowrap",
-      renderCell: (asset) => {
-        return <DateCell value={asset.last_updated} formatter={dateFormatter} />;
-      },
+      renderCell: (asset) => formatDateValue(asset.last_updated, dateFormatter),
     },
   ];
 }
@@ -151,9 +154,7 @@ export function buildNonCryptoColumns({
       key: "price",
       label: "Price",
       className: "px-4 py-2",
-      renderCell: (asset) => {
-        return formatEquityPrice(asset.last, asset.currency);
-      },
+      renderCell: (asset) => formatEquityPrice(asset.last, asset.currency),
     },
     {
       key: "change",
@@ -206,25 +207,19 @@ export function buildNonCryptoColumns({
       key: "bid",
       label: "Bid",
       className: "px-4 py-2",
-      renderCell: (asset) => {
-        return formatEquityPrice(asset.bid, asset.currency);
-      },
+      renderCell: (asset) => formatEquityPrice(asset.bid, asset.currency),
     },
     {
       key: "ask",
       label: "Ask",
       className: "px-4 py-2",
-      renderCell: (asset) => {
-        return formatEquityPrice(asset.ask, asset.currency);
-      },
+      renderCell: (asset) => formatEquityPrice(asset.ask, asset.currency),
     },
     {
       key: "updated",
       label: "Last updated",
       className: "px-4 py-2 text-muted whitespace-nowrap",
-      renderCell: (asset) => {
-        return <DateCell value={asset.last_updated} formatter={dateFormatter} />;
-      },
+      renderCell: (asset) => formatDateValue(asset.last_updated, dateFormatter),
     },
   ];
 }

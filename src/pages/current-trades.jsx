@@ -1,23 +1,23 @@
 import { useEffect, useState } from "react";
 import { ArrowTrendingDownIcon, ArrowTrendingUpIcon } from "@heroicons/react/24/outline";
-import { PageLayout } from "../../components/layout";
-import { GlobalAssetSearch, PageHeader } from "../../components/ui";
-import AdvertiseModal from "../../components/trading/new-trade/advertise-modal";
+import { PageLayout } from "../components/layout";
+import { GlobalAssetSearch, PageHeader } from "../components/ui";
+import AdvertiseModal from "../components/new-trade/advertise-modal";
 import {
   closeManualTrade,
   getOpenTrades,
   loadGlobalMarketAssets,
-} from "../../services";
+} from "../services";
 import {
   buildSymbolOptions,
   filterBySymbol,
   normalizeSymbol,
-} from "../../utils/symbol-search.js";
+} from "../utils/symbol-search.js";
 import {
   createDateTimeFormatter,
   createMoneyFormatter,
   createPercentFormatter,
-} from "../../utils/formatters.js";
+} from "../utils/formatters.js";
 
 const TABLE_COLUMNS = [
   { key: "trend", label: "" },

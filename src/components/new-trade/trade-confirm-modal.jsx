@@ -2,7 +2,7 @@ import {
   createFiatPriceFormatter,
   createCryptoAmountFormatter,
   createNumberFormatter,
-} from "../../../utils/formatters.js";
+} from "../../utils/formatters.js";
 
 const priceFormatter = createFiatPriceFormatter();
 const amountFormatter = createCryptoAmountFormatter();

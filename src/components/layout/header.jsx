@@ -208,11 +208,6 @@ export default function Header() {
             {isAuthenticated ? (
               <div className="flex items-center gap-1">
                 <NotificationsMenu isActive={isAuthenticated} />
-                <Link
-                  to="/portfolio"
-                  className="cursor-pointer rounded-md p-1 text-ink hover:text-accent"
-                  aria-label="Portfolio"
-                ></Link>
                 <ThemeToggle />
                 <HeaderDropdown
                   label={userLabel}

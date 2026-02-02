@@ -1,5 +1,5 @@
 import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
-import { useTheme } from "../../../contexts/theme/theme-context";
+import { useTheme } from "../../contexts/theme/theme-context";
 
 export default function ThemeToggle() {
     const { theme, toggleTheme } = useTheme();

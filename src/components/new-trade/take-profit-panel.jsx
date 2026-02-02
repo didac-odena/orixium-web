@@ -3,9 +3,9 @@ import {
   createFiatPriceFormatter,
   createCryptoAmountFormatter,
   createNumberFormatter,
-} from "../../../utils/formatters.js";
+} from "../../utils/formatters.js";
 import { TrashIcon } from "@heroicons/react/24/outline";
-import InfoTooltip from "../../ui/info-tooltip.jsx";
+import { InfoTooltip } from "../ui";
 
 const priceFormatter = createFiatPriceFormatter();
 const amountFormatter = createCryptoAmountFormatter();

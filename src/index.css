@@ -21,3 +21,35 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+.home-glow-primary {
+  background: radial-gradient(
+    1000px circle at 80% 20%,
+    rgb(from var(--color-accent) r g b / 0.5),
+    transparent 60%
+  );
+}
+
+.dark .home-glow-primary {
+  background: radial-gradient(
+    1000px circle at 80% 20%,
+    rgb(168 85 247 / 0.14),
+    transparent 60%
+  );
+}
+
+.home-glow-secondary {
+  background: radial-gradient(
+    900px circle at 20% 75%,
+    rgb(from var(--color-accent) r g b / 0.05),
+    transparent 65%
+  );
+}
+
+.dark .home-glow-secondary {
+  background: radial-gradient(
+    900px circle at 20% 75%,
+    rgb(139 92 246 / 0.05),
+    transparent 65%
+  );
+}

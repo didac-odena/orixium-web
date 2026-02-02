@@ -1,14 +1,15 @@
-import { GlobalAssetSearch, TablePagination, TableToolbar } from "../ui";
+import { GlobalAssetSearch } from "../ui";
+import { TablePagination, TableToolbar } from "../tables";
 
 export default function MarketExplorerToolbar({
     segments,
     activeSegment,
     onSegmentChange,
-    groupFilter,
-    onGroupFilterChange,
-    groupFilterOptions,
-    showGroupFilters,
-    searchItemsByMarket,
+    segmentFilter,
+    onSegmentFilterChange,
+    segmentOptions,
+    showSegmentFilters,
+    searchItemsBySegment,
     onSearchSelect,
     onSearchQueryChange,
     searchPlaceholder,
@@ -17,46 +18,14 @@ export default function MarketExplorerToolbar({
     totalCount,
     pageSize,
     onPageChange,
-    isCrypto,
-    currency,
-    supportedCurrencies,
-    onCurrencyChange,
-    onRefresh,
-    isRefreshing,
-    refreshNotice,
-    refreshError,
 }) {
-    const handleSegmentClick = (event) => {
-        const nextSegment = event.currentTarget.dataset.segment;
-        if (!nextSegment) return;
-        onSegmentChange(nextSegment);
+    const handleSegmentButtonClick = (segmentId) => {
+        onSegmentChange(segmentId);
     };
 
-    const handleGroupFilterClick = (event) => {
-        const nextFilter = event.currentTarget.dataset.filter;
-        if (!nextFilter) return;
-        onGroupFilterChange(nextFilter);
+    const handleSegmentFilterButtonClick = (filterId) => {
+        onSegmentFilterChange(filterId);
         onPageChange(1);
-    };
-
-    const handleSearchChange = (nextValue) => {
-        if (onSearchQueryChange) {
-            onSearchQueryChange(nextValue);
-        }
-    };
-
-    const handleSearchSelect = (option) => {
-        if (onSearchSelect) {
-            onSearchSelect(option);
-        }
-    };
-
-    const handleCurrencyChange = (event) => {
-        onCurrencyChange(event.target.value);
-    };
-
-    const handleRefreshClick = () => {
-        onRefresh();
     };
 
     const renderSegmentButton = (segmentOption) => {
@@ -65,13 +34,12 @@ export default function MarketExplorerToolbar({
             <button
                 key={segmentOption.id}
                 type="button"
-                data-segment={segmentOption.id}
                 className={`cursor-pointer rounded-full border px-2 py-1 text-xs uppercase tracking-wide transition-colors hover:border-accent hover:text-accent ${
                     isActive
                         ? "border-ink bg-surface text-ink"
                         : "border-border text-muted opacity-60"
                 }`}
-                onClick={handleSegmentClick}
+                onClick={() => handleSegmentButtonClick(segmentOption.id)}
                 aria-current={isActive ? "page" : undefined}
             >
                 {segmentOption.label}
@@ -79,27 +47,24 @@ export default function MarketExplorerToolbar({
         );
     };
 
-    const renderGroupFilterButton = (option) => {
-        const isActive = option.id === groupFilter;
+    const renderSegmentFilterButton = (option) => {
+        const isActive = option.id === segmentFilter;
         return (
             <button
                 key={option.id}
                 type="button"
-                data-filter={option.id}
                 className={`cursor-pointer rounded-full border px-2 py-1 text-xs uppercase tracking-wide transition-colors hover:border-accent hover:text-accent ${
                     isActive
                         ? "border-ink bg-surface text-ink"
                         : "border-border text-muted opacity-60"
                 }`}
-                onClick={handleGroupFilterClick}
+                onClick={() => handleSegmentFilterButtonClick(option.id)}
                 aria-pressed={isActive}
             >
                 {option.label}
             </button>
         );
     };
-
-    const showFilters = showGroupFilters && groupFilterOptions.length > 0;
 
     return (
         <TableToolbar
@@ -108,22 +73,21 @@ export default function MarketExplorerToolbar({
                     <div className="flex flex-wrap items-center gap-3">
                         {segments.map(renderSegmentButton)}
                     </div>
-                    {showFilters ? (
+                    {showSegmentFilters && segmentOptions.length > 0 ? (
                         <div className="flex flex-wrap items-center gap-2">
                             <button
                                 type="button"
-                                data-filter="all"
                                 className={`cursor-pointer rounded-full border border-border px-3 py-1 text-[11px] uppercase tracking-wide transition-colors hover:border-accent hover:text-accent ${
-                                    groupFilter === "all"
+                                    segmentFilter === "all"
                                         ? "text-ink"
                                         : "text-muted opacity-60"
                                 }`}
-                                onClick={handleGroupFilterClick}
-                                aria-pressed={groupFilter === "all"}
+                                onClick={() => handleSegmentFilterButtonClick("all")}
+                                aria-pressed={segmentFilter === "all"}
                             >
                                 No filter
                             </button>
-                            {groupFilterOptions.map(renderGroupFilterButton)}
+                            {segmentOptions.map(renderSegmentFilterButton)}
                         </div>
                     ) : null}
                 </div>
@@ -134,9 +98,9 @@ export default function MarketExplorerToolbar({
                         Search
                     </label>
                     <GlobalAssetSearch
-                        itemsByMarket={searchItemsByMarket}
-                        onSelect={handleSearchSelect}
-                        onQueryChange={handleSearchChange}
+                        itemsByMarket={searchItemsBySegment}
+                        onSelect={onSearchSelect}
+                        onQueryChange={onSearchQueryChange}
                         placeholder={searchPlaceholder}
                     />
                 </>
@@ -149,75 +113,6 @@ export default function MarketExplorerToolbar({
                     pageSize={pageSize}
                     onPageChange={onPageChange}
                 />
-            }
-            bottomRight={
-                <>
-                    {isCrypto ? (
-                        <>
-                            <label className="text-xs uppercase tracking-wide text-muted">
-                                Quote
-                            </label>
-                            <select
-                                value={currency}
-                                onChange={handleCurrencyChange}
-                                className="h-9 rounded-md border border-border bg-bg px-2 text-sm text-ink"
-                            >
-                                {supportedCurrencies.map((ccy) => {
-                                    return (
-                                        <option key={ccy} value={ccy}>
-                                            {ccy.toUpperCase()}
-                                        </option>
-                                    );
-                                })}
-                            </select>
-                        </>
-                    ) : null}
-                    <div className="relative flex flex-col items-start">
-                        <button
-                            type="button"
-                            onClick={handleRefreshClick}
-                            className={`group inline-flex h-9 items-center justify-center rounded-md border border-border px-2 text-sm text-ink hover:text-accent ${
-                                isRefreshing ? "opacity-50" : ""
-                            }`}
-                            aria-disabled={isRefreshing}
-                            aria-label="Refresh all"
-                            title="Refresh all"
-                        >
-                            <svg
-                                viewBox="0 0 24 24"
-                                className="h-4 w-4 text-muted transition-colors group-hover:text-accent"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    d="M4 4v6h6M20 20v-6h-6"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                                <path
-                                    d="M20 10a8 8 0 0 0-14-4M4 14a8 8 0 0 0 14 4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                            </svg>
-                        </button>
-                        {refreshNotice ? (
-                            <span className="absolute right-0 top-full z-50 mt-2 w-56 break-all rounded-md border border-danger/40 bg-bg px-2 py-1 text-xs text-danger shadow-lg">
-                                {refreshNotice}
-                            </span>
-                        ) : null}
-                    </div>
-                    {refreshError ? (
-                        <span className="text-xs text-danger">
-                            {refreshError}
-                        </span>
-                    ) : null}
-                </>
             }
         />
     );

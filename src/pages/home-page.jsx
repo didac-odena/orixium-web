@@ -78,11 +78,11 @@ export default function HomePage() {
     <PageLayout>
       <div
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(1000px_circle_at_80%_20%,rgb(from_var(--color-accent)_r_g_b_/_0.50),transparent_60%)] dark:bg-[radial-gradient(1000px_circle_at_80%_20%,rgb(168_85_247_/_0.14),transparent_60%)]"
+        className="pointer-events-none fixed inset-0 z-0 home-glow-primary"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(900px_circle_at_20%_75%,rgb(from_var(--color-accent)_r_g_b_/_0.05),transparent_65%)] dark:bg-[radial-gradient(900px_circle_at_20%_75%,rgb(139_92_246_/_0.05),transparent_65%)]"
+        className="pointer-events-none fixed inset-0 z-0 home-glow-secondary"
       />
       <img
         src="/src/assets/brand/orixium-logo-mark-colored.svg"

@@ -3,8 +3,8 @@ import { TrashIcon } from "@heroicons/react/24/outline";
 import {
   createFiatPriceFormatter,
   createNumberFormatter,
-} from "../../../utils/formatters.js";
-import InfoTooltip from "../../ui/info-tooltip.jsx";
+} from "../../utils/formatters.js";
+import { InfoTooltip } from "../ui";
 
 const priceFormatter = createFiatPriceFormatter();
 const percentValueFormatter = createNumberFormatter({ maximumFractionDigits: 2 });

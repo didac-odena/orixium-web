@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { PageLayout } from "../components/layout";
-import { PageHeader, TradingViewTickerTape, TradingViewTimeline } from "../components/ui";
+import { PageHeader } from "../components/ui";
+import { TradingViewTickerTape, TradingViewTimeline } from "../components/tw-widgets";
 import { getOpenTrades, getTradeHistory } from "../services/index.js";
 import {
   createDateTimeFormatter,

@@ -1,33 +1,47 @@
 import { useEffect, useState } from "react";
 import { PageLayout } from "../components/layout";
 import {
-  MarketExplorerMobileList,
-  MarketExplorerEquityMobileList,
+  MarketExplorerMobileRows,
   MarketExplorerToolbar,
   buildCryptoColumns,
   buildNonCryptoColumns,
 } from "../components/market-explorer";
-import { DataTable, TablePagination, PageHeader } from "../components/ui";
+import { PageHeader } from "../components/ui";
+import { DataTable } from "../components/tables";
 
 import {
   DEFAULT_QUOTE_CURRENCY,
-  SUPPORTED_QUOTE_CURRENCIES,
+  getCryptoMarketMeta,
+  getCryptoMarketSnapshots,
+  hasCachedCryptoMarketSnapshots,
+  refreshCryptoMarketSnapshots,
+  getEquityMarketMeta,
+  getEquityMarketSnapshots,
+  hasCachedEquityMarketSnapshots,
+  refreshEquityMarketSnapshots,
+  getRatesMarketMeta,
+  getRatesMarketSnapshots,
+  hasCachedRatesMarketSnapshots,
+  refreshRatesMarketSnapshots,
+  getForexMarketMeta,
+  getForexMarketSnapshots,
+  hasCachedForexMarketSnapshots,
+  refreshForexMarketSnapshots,
+  getCommoditiesMarketMeta,
+  getCommoditiesMarketSnapshots,
+  hasCachedCommoditiesMarketSnapshots,
+  refreshCommoditiesMarketSnapshots,
   loadGlobalMarketAssets,
 } from "../services/index.js";
-import {
-  createCompactCurrencyFormatter,
-  createDateTimeFormatter,
-  createPercentFormatter,
-} from "../utils/formatters.js";
-import { useMarketExplorer } from "./market-explorer/hooks/use-market-explorer.js";
-import { usePaginatedTable } from "../hooks/use-paginated-table.js";
+import { createDateTimeFormatter, createPercentFormatter } from "../utils/formatters.js";
 import {
   compareAssets,
+  createCompactCurrencyFormatter,
   createPriceFormatter,
   createRowPriceFormatter,
   formatGroupLabel,
   nextSortState,
-} from "./market-explorer/market-explorer-utils.js";
+} from "../utils/market-explorer-utils.js";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -71,20 +85,244 @@ const SEGMENT_COPY = {
     subtitle: "Market data for UI testing only. Snapshots loaded from fixtures.",
   },
 };
-const DEFAULT_SEGMENT_COPY = {
-  searchPlaceholder: "Search assets...",
-  emptyMessage: "No market data available yet.",
-  subtitle: "Market data for UI testing only. Snapshots loaded from fixtures.",
-};
 
-function buildGroupFilterOptions(items, groupKey) {
-  if (!groupKey) return [];
+const STALE_INTERVAL_MS = 5 * 60 * 1000;
+
+function filterMarketRows(item, term) {
+  return (
+    String(item.id ?? "").toLowerCase().includes(term) ||
+    String(item.symbol ?? "").toLowerCase().includes(term) ||
+    String(item.name ?? "").toLowerCase().includes(term) ||
+    String(item.group ?? "").toLowerCase().includes(term)
+  );
+}
+
+function shouldResetPageOnSort(nextState) {
+  // Jump to page 1 when switching into global sort.
+  return nextState.mode === "global";
+}
+
+function renderSortIcon(key, state) {
+  if (!state || state.key !== key) return null;
+  const isDesc = state.dir === "desc";
+  // Green for desc, red for asc to mirror market gain/loss colors.
+  const iconClass = `h-3 w-3 ${isDesc ? "text-accent" : "text-danger"}`;
+
+  // Single chevrons = page sort, double chevrons = global sort.
+  if (state.mode === "global") {
+    return isDesc ? (
+      <ChevronDoubleDownIcon className={iconClass} aria-hidden="true" />
+    ) : (
+      <ChevronDoubleUpIcon className={iconClass} aria-hidden="true" />
+    );
+  }
+
+  return isDesc ? (
+    <ChevronDownIcon className={iconClass} aria-hidden="true" />
+  ) : (
+    <ChevronUpIcon className={iconClass} aria-hidden="true" />
+  );
+}
+
+function usePaginatedTable(options) {
+  const {
+    rows,
+    pageSize,
+    filterFn,
+    compareFn,
+    getNextSortState,
+    shouldResetPage,
+  } = options;
+
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [sortKey, setSortKey] = useState(null);
+  const [sortMode, setSortMode] = useState("page");
+  const [sortDir, setSortDir] = useState("asc");
+
+  function handleQueryChange(nextQuery) {
+    setQuery(nextQuery);
+    setPage(1);
+  }
+
+  const term = query.trim().toLowerCase();
+  const filteredRows =
+    !filterFn || !term
+      ? rows
+      : rows.filter((item) => {
+          return filterFn(item, term);
+        });
+
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+
+  // Global sort reorders the full filtered list.
+  const sortedRows =
+    !sortKey || sortMode !== "global" || !compareFn
+      ? filteredRows
+      : filteredRows.slice().sort((a, b) => {
+          return compareFn(a, b, sortKey, sortDir);
+        });
+
+  const start = (currentPage - 1) * pageSize;
+  const pageItems = sortedRows.slice(start, start + pageSize);
+  // Page sort only reorders the current slice.
+  const paginatedRows =
+    !sortKey || sortMode !== "page" || !compareFn
+      ? pageItems
+      : pageItems.slice().sort((a, b) => {
+          return compareFn(a, b, sortKey, sortDir);
+        });
+
+  function handleSort(nextKey) {
+    const currentState = { key: sortKey, mode: sortMode, dir: sortDir };
+    // Delegate to feature-provided sort cycle when available.
+    const nextState = getNextSortState
+      ? getNextSortState(currentState, nextKey)
+      : {
+          key: nextKey,
+          mode: "page",
+          dir:
+            currentState.key === nextKey && currentState.dir === "asc"
+              ? "desc"
+              : "asc",
+        };
+
+    setSortKey(nextState.key);
+    setSortMode(nextState.mode);
+    setSortDir(nextState.dir);
+    if (shouldResetPage && shouldResetPage(nextState)) {
+      setPage(1);
+    }
+  }
+
+  return {
+    query,
+    setQuery: handleQueryChange,
+    page,
+    setPage,
+    totalPages,
+    currentPage,
+    filteredRows,
+    paginatedRows,
+    sortKey,
+    sortMode,
+    sortDir,
+    handleSort,
+  };
+}
+
+function useMarketExplorer(options = {}) {
+  const { market = "crypto", currency } = options;
+
+  const [snapshots, setSnapshots] = useState([]);
+  const [status, setStatus] = useState("loading");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    // Load cached data first to avoid blank UI.
+    let isActive = true;
+    let marketService = null;
+    switch (market) {
+      case "crypto":
+        marketService = {
+          hasCache: hasCachedCryptoMarketSnapshots,
+          getSnapshots: getCryptoMarketSnapshots,
+          getMeta: getCryptoMarketMeta,
+          refresh: refreshCryptoMarketSnapshots,
+        };
+        break;
+      case "equity":
+        marketService = {
+          hasCache: hasCachedEquityMarketSnapshots,
+          getSnapshots: getEquityMarketSnapshots,
+          getMeta: getEquityMarketMeta,
+          refresh: refreshEquityMarketSnapshots,
+        };
+        break;
+      case "rates":
+        marketService = {
+          hasCache: hasCachedRatesMarketSnapshots,
+          getSnapshots: getRatesMarketSnapshots,
+          getMeta: getRatesMarketMeta,
+          refresh: refreshRatesMarketSnapshots,
+        };
+        break;
+      case "forex":
+        marketService = {
+          hasCache: hasCachedForexMarketSnapshots,
+          getSnapshots: getForexMarketSnapshots,
+          getMeta: getForexMarketMeta,
+          refresh: refreshForexMarketSnapshots,
+        };
+        break;
+      case "commodities":
+        marketService = {
+          hasCache: hasCachedCommoditiesMarketSnapshots,
+          getSnapshots: getCommoditiesMarketSnapshots,
+          getMeta: getCommoditiesMarketMeta,
+          refresh: refreshCommoditiesMarketSnapshots,
+        };
+        break;
+      default:
+        marketService = null;
+    }
+    const loadSnapshots = async () => {
+      try {
+        const snapshotRows = marketService
+          ? marketService.getSnapshots(currency)
+          : [];
+        if (!isActive) return;
+        setSnapshots(Array.isArray(snapshotRows) ? snapshotRows : []);
+        setStatus("ready");
+        setError("");
+      } catch (err) {
+        if (!isActive) return;
+        setError(
+          err instanceof Error ? err.message : "Failed to load market data.",
+        );
+        setStatus("error");
+        return;
+      }
+
+      if (!marketService) return;
+      const { hasCache, getMeta, refresh } = marketService;
+      const hasCachedSnapshots = hasCache(currency);
+      const meta = getMeta(currency);
+      const lastFetched = meta?.fetched_at ? Date.parse(meta.fetched_at) : 0;
+      const now = Date.now();
+      const isStale = !lastFetched || now - lastFetched >= STALE_INTERVAL_MS;
+      if (!hasCachedSnapshots || isStale) {
+        try {
+          const refreshedSnapshots = await refresh(currency);
+          if (!isActive) return;
+          setSnapshots(
+            Array.isArray(refreshedSnapshots) ? refreshedSnapshots : [],
+          );
+        } catch {
+          // Ignore refresh errors to keep cached data visible.
+        }
+      }
+    };
+
+    loadSnapshots();
+
+    return () => {
+      isActive = false;
+    };
+  }, [currency, market]);
+
+  return { snapshots, status, error };
+}
+
+function buildSegmentOptions(items, segmentKey) {
+  if (!segmentKey) return [];
   const seen = new Set();
   const options = [];
   items.forEach((asset) => {
-    const groupValue = asset?.[groupKey];
-    if (!groupValue) return;
-    const key = String(groupValue);
+    const segmentValue = asset?.[segmentKey];
+    if (!segmentValue) return;
+    const key = String(segmentValue);
     if (seen.has(key)) return;
     seen.add(key);
     options.push({ id: key, label: formatGroupLabel(key) });
@@ -93,23 +331,18 @@ function buildGroupFilterOptions(items, groupKey) {
 }
 
 export default function MarketExplorerPage() {
-  // UI-selected quote currency (usd/eur/gbp) drives formatting + fetch.
-  const [currency, setCurrency] = useState(DEFAULT_QUOTE_CURRENCY);
-  const [segment, setSegment] = useState("crypto");
-  const [groupFilter, setGroupFilter] = useState("all");
+  // Default quote currency drives formatting + fetch.
+  const currency = DEFAULT_QUOTE_CURRENCY;
+  const [marketSegment, setMarketSegment] = useState("crypto");
+  const [segmentFilter, setSegmentFilter] = useState("all");
 
-  // Data source + refresh state (cooldown + notices).
-  const {
-    snapshots,
-    status,
-    error,
-    isRefreshing,
-    refreshNotice,
-    refreshError,
-    refreshNow,
-  } = useMarketExplorer({ market: segment, currency });
+  // Data source state.
+  const { snapshots, status, error } = useMarketExplorer({
+    market: marketSegment,
+    currency,
+  });
 
-  const [globalAssetsByMarket, setGlobalAssetsByMarket] = useState({});
+  const [searchItemsBySegment, setSearchItemsBySegment] = useState({});
 
   const formatPrice = createPriceFormatter(currency);
   const formatEquityPrice = createRowPriceFormatter();
@@ -117,32 +350,28 @@ export default function MarketExplorerPage() {
   const compactFormatter = createCompactCurrencyFormatter(currency);
   const dateFormatter = createDateTimeFormatter();
 
-  const isCryptoSegment = segment === "crypto";
-  const groupFilterKey = isCryptoSegment
+  const isCryptoSegment = marketSegment === "crypto";
+  const segmentKey = isCryptoSegment
     ? ""
     : "group";
-  const groupFilterOptions = buildGroupFilterOptions(
-    snapshots,
-    groupFilterKey,
-  );
-  const showGroupFilters = groupFilterOptions.length > 0;
-  const isValidGroupFilter = groupFilterOptions.some((option) => {
-    return option.id === groupFilter;
-  });
-  const resolvedGroupFilter =
-    showGroupFilters && isValidGroupFilter ? groupFilter : "all";
-  const segmentCopy = SEGMENT_COPY[segment] || DEFAULT_SEGMENT_COPY;
-  const searchPlaceholder = segmentCopy.searchPlaceholder;
-  const emptyMessage = segmentCopy.emptyMessage;
-  const subtitle = segmentCopy.subtitle;
+  const segmentOptions = buildSegmentOptions(snapshots, segmentKey);
+  const showSegmentFilters =
+    Boolean(segmentKey) && segmentOptions.length > 0;
+  const isValidSegmentFilter = showSegmentFilters
+    ? segmentOptions.some((option) => {
+        return option.id === segmentFilter;
+      })
+    : false;
+  const activeGroupFilter =
+    showSegmentFilters && isValidSegmentFilter ? segmentFilter : "all";
+  const { searchPlaceholder, emptyMessage, subtitle } =
+    SEGMENT_COPY[marketSegment];
 
-  const filteredByGroup =
-    !groupFilterKey || resolvedGroupFilter === "all"
+  const filteredBySegment =
+    !segmentKey || activeGroupFilter === "all"
       ? snapshots
       : snapshots.filter((asset) => {
-          return (
-            String(asset?.[groupFilterKey] || "") === resolvedGroupFilter
-          );
+          return String(asset?.[segmentKey] || "") === activeGroupFilter;
         });
 
   // Client-side filtering, plus page/global sorting and pagination.
@@ -158,49 +387,17 @@ export default function MarketExplorerPage() {
     sortDir,
     handleSort,
   } = usePaginatedTable({
-    rows: filteredByGroup,
+    rows: filteredBySegment,
     pageSize: PAGE_SIZE,
     // Simple client filter by id/symbol/name.
-    filterFn: (item, term) => {
-      return (
-        item.id?.toLowerCase().includes(term) ||
-        item.symbol?.toLowerCase().includes(term) ||
-        item.name?.toLowerCase().includes(term) ||
-        item.group?.toLowerCase().includes(term)
-      );
-    },
+    filterFn: filterMarketRows,
     compareFn: compareAssets,
     getNextSortState: nextSortState,
-    // Jump to page 1 when switching into global sort.
-    shouldResetPage: (nextState) => {
-      return nextState.mode === "global";
-    },
+    shouldResetPage: shouldResetPageOnSort,
   });
 
   // Shape expected by DataTable for showing sort icons.
   const sortState = { key: sortKey, mode: sortMode, dir: sortDir };
-
-  function renderSortIcon(key, state) {
-    if (!state || state.key !== key) return null;
-    const isDesc = state.dir === "desc";
-    // Green for desc, red for asc to mirror market gain/loss colors.
-    const iconClass = `h-3 w-3 ${isDesc ? "text-accent" : "text-danger"}`;
-
-    // Single chevrons = page sort, double chevrons = global sort.
-    if (state.mode === "global") {
-      return isDesc ? (
-        <ChevronDoubleDownIcon className={iconClass} aria-hidden="true" />
-      ) : (
-        <ChevronDoubleUpIcon className={iconClass} aria-hidden="true" />
-      );
-    }
-
-    return isDesc ? (
-      <ChevronDownIcon className={iconClass} aria-hidden="true" />
-    ) : (
-      <ChevronUpIcon className={iconClass} aria-hidden="true" />
-    );
-  }
 
   // Column definitions wire labels, sort keys, and formatters.
   const cryptoColumns = buildCryptoColumns({
@@ -217,23 +414,61 @@ export default function MarketExplorerPage() {
 
   const columns = isCryptoSegment ? cryptoColumns : nonCryptoColumns;
 
-  const handleRefresh = () => {
-    // Force refresh respects cooldown in the hook.
-    refreshNow({ force: true });
-  };
+  function renderResults() {
+    if (status !== "ready") return null;
+    if (!filteredRows.length) {
+      return <p className="text-muted">{emptyMessage}</p>;
+    }
 
-  const handleSegmentChange = (nextSegment) => {
-    setSegment(nextSegment);
-    setGroupFilter("all");
+    return (
+      <div className="space-y-3">
+        {/* Mobile uses a collapsible list; desktop uses the data table. */}
+        {isCryptoSegment ? (
+          <MarketExplorerMobileRows
+            rows={paginatedRows}
+            variant="crypto"
+            formatPrice={formatPrice}
+            percentFormatter={percentFormatter}
+            compactFormatter={compactFormatter}
+            dateFormatter={dateFormatter}
+          />
+        ) : (
+          <MarketExplorerMobileRows
+            rows={paginatedRows}
+            variant="non-crypto"
+            formatPrice={formatEquityPrice}
+            percentFormatter={percentFormatter}
+            dateFormatter={dateFormatter}
+          />
+        )}
+        <DataTable
+          columns={columns}
+          rows={paginatedRows}
+          rowKey="id"
+          onSort={handleSort}
+          sortState={sortState}
+          renderSortIcon={renderSortIcon}
+          className="hidden md:block overflow-x-visible"
+          tableClassName="w-full border-collapse text-sm"
+          headerRowClassName="border-b border-border text-left text-xs uppercase tracking-wide text-muted"
+          rowClassName="border-b border-border"
+        />
+      </div>
+    );
+  }
+
+  const handleMarketSegmentChange = (nextSegment) => {
+    setMarketSegment(nextSegment);
+    setSegmentFilter("all");
   };
 
   const handleGlobalSearchSelect = (option) => {
     if (!option) return;
     if (option.market) {
-      handleSegmentChange(option.market);
+      handleMarketSegmentChange(option.market);
     }
     if (option.group) {
-      setGroupFilter(option.group);
+      setSegmentFilter(option.group);
       setPage(1);
     }
     if (option.symbol) {
@@ -248,14 +483,20 @@ export default function MarketExplorerPage() {
   };
 
   useEffect(() => {
+    let isActive = true;
     const loadGlobalAssets = async () => {
       const assetsByMarket = await loadGlobalMarketAssets({
         quoteCurrency: DEFAULT_QUOTE_CURRENCY,
       });
-      setGlobalAssetsByMarket(assetsByMarket);
+      if (isActive) {
+        setSearchItemsBySegment(assetsByMarket);
+      }
     };
 
     loadGlobalAssets();
+    return () => {
+      isActive = false;
+    };
   }, []);
 
   return (
@@ -269,13 +510,13 @@ export default function MarketExplorerPage() {
 
         <MarketExplorerToolbar
           segments={MARKET_SEGMENTS}
-          activeSegment={segment}
-          onSegmentChange={handleSegmentChange}
-          groupFilter={resolvedGroupFilter}
-          onGroupFilterChange={setGroupFilter}
-          groupFilterOptions={groupFilterOptions}
-          showGroupFilters={showGroupFilters}
-          searchItemsByMarket={globalAssetsByMarket}
+          activeSegment={marketSegment}
+          onSegmentChange={handleMarketSegmentChange}
+          segmentFilter={activeGroupFilter}
+          onSegmentFilterChange={setSegmentFilter}
+          segmentOptions={segmentOptions}
+          showSegmentFilters={showSegmentFilters}
+          searchItemsBySegment={searchItemsBySegment}
           onSearchSelect={handleGlobalSearchSelect}
           onSearchQueryChange={handleGlobalSearchQueryChange}
           searchPlaceholder={searchPlaceholder}
@@ -284,14 +525,6 @@ export default function MarketExplorerPage() {
           totalCount={filteredRows.length}
           pageSize={PAGE_SIZE}
           onPageChange={setPage}
-          isCrypto={isCryptoSegment}
-          currency={currency}
-          supportedCurrencies={SUPPORTED_QUOTE_CURRENCIES}
-          onCurrencyChange={setCurrency}
-          onRefresh={handleRefresh}
-          isRefreshing={isRefreshing}
-          refreshNotice={refreshNotice}
-          refreshError={refreshError}
         />
 
         {status === "loading" ? (
@@ -300,52 +533,8 @@ export default function MarketExplorerPage() {
         {status === "error" ? (
           <p className="text-sm text-danger">{error}</p>
         ) : null}
+        {renderResults()}
 
-        {status === "ready" ? (
-          filteredRows.length ? (
-            <div className="space-y-3">
-              {/* Mobile uses a collapsible list; desktop uses the data table. */}
-              {isCryptoSegment ? (
-                <MarketExplorerMobileList
-                  rows={paginatedRows}
-                  formatPrice={formatPrice}
-                  percentFormatter={percentFormatter}
-                  compactFormatter={compactFormatter}
-                  dateFormatter={dateFormatter}
-                />
-              ) : (
-                <MarketExplorerEquityMobileList
-                  rows={paginatedRows}
-                  formatPrice={formatEquityPrice}
-                  percentFormatter={percentFormatter}
-                  dateFormatter={dateFormatter}
-                />
-              )}
-              <DataTable
-                columns={columns}
-                rows={paginatedRows}
-                rowKey="id"
-                onSort={handleSort}
-                sortState={sortState}
-                renderSortIcon={renderSortIcon}
-                className="hidden md:block overflow-x-visible"
-                tableClassName="w-full border-collapse text-sm"
-                headerRowClassName="border-b border-border text-left text-xs uppercase tracking-wide text-muted"
-                rowClassName="border-b border-border"
-              />
-            </div>
-          ) : (
-            <p className="text-muted">{emptyMessage}</p>
-          )
-        ) : null}
-
-        <TablePagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalCount={filteredRows.length}
-          pageSize={PAGE_SIZE}
-          onPageChange={setPage}
-        />
       </section>
     </PageLayout>
   );

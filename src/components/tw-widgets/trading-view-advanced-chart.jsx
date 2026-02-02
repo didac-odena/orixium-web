@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useTheme } from "../../../contexts";
+import { useTheme } from "../../contexts";
 
 const WIDGET_SCRIPT_SRC =
   "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";

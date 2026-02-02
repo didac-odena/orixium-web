@@ -1,4 +1,0 @@
-export { default as TakeProfitPanel } from "./new-trade/take-profit-panel";
-export { default as StopLossPanel } from "./new-trade/stop-loss-panel";
-export { default as TradeConfirmModal } from "./new-trade/trade-confirm-modal";
-export { default as AdvertiseModal } from "./new-trade/advertise-modal";
