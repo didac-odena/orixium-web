@@ -1,10 +1,16 @@
 export async function initDevMocks() {
-  if (!import.meta.env.DEV) return;
+  const shouldEnableMocks =
+    import.meta.env.DEV || String(import.meta.env.VITE_ENABLE_MOCKS || "") === "true";
+
+  if (!shouldEnableMocks) return;
 
   // Lazy-load MSW only in dev to keep prod bundles clean.
   const { worker } = await import("../mocks/browser.js");
 
   await worker.start({
+    serviceWorker: {
+      url: `${import.meta.env.BASE_URL}mockServiceWorker.js`,
+    },
     onUnhandledRequest(request, print) {
       const url = new URL(request.url);
 

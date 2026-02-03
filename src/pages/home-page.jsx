@@ -9,6 +9,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { PageLayout } from "../components/layout";
 import { PageHeader } from "../components/ui";
+import logoMarkLight from "../assets/brand/orixium-logo-mark-colored.svg";
+import logoMarkDark from "../assets/brand/orixium-logo-mark-colored-dark.svg";
 
 const DATA_FLOW_STEPS = [
   {
@@ -85,13 +87,13 @@ export default function HomePage() {
         className="pointer-events-none fixed inset-0 z-0 home-glow-secondary"
       />
       <img
-        src="/src/assets/brand/orixium-logo-mark-colored.svg"
+        src={logoMarkLight}
         alt=""
         className="pointer-events-none fixed right-0 top-0 block h-full translate-y-1/4 translate-x-1/4 w-2/3 object-contain opacity-20 z-0 dark:hidden"
         aria-hidden="true"
       />
       <img
-        src="/src/assets/brand/orixium-logo-mark-colored-dark.svg"
+        src={logoMarkDark}
         alt=""
         className="pointer-events-none fixed right-0 top-0 hidden translate-y-1/4 translate-x-1/4 h-full w-2/3 object-contain opacity-20 z-0 dark:block"
         aria-hidden="true"

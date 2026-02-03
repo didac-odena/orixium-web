@@ -4,6 +4,8 @@ import { useAuth } from "../../contexts/auth/auth-context";
 import { HeaderDropdown, ThemeToggle } from "../ui";
 import NotificationsMenu from "./notifications-menu";
 import { Bars3Icon, PowerIcon } from "@heroicons/react/24/outline";
+import logoMarkLight from "../../assets/brand/orixium-logo-mark-colored.svg";
+import logoMarkDark from "../../assets/brand/orixium-logo-mark-colored-dark.svg";
 
 const NAV_PUBLIC = [];
 
@@ -84,12 +86,12 @@ export default function Header() {
             <Link to="/" className="text-2xl font-semibold">
               <span className="inline-flex p-2 items-center gap-2">
                 <img
-                  src="/src/assets/brand/orixium-logo-mark-colored.svg"
+                  src={logoMarkLight}
                   alt="Orixium"
                   className="h-10 w-auto dark:hidden"
                 />
                 <img
-                  src="/src/assets/brand/orixium-logo-mark-colored-dark.svg"
+                  src={logoMarkDark}
                   alt="Orixium"
                   className="hidden h-10 w-auto dark:block"
                 />
