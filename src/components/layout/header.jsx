@@ -211,12 +211,9 @@ export default function Header() {
               <div className="flex items-center gap-1">
                 <NotificationsMenu isActive={isAuthenticated} />
                 <ThemeToggle />
-                <HeaderDropdown
-                  label={userLabel}
-                  align="right"
-                  wrapperClassName="h-16 flex items-center"
-                  buttonClassName="cursor-pointer h-16 flex items-center px-1 text-sm text-ink hover:text-accent"
-                ></HeaderDropdown>
+                <span className="h-16 flex items-center px-1 text-sm text-ink">
+                  {userLabel}
+                </span>
                 <button
                   type="button"
                   onClick={handleLogout}
