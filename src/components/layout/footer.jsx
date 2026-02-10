@@ -1,6 +1,6 @@
 export default function Footer() {
   const githubUrl = "https://github.com/didac-odena";
-  const linkedinUrl = "https://es.linkedin.com/in/d%C3%ADdac-%C3%B2dena";
+  const linkedinUrl = "https://es.linkedin.com/in/d%C3%ADdac-%C3%B2dena-54635b157";
 
   return (
     <footer className="w-full border-t z-15 border-border bg-slate-100 text-ink">
