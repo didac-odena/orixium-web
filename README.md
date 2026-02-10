@@ -1,5 +1,5 @@
 # Orixium Web
-[LIVE DEMO](https://orixium-web.netlify.app)
+[LIVE DEMO](https://fintech-react-web.netlify.app)
 
 **React UI**  
 Ironhack Bootcamp · Frontend Project
